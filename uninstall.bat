@@ -26,6 +26,13 @@ if exist "!TARGET_DIR!\reframework\autorun\re8_aspect_ratio_fix.lua" (
     echo [*] Eliminado script de aspect ratio fix
 )
 
+if exist "!TARGET_DIR!\re8_aspect_ratio_fix.json" (
+    del /f /q "!TARGET_DIR!\re8_aspect_ratio_fix.json" >nul 2>&1
+)
+if exist "!TARGET_DIR!\reframework\data\re8_aspect_ratio_fix.json" (
+    del /f /q "!TARGET_DIR!\reframework\data\re8_aspect_ratio_fix.json" >nul 2>&1
+)
+
 echo.
 echo [EXITO] Desinstalacion completada.
 pause

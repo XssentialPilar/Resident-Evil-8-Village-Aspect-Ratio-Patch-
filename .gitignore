@@ -1,5 +1,8 @@
 # Build and temp directories
 staging/
+staging_v120/
+reframework_src/
+REFramework-1.5.9.1/
 scratch/
 build*/
 *.tmp

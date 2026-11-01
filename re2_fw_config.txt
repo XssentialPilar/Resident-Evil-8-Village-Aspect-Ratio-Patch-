@@ -1,0 +1,9 @@
+Graphics_UltrawideFix=true
+Graphics_UltrawideCustomFOV=false
+Graphics_UltrawideFOVMultiplier_V2=1.000000
+Graphics_UltrawideFixVerticalFOV_V2=false
+Graphics_Ultrawide16x10Mode=false
+Graphics_UltrawideConstrainUI=false
+Graphics_ForceRenderResToWindow=false
+REFrameworkConfig_DrawCursorWithMenuOpen=false
+REFrameworkConfig_FontSize=16

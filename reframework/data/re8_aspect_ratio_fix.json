@@ -1,14 +1,7 @@
 {
-  "enabled": true,
-  "remove_black_bars": true,
-  "sync_cursor": true,
-  "auto_align_viewport": true,
-  "fov_adjustment": true,
-  "constrain_hud_16_9": false,
-  "preset": 1,
-  "cursor_offset_x": 0.0,
-  "cursor_offset_y": 0.0,
-  "cursor_scale_x": 1.0,
-  "cursor_scale_y": 1.0,
-  "show_diagnostics": false
+    "enabled": true,
+    "remove_black_bars": true,
+    "sync_borderless_size": true,
+    "suppress_black_bar_elements": true,
+    "show_diagnostics": false
 }
