@@ -18,19 +18,20 @@ Parche individual y optimizado para **Resident Evil 8: Village** en PC. Diseñad
    - Sin estiramiento ni deformación anamórfica de la perspectiva.
 
 2. **Supresión del Cursor Interno y Restauración del Cursor Nativo de Windows (1:1):**
-   - **Cursor interno suprimido:** El cursor propio de RE Engine (el puntero negro con borde blanco que sufría de desface y desfase fantasma al eliminar las barras negras) ha sido **anulado y suprimido permanentemente**.
+   - **Cursor interno suprimido:** El cursor propio de RE Engine (el puntero negro con borde blanco que sufría de desfase fantasma al remover las barras negras) ha sido **anulado y suprimido permanentemente a nivel de bajo nivel en C++**.
    - **Cursor de Windows 1:1 en Menús:** Se activa de forma exclusiva el puntero blanco estándar de hardware de Windows (`IDC_ARROW`), sincronizado a nivel de píxel exacto con los botones de la interfaz.
    - **Activación Inteligente Solo en Menús:** El cursor de Windows se muestra **únicamente** cuando es necesario:
+     - Pantalla de inicio / Menú principal ("VILLAGE").
      - Menú de pausa (`Esc`).
      - Inventario de Ethan (`Tab`).
+     - Máquina de escribir / Guardar y Cargar partida.
      - Tienda del Duque (Mercader).
      - Mapa (`M`).
      - Menús de configuración, controles y gráficos.
-     - Pantalla de inicio / Menú principal.
-   - **Ocultamiento Total en Gameplay:** Durante la exploración y combate en primera persona, el cursor de Windows permanece completamente oculto para no interferir con la mira.
+   - **Ocultamiento Total en Gameplay:** Durante la exploración, movimiento y combate en primera persona, el cursor de Windows permanece completamente oculto para no interferir con la mira.
 
 3. **Menú de Configuración Limpio (Aspect Ratio Config Menu):**
-   - El menú de ImGUI (`Insert`) ha sido renombrado a **Aspect Ratio Config Menu (16:10 Verified)**, ocultando pestañas y opciones innecesarias de desarrollo para que el usuario tenga acceso directo a lo esencial.
+   - El menú de ImGUI (`Insert`) se titula exactamente **Aspect Ratio Config Menu**, con una interfaz despejada y limpia, ocultando pestañas y opciones innecesarias de desarrollo.
 
 ---
 
@@ -47,7 +48,7 @@ Para obtener la mejor experiencia visual en 16:10 a 1920x1200p sin deformación,
 | **`Ultrawide: FOV Multiplier`** | **`1.715`** | **Multiplicador óptimo para 16:10 a 1920x1200p.** Proporciona el campo de visión perfecto y natural. |
 
 > [!TIP]
-> El parche viene preconfigurado de forma predeterminada con estos valores exactos en C++ para que no tengas que ajustarlos manualmente.
+> El parche viene preconfigurado de fábrica en C++ con estos valores exactos para que no tengas que ajustarlos manualmente.
 
 ---
 
@@ -70,7 +71,7 @@ Inicia Resident Evil 8 Village. ¡Disfruta de tu pantalla 16:10 a 1920x1200p con
 
 ## ⚙️ Controles y Teclas
 
-- **`Insert`:** Abre/cierra el **Aspect Ratio Config Menu (16:10 Verified)**.
+- **`Insert`:** Abre/cierra el **Aspect Ratio Config Menu**.
 - **`Tab`:** Abre el inventario de Ethan (el cursor de Windows se hace visible automáticamente).
 - **`Esc`:** Abre el menú de pausa / opciones (el cursor de Windows se hace visible automáticamente).
 - **`M`:** Abre el mapa (el cursor de Windows se hace visible automáticamente).
@@ -79,5 +80,4 @@ Inicia Resident Evil 8 Village. ¡Disfruta de tu pantalla 16:10 a 1920x1200p con
 
 ## 🗑️ Desinstalación
 
-Para restaurar los archivos originales del juego:
-- Ejecuta **`uninstall.bat`** o elimina manualmente `dinput8.dll` y la carpeta `reframework/` de la carpeta del juego.
+Ejecuta **`uninstall.bat`** o simplemente elimina `dinput8.dll` y la carpeta `reframework/` del directorio de tu juego.
