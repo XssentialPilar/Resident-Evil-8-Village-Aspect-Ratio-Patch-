@@ -9,7 +9,7 @@
 
 An independent patch for **Resident Evil 8: Village on Windows PC**, focused on improving the game's presentation on **16:10 displays** and addressing the mouse cursor issues associated with removing the original black bars.
 
-**v1.1.0 is the Latest Release, not a Pre-Release.** The aspect ratio fix and native cursor integration have made progress, but one cursor issue remains.
+**v1.1.0 is the Latest Release.** The aspect ratio fix and native cursor integration have made progress, but one cursor issue remains.
 
 > [!IMPORTANT]
 > **Known issue in v1.1.0 — Cursor behavior during gameplay:** The native Windows cursor is now visible and usable in menus. It also hides during gameplay, but **it may take some time to disappear after leaving a menu and can occasionally reappear unexpectedly while playing**. The cursor should be visible only in the game's menus and other interactive interfaces. **I am actively working on a fix.**
