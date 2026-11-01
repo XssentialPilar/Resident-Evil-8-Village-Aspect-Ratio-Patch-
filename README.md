@@ -1,78 +1,64 @@
-# Resident Evil 8: Village - Aspect Ratio & Ghost Cursor Fix (16:10 / Ultrawide)
+# Resident Evil 8: Village - Aspect Ratio & Windows Native Cursor Override (16:10 / Ultrawide)
 
 ![Resident Evil Village](https://img.shields.io/badge/Game-Resident%20Evil%20Village%20(RE8)-red.svg)
-![Version](https://img.shields.io/badge/Release-v1.3.0-blue.svg)
+![Version](https://img.shields.io/badge/Release-v1.4.0-blue.svg)
 ![Platform](https://img.shields.io/badge/Platform-PC%20Windows%20(DirectX%2012)-green.svg)
 ![Aspect Ratios](https://img.shields.io/badge/Aspect%20Ratio-16:10%20%7C%2021:9%20%7C%2032:9%20%7C%20Any-orange.svg)
 ![License](https://img.shields.io/badge/License-MIT-purple.svg)
 
-Parche individual y completo para **Resident Evil 8: Village** en PC que elimina definitivamente las barras negras (letterboxing/pillarboxing) en resoluciones **16:10** *(ej. 1920x1200, 2560x1600, 2880x1800)*, **Ultrawide** *(21:9, 32:9)* y pantallas arbitrarias, solucionando de raíz el infame bug del **cursor fantasma / desface de doble cursor** (GitHub Issue #1617) mediante **hooks e interceptores de bajo nivel en C++**, y **preservando el campo visual (FOV) original del juego** de forma 100% natural (Hor+).
+Parche individual y completo para **Resident Evil 8: Village** en PC que elimina definitivamente las barras negras (letterboxing/pillarboxing) en resoluciones **16:10** *(ej. 1920x1200, 2560x1600, 2880x1800)*, **Ultrawide** *(21:9, 32:9)* y pantallas arbitrarias.
+
+Esta versión **elimina de forma permanente el cursor interno defectuoso del juego** (el cursor negro con borde blanco) y utiliza **exclusiva y directamente el cursor de hardware de Windows** (puntero blanco 1:1), activándolo únicamente en menús, inventario y pantallas de configuración, manteniéndolo oculto durante el gameplay. Además, rediseña el menú ImGUI renombrándolo a **Aspect Ratio Config Menu** y ocultando opciones innecesarias de desarrollo.
 
 ---
 
 ## 📌 El Problema y Causa Raíz / Root Cause Analysis
 
 ### 1. Barras negras forzadas (Letterbox / Pillarbox)
-Resident Evil Village fue programado internamente bloqueando la relación de aspecto a 16:9. En monitores o portátiles 16:10 (como 1920x1200 o 2880x1800), el juego añade franjas negras arriba y abajo, reduciendo el área visible y desperdiciando pantalla.
+Resident Evil Village fue programado bloqueando la relación de aspecto a 16:9. En pantallas 16:10 (como 1920x1200 o 2880x1800), el juego fuerza franjas negras arriba y abajo.
 
-### 2. El Bug del "Cursor Fantasma" y Doble Puntero (Issue #1617)
-Al intentar forzar la eliminación de las barras con mods estándar o el Aspect Ratio fix básico de REFramework:
-- **Doble Cursor:** Aparece el puntero blanco de Windows superpuesto junto al cursor del juego.
-- **Desface de Puntero (Offset):** El cursor interno del juego (flecha negra con contorno blanco) se desplaza verticalmente (60px en 1200p) respecto a la posición real del ratón.
-- **Fallos en Clics e Inventario:** El jugador intenta hacer clic sobre un objeto del inventario, mapa o botón del menú guiándose por la imagen del cursor interno, pero los clics se registran en una coordenada desincronizada (donde realmente está el puntero de Windows oculto), haciendo imposible una navegación precisa.
-
-### 3. Causa Raíz a Nivel de Motor RE Engine
-En RE Engine existen 4 capas distintas que intervienen en la posición del cursor:
-1. **Capa Win32 Client (`via.Window`):** Campo `cursor_pos` (offset `0x78`).
-2. **Capa Viewport (`via.SceneView`):** Campos `size` (`0x30`), `custom_display_size` (`0x38`), `present_rect` (`0x40`) y `display_type` (`0x64`). Cuando el juego opera en modo letterbox, calcula la coordenada del ratón relativa a `present_rect` sustrayendo el offset de las barras negras ($Y_{offset} = (1200 - 1080) / 2 = 60\text{ px}$).
-3. **Capa HID (`via.hid.MouseDevice`):** Métodos internos `getViewCursorPosition`, `getPresentRectCursorPosition` y `get_CursorPos`.
-4. **Capa GUI Canvas (`via.gui.View`):** Método `getPhysicalToVirtualMousePos` que traduce la coordenada física de pantalla a la coordenada virtual del canvas UI del inventario y menús.
-
-Si el juego no actualiza todas estas capas simultáneamente, el cursor gráfico del juego y el punto de impacto de clic se desincronizan.
+### 2. El Bug del Cursor Fantasma y Desface (Issue #1617)
+Al remover las barras negras, el juego continuaba calculando la posición gráfica del cursor interno restando el margen de letterboxing ($Y_{offset} = (1200 - 1080) / 2 = 60\text{ px}$). Esto provocaba que el sprite negro del cursor interno se desplazara hacia arriba respecto al punto de impacto real, mientras que el ratón real de Windows (el que realmente registra los clics y colisiones) permanecía invisible.
 
 ---
 
-## 💡 Solución de Bajo Nivel C++ en v1.3.0 / The Low-Level Native Override
+## 💡 Nueva Solución de Bajo Nivel C++ en v1.4.0 / The Solution
 
-1. **Hooks Nativos de C++ en Métodos Críticos de Entrada (vía MinHook / SafetyHook):**
-   - Interceptación directa en `via.hid.MouseDevice::getViewCursorPosition` y `getPresentRectCursorPosition`: Devuelven de inmediato la posición física del cliente Win32 (`GetCursorPos` + `ScreenToClient`), neutralizando el cálculo de sustracción de barras negras.
-   - Interceptación en `via.gui.View::getPhysicalToVirtualMousePos`: Garantiza que el canvas del inventario, mapa y menús reciba exactamente la coordenada 1:1 del ratón de Windows.
-   - Interceptación en `via.hid.MouseDevice::get_CursorPos`: Sobrescribe la lectura de bajo nivel del cursor HID.
+1. **Eliminación Total y Permanente del Cursor Interno del Juego:**
+   - **`Graphics::on_pre_gui_draw_element`:** Intercepta y cancela incondicionalmente el renderizado de cualquier elemento o GameObject de cursor interno (`GUIMouseCursor`, `MouseCursor`, `cursor_select`, `cursor_highlight`, `DewormCursor`, etc.), así como componentes de tipo `app.GUIMouseCursor`.
+   - **`via.gui.GUI::set_UseVirtualMouse(false)`:** Desactiva permanentemente en el motor RE Engine el renderizado de cualquier ratón virtual por software.
 
-2. **Forzado de Memoria en Cada Frame (`on_frame` & `on_view_get_size`):**
-   - Inyección continua en `via.Window`: `cursor_pos` = `pt.x, pt.y` exacto; `borderless_size` = `width, height` de la ventana.
-   - Forzado de `via.SceneView`: `size` y `custom_display_size` = tamaño total de ventana; `present_rect` = `(0, 0, width, height)`; `display_type` = `Fit` (0).
-   - `on_view_get_size`: Devuelve incondicionalmente el ancho y alto completo de la ventana para RE8.
+2. **Control Inteligente del Cursor de Windows (1:1 Hardware):**
+   - **En Menús e Inventario:** Cuando se abre el menú de pausa (`Esc`), el inventario de Ethan (`Tab`), el mapa (`M`), la tienda o los ajustes de opciones, el juego solicita el cursor. El parche detecta este estado a través de los hooks de `via.hid.MouseDevice::set_ShowCursor`, `app.HIDManager::requestShowMouseCursor` y el estado del motor, forzando la visualización del puntero nativo de Windows (`ShowCursor(TRUE)` + `SetCursor(LoadCursor(NULL, IDC_ARROW))`).
+   - **Durante el Gameplay:** Fuera de los menús (mientras caminas, apuntas o exploras en primera persona), el cursor de Windows se oculta automáticamente (`ShowCursor(FALSE)` + `SetCursor(nullptr)`), garantizando una inmersión completa y sin distracciones.
+   - **Manejador de Mensajes Win32 (`WM_SETCURSOR`):** Asegura que el cursor se mantenga estable sin parpadeos ni interferencias del motor.
 
-3. **FOV 100% Natural y sin Alterar (Hor+):**
-   - En `Graphics::set_ultrawide_fov`, se exime a 16:10 de cualquier recálculo o multiplicador de FOV vertical.
-   - Se mantiene el FOV horizontal nativo exacto que el usuario configuró en las opciones del juego, mostrando limpiamente la escena donde estaban las franjas negras sin alejamientos ni efecto ojo de pez.
+3. **Menú ImGUI Simplificado y Renombrado:**
+   - La ventana principal de ImGUI ahora se titula **Aspect Ratio Config Menu**.
+   - Se ocultaron módulos irrelevantes para usuarios estándar (VR, RE8VR, FreeCam, SceneMods, LooseFileLoader, etc.), dejando accesibles únicamente las opciones esenciales de **Aspect Ratio/FOV**, **Configuración** y el **Script de supervisión**.
 
-4. **Eliminación Total del Cursor Blanco Duplicado:**
-   - Desactivación forzada en configuración de `REFrameworkConfig_DrawCursorWithMenuOpen`, garantizando un cursor único y perfectamente alineado.
-
-5. **Script Supervisor Lua de Diagnóstico (`re8_aspect_ratio_fix.lua`):**
-   - Panel en tiempo real dentro del menú de REFramework (`Insert`) que monitoriza deltas en px, estado del viewport y dimensiones.
+4. **FOV 100% Natural (Hor+ Vanilla):**
+   - El campo de visión horizontal se preserva intacto sin multiplicadores deformantes, extendiendo la escena 3D verticalmente sobre las barras negras.
 
 ---
 
 ## 📦 Contenido del Paquete
 
-- `dinput8.dll` - Módulo nativo compilado con los hooks C++ de baja latencia e inyección en memoria.
-- `re2_fw_config.txt` - Configuración precalibrada (FOV nativo 1.0, barras eliminadas, sin doble cursor).
-- `reframework/autorun/re8_aspect_ratio_fix.lua` - Script supervisor de diagnóstico en tiempo real.
-- `reframework/data/re8_aspect_ratio_fix.json` - Configuración predeterminada del script supervisor.
-- `install.bat` - Instalador automático con detección de ruta de Resident Evil Village.
+- `dinput8.dll` - Módulo principal compilado nativamente en C++ con la arquitectura de cursor de hardware y supresión de cursor interno.
+- `re2_fw_config.txt` - Configuración precalibrada (FOV 1.0 neutro, sin barras negras, sin cursor duplicado).
+- `reframework/autorun/re8_aspect_ratio_fix.lua` - Script supervisor con soporte de supresión y diagnósticos.
+- `reframework/data/re8_aspect_ratio_fix.json` - Configuración persistente del script.
+- `install.bat` - Instalador automático con autodetección de Resident Evil Village en Steam.
 - `uninstall.bat` - Desinstalador limpio para restaurar el juego a su estado original.
 
 ---
 
 ## 🚀 Instalación
 
-1. Descarga el archivo `.zip` del release más reciente (`Resident-Evil-8-Village-Aspect-Ratio-Patch-v1.3.0.zip`).
+1. Descarga el archivo `.zip` del release más reciente (`Resident-Evil-8-Village-Aspect-Ratio-Patch-v1.4.0.zip`).
 2. Extrae el contenido en cualquier carpeta.
 3. Ejecuta `install.bat` (detectará automáticamente la carpeta de instalación de Steam del juego y copiará los archivos).
-4. Inicia Resident Evil 8 Village. ¡Disfruta de tu pantalla 16:10 o Ultrawide sin barras negras, con FOV natural y con el cursor 1:1 perfectamente alineado!
+4. Inicia Resident Evil 8 Village. ¡Disfruta de tu pantalla 16:10 o Ultrawide con el puntero nativo de Windows perfectamente sincronizado en menús y sin cursor fantasma!
 
 ---
 

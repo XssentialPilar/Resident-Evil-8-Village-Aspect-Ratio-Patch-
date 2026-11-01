@@ -3,7 +3,7 @@ setlocal enabledelayedexpansion
 
 echo =====================================================================
 echo  Resident Evil Village (RE8) - Aspect Ratio & Cursor Patch Installer
-echo  Version v1.3.0 (Low-Level C++ Override + Viewport Synchronization)
+echo  Version v1.4.0 (Permanent In-Game Cursor Removal + Windows Mouse)
 echo =====================================================================
 echo.
 
@@ -57,10 +57,11 @@ if exist "%~dp0reframework\autorun\utility" (
 
 echo =====================================================================
 echo  [EXITO] Parche instalado correctamente.
-echo  - Modulo nativo dinput8.dll (con hooks de bajo nivel C++ para cursor RE8)
-echo  - Aspect ratio corregido: barras negras eliminadas en 16:10 / Ultrawide
-echo  - FOV natural Hor+: el area de juego se expande sin alterar el FOV
-echo  - Sincronizacion de cursor 1:1 forzada en memoria: eliminacion total del cursor fantasma
+echo  - Cursor interno del juego RE8 ELIMINADO permanentemente (sin desface)
+echo  - Cursor blanco nativo de Windows 1:1 activo solo en menus e inventario
+echo  - Cursor completamente oculto durante el gameplay fuera de menus
+echo  - Menu ImGUI redisenado y renombrado a 'Aspect Ratio Config Menu'
+echo  - Aspect ratio 16:10 / Ultrawide sin barras negras y con FOV natural
 echo =====================================================================
 echo.
 pause

@@ -1,11 +1,11 @@
 -- ==============================================================================
 -- Resident Evil 8 Village: Standalone Aspect Ratio & Cursor Synchronization Fix
--- Version: v1.3.0 (Low-Level C++ Engine Override + Viewport Synchronization)
+-- Version: v1.4.0 (Permanent In-Game Cursor Removal + Windows Hardware Cursor Override)
 -- Supports: 16:10, 21:9, 32:9, 4:3, and arbitrary custom resolutions
 -- ==============================================================================
 
 local SCRIPT_NAME = "RE8 Aspect Ratio & Cursor Fix"
-local SCRIPT_VERSION = "v1.3.0"
+local SCRIPT_VERSION = "v1.4.0"
 local CONFIG_FILE = "re8_aspect_ratio_fix.json"
 
 log.info(string.format("[%s] Initializing %s...", SCRIPT_NAME, SCRIPT_VERSION))
@@ -123,10 +123,22 @@ re.on_pre_gui_draw_element(function(gui_element)
 
     local name = game_object:call("get_Name")
     if name then
+        -- Suppress black bars (LetterBox / PillarBox)
         if name == "GUI_PillarBox" or name == "GUIEventPillar" or
            name == "AcLetterBox" or name == "LetterBox" or
            name == "LetterBoxBehavior" or name == "BlackFadeLetterBox" or
-           name == "ui0211" then
+           name == "ui0211" or name == "Gui_ui0211" then
+            game_object:call("set_Draw", false)
+            return false
+        end
+
+        -- PERMANENTLY SUPPRESS IN-GAME CURSOR SPRITES
+        if name == "GUIMouseCursor" or name:find("MouseCursor") or name:find("mouse_cursor") or
+           name:find("MousePointer") or name:find("ui_cursor") or name:find("gui_cursor") or
+           name == "Cursor" or name == "cursor" or name == "cursor_select" or
+           name == "cursor_highlight" or name == "cursor_L" or name == "cursor_R" or
+           name == "cursor_bg" or name == "cursor_long" or name == "DewormCursor" or
+           name == "DewormCursorGUI" then
             game_object:call("set_Draw", false)
             return false
         end
@@ -164,7 +176,8 @@ re.on_draw_ui(function()
             if is_16_10 then
                 ImGui.text_colored("Resolution Mode: 16:10 Native (1200p / 1600p / 1800p)", 0.3, 0.8, 1.0, 1.0)
                 ImGui.text_colored("FOV Status: Hor+ Natural Expansion (Vanilla 16:9 FOV Preserved)", 0.2, 0.9, 0.4, 1.0)
-                ImGui.text_colored("Cursor Status: 1:1 Hardware Synchronized (No Offset / No Ghost Cursor)", 0.2, 0.9, 0.4, 1.0)
+                ImGui.text_colored("Game Cursor: PERMANENTLY DISABLED (No In-Game Software Cursor)", 0.2, 0.9, 0.4, 1.0)
+                ImGui.text_colored("Windows Cursor: ACTIVE (Menus, Inventory & UI Only)", 0.3, 0.9, 1.0, 1.0)
             elseif is_ultrawide then
                 ImGui.text_colored("Resolution Mode: Ultrawide (21:9 / 32:9)", 0.3, 0.8, 1.0, 1.0)
                 ImGui.text_colored("Cursor Status: 1:1 Hardware Synchronized", 0.2, 0.9, 0.4, 1.0)
