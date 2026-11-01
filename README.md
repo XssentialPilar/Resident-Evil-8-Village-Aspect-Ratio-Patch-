@@ -12,7 +12,7 @@ Esta versión **elimina de forma permanente el cursor interno defectuoso del jue
 
 ---
 
-## 📌 El Problema y Causa Raíz / Root Cause Analysis
+## El Problema y Causa Raíz / Root Cause Analysis
 
 ### 1. Barras negras forzadas (Letterbox / Pillarbox)
 Resident Evil Village fue programado bloqueando la relación de aspecto a 16:9. En pantallas 16:10 (como 1920x1200 o 2880x1800), el juego fuerza franjas negras arriba y abajo.
@@ -22,7 +22,7 @@ Al remover las barras negras, el juego continuaba calculando la posición gráfi
 
 ---
 
-## 💡 Nueva Solución de Bajo Nivel C++ en v1.4.0 / The Solution
+## Nueva Solución de Bajo Nivel C++ en v1.4.0 / The Solution
 
 1. **Eliminación Total y Permanente del Cursor Interno del Juego:**
    - **`Graphics::on_pre_gui_draw_element`:** Intercepta y cancela incondicionalmente el renderizado de cualquier elemento o GameObject de cursor interno (`GUIMouseCursor`, `MouseCursor`, `cursor_select`, `cursor_highlight`, `DewormCursor`, etc.), así como componentes de tipo `app.GUIMouseCursor`.
@@ -42,7 +42,7 @@ Al remover las barras negras, el juego continuaba calculando la posición gráfi
 
 ---
 
-## 📦 Contenido del Paquete
+## Contenido del Paquete
 
 - `dinput8.dll` - Módulo principal compilado nativamente en C++ con la arquitectura de cursor de hardware y supresión de cursor interno.
 - `re2_fw_config.txt` - Configuración precalibrada (FOV 1.0 neutro, sin barras negras, sin cursor duplicado).
@@ -53,7 +53,7 @@ Al remover las barras negras, el juego continuaba calculando la posición gráfi
 
 ---
 
-## 🚀 Instalación
+## Instalación
 
 1. Descarga el archivo `.zip` del release más reciente (`Resident-Evil-8-Village-Aspect-Ratio-Patch-v1.4.0.zip`).
 2. Extrae el contenido en cualquier carpeta.
