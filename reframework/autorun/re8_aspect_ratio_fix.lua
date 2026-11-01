@@ -1,11 +1,11 @@
 -- ==============================================================================
 -- Resident Evil 8 Village: Standalone Aspect Ratio & Cursor Synchronization Fix
--- Version: v1.2.0 (Release)
+-- Version: v1.3.0 (Low-Level C++ Engine Override + Viewport Synchronization)
 -- Supports: 16:10, 21:9, 32:9, 4:3, and arbitrary custom resolutions
 -- ==============================================================================
 
 local SCRIPT_NAME = "RE8 Aspect Ratio & Cursor Fix"
-local SCRIPT_VERSION = "v1.2.0"
+local SCRIPT_VERSION = "v1.3.0"
 local CONFIG_FILE = "re8_aspect_ratio_fix.json"
 
 log.info(string.format("[%s] Initializing %s...", SCRIPT_NAME, SCRIPT_VERSION))

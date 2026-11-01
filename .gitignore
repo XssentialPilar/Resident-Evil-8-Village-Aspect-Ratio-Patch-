@@ -11,3 +11,5 @@ Installed from GitHub*/
 
 # Keep large zip packages out of git history
 *.zip
+*.jpg
+.vscode/
