@@ -40,8 +40,15 @@ if exist "%~dp0reframework_revision.txt" copy /y "%~dp0reframework_revision.txt"
 if not exist "!TARGET_DIR!\reframework\autorun\utility" (
     mkdir "!TARGET_DIR!\reframework\autorun\utility" >nul 2>&1
 )
+if not exist "!TARGET_DIR!\reframework\data" (
+    mkdir "!TARGET_DIR!\reframework\data" >nul 2>&1
+)
 
 copy /y "%~dp0reframework\autorun\re8_aspect_ratio_fix.lua" "!TARGET_DIR!\reframework\autorun\re8_aspect_ratio_fix.lua" >nul
+if exist "%~dp0re8_aspect_ratio_fix.json" (
+    copy /y "%~dp0re8_aspect_ratio_fix.json" "!TARGET_DIR!\re8_aspect_ratio_fix.json" >nul
+    copy /y "%~dp0re8_aspect_ratio_fix.json" "!TARGET_DIR!\reframework\data\re8_aspect_ratio_fix.json" >nul
+)
 xcopy /y /s "%~dp0reframework\autorun\utility\*" "!TARGET_DIR!\reframework\autorun\utility\" >nul
 
 echo =====================================================================
