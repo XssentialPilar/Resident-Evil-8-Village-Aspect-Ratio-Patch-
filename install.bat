@@ -3,7 +3,7 @@ setlocal enabledelayedexpansion
 
 echo =====================================================================
 echo  Resident Evil Village (RE8) - Aspect Ratio & Cursor Patch Installer
-echo  Version v1.4.1 (Permanent In-Game Cursor Removal + Windows Mouse)
+echo  Version v1.4.2 (Permanent In-Game Cursor Removal + Windows Mouse)
 echo =====================================================================
 echo.
 

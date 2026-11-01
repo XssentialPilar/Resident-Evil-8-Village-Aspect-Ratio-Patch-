@@ -1,7 +1,7 @@
 # Resident Evil 8: Village - Aspect Ratio & Windows Native Cursor Override (16:10 / Ultrawide)
 
 ![Resident Evil Village](https://img.shields.io/badge/Game-Resident%20Evil%20Village%20(RE8)-red.svg)
-![Version](https://img.shields.io/badge/Release-v1.4.1-blue.svg)
+![Version](https://img.shields.io/badge/Release-v1.4.2-blue.svg)
 ![Platform](https://img.shields.io/badge/Platform-PC%20Windows%20(DirectX%2012)-green.svg)
 ![Aspect Ratios](https://img.shields.io/badge/Aspect%20Ratio-16:10%20%7C%2021:9%20%7C%2032:9%20%7C%20Any-orange.svg)
 ![License](https://img.shields.io/badge/License-MIT-purple.svg)
@@ -14,7 +14,7 @@ Esta versión **elimina de forma permanente el cursor interno defectuoso del jue
 ## 📦 Instalación Rápida / Quick Install
 
 ### Opción 1: Instalador Automático (Recomendado)
-1. Descarga el archivo **`Resident-Evil-8-Village-Aspect-Ratio-Patch-v1.4.1.zip`** desde la sección [Releases](https://github.com/XssentialPilar/Resident-Evil-8-Village-Aspect-Ratio-Patch-/releases).
+1. Descarga el archivo **`Resident-Evil-8-Village-Aspect-Ratio-Patch-v1.4.2.zip`** desde la sección [Releases](https://github.com/XssentialPilar/Resident-Evil-8-Village-Aspect-Ratio-Patch-/releases).
 2. Extrae el contenido en cualquier carpeta.
 3. Haz doble clic en **`install.bat`**. Detectará automáticamente la carpeta de Resident Evil Village en Steam e instalará todos los archivos necesarios.
 
