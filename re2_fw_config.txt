@@ -1,6 +1,6 @@
 Graphics_UltrawideFix=true
-Graphics_UltrawideCustomFOV=false
-Graphics_UltrawideFOVMultiplier_V2=1.000000
+Graphics_UltrawideCustomFOV=true
+Graphics_UltrawideFOVMultiplier_V2=1.715000
 Graphics_UltrawideFixVerticalFOV_V2=false
 Graphics_Ultrawide16x10Mode=false
 Graphics_UltrawideConstrainUI=false

@@ -2,8 +2,8 @@
 setlocal enabledelayedexpansion
 
 echo =====================================================================
-echo  Resident Evil Village (RE8) - Aspect Ratio & Cursor Patch Installer
-echo  Version v1.4.2 (Permanent In-Game Cursor Removal + Windows Mouse)
+echo  Resident Evil Village (RE8) - 16:10 Aspect Ratio & Cursor Patch
+echo  Version v1.1.0 (16:10 Verified + Windows Native Cursor 1:1)
 echo =====================================================================
 echo.
 
@@ -48,20 +48,18 @@ if not exist "!TARGET_DIR!\reframework\data" (
 
 copy /y "%~dp0reframework\autorun\re8_aspect_ratio_fix.lua" "!TARGET_DIR!\reframework\autorun\re8_aspect_ratio_fix.lua" >nul
 if exist "%~dp0re8_aspect_ratio_fix.json" (
-    copy /y "%~dp0re8_aspect_ratio_fix.json" "!TARGET_DIR!\re8_aspect_ratio_fix.json" >nul
     copy /y "%~dp0re8_aspect_ratio_fix.json" "!TARGET_DIR!\reframework\data\re8_aspect_ratio_fix.json" >nul
 )
-if exist "%~dp0reframework\autorun\utility" (
-    xcopy /y /s "%~dp0reframework\autorun\utility\*" "!TARGET_DIR!\reframework\autorun\utility\" >nul
-)
 
-echo =====================================================================
-echo  [EXITO] Parche instalado correctamente.
-echo  - Cursor interno del juego RE8 ELIMINADO permanentemente (sin desface)
-echo  - Cursor blanco nativo de Windows 1:1 activo solo en menus e inventario
-echo  - Cursor completamente oculto durante el gameplay fuera de menus
-echo  - Menu ImGUI redisenado y renombrado a 'Aspect Ratio Config Menu'
-echo  - Aspect ratio 16:10 / Ultrawide sin barras negras y con FOV natural
-echo =====================================================================
+echo [OK] Parche v1.1.0 (16:10 Demostrable) instalado correctamente.
+echo.
+echo Recuerda:
+echo  - Pulsa INSERT dentro del juego para abrir el Aspect Ratio Config Menu.
+echo  - Configuracion optima para 16:10 (1920x1200):
+echo      * Ultrawide/FOV Fix: ON
+echo      * 16:10 Black Bars: OFF
+echo      * Vertical FOV: OFF
+echo      * Override FOV: ON
+echo      * FOV Multiplier: 1.715
 echo.
 pause
