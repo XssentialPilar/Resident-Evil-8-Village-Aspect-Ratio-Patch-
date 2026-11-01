@@ -1,0 +1,12 @@
+# Build and temp directories
+staging/
+scratch/
+build*/
+*.tmp
+*.log
+
+# Keep zip packages for releases if needed or track git repo
+nightly_REFramework.zip
+RE8.zip
+REFramework-1.5.9.1.zip
+REFramework-nightly*.zip
