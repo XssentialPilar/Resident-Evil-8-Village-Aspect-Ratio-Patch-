@@ -15,7 +15,7 @@ $map = @(
     @{source=$expected;destination='reframework\plugins\RE8Display.dll'}
     @{source=(Join-Path $ProjectRoot 'config\RE8Display.ini');destination='reframework\data\RE8Display.ini'}
 )
-$support = @('install.bat','uninstall.bat','LICENSE','README.md','tools\RE8Display.Common.ps1','tools\RE8Display.Install.ps1','tools\RE8Display.Uninstall.ps1','docs\release-2.5.0.md')
+$support = @('LICENSE','README.md','tools\RE8Display.Common.ps1','tools\RE8Display.Install.ps1','tools\RE8Display.Uninstall.ps1','docs\release-2.5.0.md')
 foreach ($path in (@($map | ForEach-Object source) + @($support | ForEach-Object { Join-Path $ProjectRoot $_ }) + @((Join-Path $ProjectRoot 'licenses\REFramework-MIT.txt'),(Join-Path $ProjectRoot 'external\minhook\LICENSE.txt')))) {
     if (-not (Test-Path -LiteralPath $path -PathType Leaf)) { throw "Missing package input: $path" }
 }

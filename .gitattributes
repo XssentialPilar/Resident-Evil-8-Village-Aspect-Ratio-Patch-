@@ -1,4 +1,3 @@
 * text=auto
 licenses/** -whitespace
-*.bat text eol=crlf
 /external/reframework-sdk/** -text -whitespace
