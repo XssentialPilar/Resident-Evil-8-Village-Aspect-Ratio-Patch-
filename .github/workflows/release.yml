@@ -34,4 +34,4 @@ jobs:
         env:
           GH_TOKEN: ${{ github.token }}
         run: |
-          gh release upload $env:GITHUB_REF_NAME dist/RE8Display-2.5.0.zip dist/SHA256SUMS.txt --clobber || gh release create $env:GITHUB_REF_NAME dist/RE8Display-2.5.0.zip dist/SHA256SUMS.txt --verify-tag --title "RE8Display $($env:GITHUB_REF_NAME.TrimStart('v'))" --notes-file docs/release-notes-2.5.0.md
+          gh release view $env:GITHUB_REF_NAME || gh release create $env:GITHUB_REF_NAME dist/RE8Display-2.5.0.zip dist/SHA256SUMS.txt --verify-tag --title "RE8Display $($env:GITHUB_REF_NAME.TrimStart('v'))" --notes-file docs/release-notes-2.5.0.md
