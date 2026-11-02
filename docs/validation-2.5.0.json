@@ -1,0 +1,72 @@
+{
+  "version": "2.5.0",
+  "status": "compiled; native/package checks passed; complete game visual retest pending",
+  "binarySha256": "54B6C44D04242F705198CDA7F79FE966BE6A70A03FADCA4C5783BD26FD5C0ABF",
+  "sourceFingerprint": "9BD8CEEF91C4131BCADA3984F3F9C146F51B5A8F8668D842AE47DE75F4177E51",
+  "buildReceiptUtc": "2026-11-02T19:35:08.0785508Z",
+  "finalReceiptRefreshPending": false,
+  "fingerprintScope": "native/common, native/plugin, native/CMakeLists.txt, external/reframework-sdk and external/minhook",
+  "nativeSuitesPassed": 7,
+  "installationChecksPassed": 24,
+  "packageChecksPassed": 17,
+  "arbitraryCanvasSizes": 100000,
+  "viewportResetPolicyCyclesTested": 1000,
+  "managedSinglePromotedDoubleAbiTested": true,
+  "observedOutputDimensions": [
+    "1152x864",
+    "1920x1200",
+    "1920x1181"
+  ],
+  "runtimeAimTransitionsVerified": false,
+  "runtimeFramingVerified": false,
+  "runtimeBlackSceneRegressionVerified": false,
+  "allVisualLayoutsVerified": false,
+  "allModsVerified": false,
+  "mapInput": "native; extra dragging deferred",
+  "precedingCandidateRuntimeEvidence": {
+    "log": "artifacts/runtime/2.5.0/float-fixed-reset-loop.log",
+    "scope": "numeric ABI fixed, persistent viewport correction not yet applied",
+    "resizeEvents": 811,
+    "resizeIntervalSeconds": 151.348,
+    "intervalStartLocal": "2026-11-02 14:33:28.799",
+    "intervalEndLocal": "2026-11-02 14:36:00.147",
+    "timezone": "America/Santo_Domingo",
+    "projectionReadback1920x1200": {
+      "nativeFov": 40,
+      "nativeAspect": 1.777778,
+      "actualFov": 40,
+      "actualAspect": 1.6
+    },
+    "latestFlickerReportPrecedesPersistentViewportFix": true
+  },
+  "optionalTechnologies": {
+    "agility": {
+      "independentProbePassed": true,
+      "sdkVersion": 722,
+      "gpu": "NVIDIA GeForce RTX 5050 Laptop GPU",
+      "exitCode": 0,
+      "deviceRemovedReason": "S_OK",
+      "gameIntegration": false
+    },
+    "directStorage": {
+      "independentProbePassed": true,
+      "bytes": 1048576,
+      "crc32": "E66DF102",
+      "destination": "CPU memory",
+      "exitCode": 0,
+      "gpuDecompression": false,
+      "benchmark": false,
+      "gameIntegration": false
+    }
+  },
+  "notes": "See release-2.5.0.md and technology-integration-status.md. Unit tests and earlier runtime logs do not establish visual completion of the latest candidate.",
+  "persistentViewportRuntimeObservation": {
+    "log": "artifacts/runtime/2.5.0/reset-loop-fixed-observation.log",
+    "intervalStartLocal": "2026-11-02 15:10:28.051",
+    "intervalEndLocal": "2026-11-02 15:16:06.719",
+    "intervalSeconds": 338.668,
+    "resizeEventsInInterval": 0,
+    "visualShadowsVerified": false
+  },
+  "archiveSha256": "3DA8E5DB233F7654362655B848FA6424A5ED442BE664450CB99893C79FF994FF"
+}

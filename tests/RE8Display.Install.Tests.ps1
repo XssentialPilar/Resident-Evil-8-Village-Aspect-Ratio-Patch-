@@ -20,7 +20,7 @@ Put $game 'reframework\plugins\RE8Display.dll' 'previous own plugin'
 Put $package 'reframework\plugins\RE8Display.dll' 'new own plugin fixture'
 Put $package 'reframework\data\RE8Display.ini' 'Enabled=1'
 $files = @('reframework\plugins\RE8Display.dll','reframework\data\RE8Display.ini') | ForEach-Object { [ordered]@{source=$_;destination=$_;sha256=Get-RE8Hash (Join-Path $package $_)} }
-function Payload { Write-RE8Json (Join-Path $package 'runtime-files.json') ([ordered]@{schema=2;version='2.1.0';format='reframework-plugin';files=@($files)}) }
+function Payload { Write-RE8Json (Join-Path $package 'runtime-files.json') ([ordered]@{schema=2;version='2.5.0';format='reframework-plugin';files=@($files)}) }
 Payload
 $install=Join-Path $ProjectRoot 'tools\RE8Display.Install.ps1'
 $uninstall=Join-Path $ProjectRoot 'tools\RE8Display.Uninstall.ps1'
@@ -37,6 +37,11 @@ Throws { & $uninstall -GamePath $game } 'Modified DLL refuses all uninstall chan
 Assert ((Read 'reframework\data\RE8Display.ini') -eq 'Enabled=1') 'Failed uninstall preserves remaining files'
 Put $game 'reframework\plugins\RE8Display.dll' 'new own plugin fixture'
 Put $game 'reframework\data\RE8Display.ini' 'ManualFOV=1'
+# The same schema/ownership rules must recover a previous 2.1.0 installation.
+$priorManifest = Join-Path $game '.RE8Display\install-manifest.json'
+$priorState = Get-Content -LiteralPath $priorManifest -Raw | ConvertFrom-Json
+$priorState.version = '2.1.0'
+Write-RE8Json $priorManifest $priorState
 & $uninstall -GamePath $game | Out-Null
 Assert ((Read 'reframework\plugins\RE8Display.dll') -eq 'previous own plugin') 'Previous own DLL restored'
 Assert ((Read 'reframework\data\RE8Display.ini') -eq 'ManualFOV=1') 'Personal plugin config retained'

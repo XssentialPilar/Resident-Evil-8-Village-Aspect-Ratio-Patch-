@@ -32,7 +32,7 @@ public:
     void draw() const {
         if (!available || !tree("Aspect Ratio Config Menu")) return;
         struct Pop { Void function; ~Pop() { function(); } } pop{tree_pop};
-        say("RE8Display 2.1.0");
+        say("RE8Display 2.5.0");
         const auto shortcut = "Open menu: " + Context::get().menu_key_name();
         say(shortcut.c_str());
         if (button("Open display settings")) Context::get().set_own_ui_open(true);
@@ -48,14 +48,14 @@ public:
         if (set_size) set_size({std::min(480.0f, bounds.max_width), std::min(460.0f, bounds.max_height)}, 4);
         // A bounded, scrollable window; AlwaysAutoResize allowed long labels to
         // push the old panel outside small outputs and clip its bottom controls.
-        if (begin("Aspect Ratio Config Menu - RE8Display 2.1.0", &open, 0)) draw_controls();
+        if (begin("Aspect Ratio Config Menu - RE8Display 2.5.0", &open, 0)) draw_controls();
         end();
         context.set_own_ui_open(open);
     }
     void draw_controls() const {
         auto& context = Context::get();
         auto value = context.config();
-        say("RE8Display 2.1.0");
+        say("RE8Display 2.5.0");
         const auto shortcut = "Menu key: " + context.menu_key_name();
         say(shortcut.c_str());
         if (context.capturing_key()) say("Press a key to assign it. Escape cancels.");
@@ -126,10 +126,12 @@ void on_present() {
     guarded("present", [] {
         Context::get().refresh_renderer();
         Cursor::get().on_frame();
-        PluginDisplay::get().on_frame();
     });
 }
-void on_device_reset() { guarded("device-reset", [] { Context::get().invalidate_renderer(); }); }
+void on_device_reset() { guarded("device-reset", [] {
+    Context::get().invalidate_renderer();
+    PluginDisplay::get().invalidate_renderer();
+}); }
 bool on_message(void* window, unsigned int message, unsigned long long wparam, long long lparam) {
     bool consumed = false;
     guarded("window-message", [&] {
@@ -143,7 +145,10 @@ bool on_message(void* window, unsigned int message, unsigned long long wparam, l
     return !consumed;
 }
 void on_pre_behavior() { guarded("pre-behavior", [] { PluginDisplay::get().on_pre_application_entry("UpdateBehavior"); }); }
-void on_post_behavior() { guarded("post-behavior", [] { PluginDisplay::get().on_post_application_entry("UpdateBehavior"); }); }
+void on_post_behavior() { guarded("post-behavior", [] {
+    Cursor::get().on_behavior_update();
+    PluginDisplay::get().on_post_application_entry("UpdateBehavior");
+}); }
 void on_pre_gui() { guarded("pre-gui", [] { PluginDisplay::get().on_pre_application_entry("UpdateGUI"); }); }
 void on_pre_lock_scene() { guarded("pre-lock-scene", [] { PluginDisplay::get().on_pre_application_entry("LockScene"); }); }
 void on_post_lock_scene() { guarded("post-lock-scene", [] { PluginDisplay::get().on_post_application_entry("LockScene"); }); }

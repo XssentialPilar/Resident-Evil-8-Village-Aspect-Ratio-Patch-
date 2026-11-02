@@ -17,7 +17,7 @@
 #include <reframework/API.hpp>
 
 namespace re8_plugin {
-inline constexpr char version[] = "2.1.0";
+inline constexpr char version[] = "2.5.0";
 
 struct Config {
     bool enabled{true};

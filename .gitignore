@@ -11,3 +11,5 @@
 __pycache__/
 *.pyc
 /docs/evidence/
+# User-provided SDK archives are local dependencies, not release assets.
+*.nupkg

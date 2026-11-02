@@ -27,7 +27,10 @@ function Assert-RE8GameStopped([string]$GamePath) {
     }
 }
 function Get-RE8DisplayFingerprint([string]$ProjectRoot) {
-    $paths = @(Get-ChildItem -LiteralPath (Join-Path $ProjectRoot 'native'), (Join-Path $ProjectRoot 'external\reframework-sdk'), (Join-Path $ProjectRoot 'external\minhook') -Recurse -File | Where-Object { $_.Extension -in '.cpp', '.c', '.hpp', '.h', '.txt', '.rc' }) | Sort-Object FullName
+    # Fingerprint only the main plugin's build inputs. Optional diagnostic EXEs
+    # have separate CMake targets/receipts and are not linked into RE8Display.
+    $sourceRoots = @('native\common','native\plugin','external\reframework-sdk','external\minhook') | ForEach-Object { Join-Path $ProjectRoot $_ }
+    $paths = (@(Get-Item -LiteralPath (Join-Path $ProjectRoot 'native\CMakeLists.txt')) + @(Get-ChildItem -LiteralPath $sourceRoots -Recurse -File | Where-Object { $_.Extension -in '.cpp', '.c', '.hpp', '.h', '.txt', '.rc' })) | Sort-Object FullName
     $lines = foreach ($item in $paths) { $item.FullName.Substring($ProjectRoot.Length).Replace('\', '/') + ':' + (Get-RE8Hash $item.FullName) }
     $sha = [Security.Cryptography.SHA256]::Create()
     try { return ([BitConverter]::ToString($sha.ComputeHash([Text.Encoding]::UTF8.GetBytes(($lines -join "`n"))))).Replace('-', '') }

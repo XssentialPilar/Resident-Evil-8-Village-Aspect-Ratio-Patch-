@@ -8,6 +8,14 @@ struct CameraProjection {
     bool vertical{};
 };
 
+// RE8's authored FOV calibration spans 16:9 through native Hor+ up to 32:9,
+// independently of the physical output. This calibration is distinct from the actual
+// camera field: never overwrite the native snapshot with this inferred ratio.
+inline float re8_authored_aspect(float camera_aspect) {
+    if (!std::isfinite(camera_aspect) || camera_aspect <= 0.0f) return reference_aspect;
+    return std::clamp(camera_aspect, reference_aspect, 32.0f / 9.0f);
+}
+
 inline bool same_projection_value(float a, float b) {
     return std::isfinite(a) && std::isfinite(b) && std::abs(a - b) < 0.0001f;
 }
@@ -17,7 +25,8 @@ inline bool same_projection_value(float a, float b) {
 class CameraProjectionOverride {
 public:
     CameraProjection apply(CameraProjection observed, float output_aspect,
-                           bool output_vertical, bool manual, float multiplier) {
+                           bool output_vertical, bool manual, float multiplier,
+                           bool re8_calibration = false) {
         if (!valid_fov(observed.fov) || !std::isfinite(observed.aspect) || observed.aspect <= 0 ||
             !std::isfinite(output_aspect) || output_aspect <= 0 ||
             (manual && (!std::isfinite(multiplier) || multiplier <= 0))) return observed;
@@ -34,7 +43,9 @@ public:
             }
             if (!same_projection_value(observed.aspect, m_applied.aspect)) m_original.aspect = observed.aspect;
         }
-        float corrected = expanded_fov(m_original.fov, m_original.aspect,
+        const float authored_aspect = re8_calibration
+            ? re8_authored_aspect(m_original.aspect) : m_original.aspect;
+        float corrected = expanded_fov(m_original.fov, authored_aspect,
                                        output_aspect, m_original.vertical, output_vertical);
         if (manual) {
             // Explicit opt-in legacy calibration: multiply the native scalar
@@ -46,6 +57,11 @@ public:
         // The physical viewport and actual camera must use the SAME aspect.
         m_applied = {corrected, output_aspect, output_vertical};
         return m_applied;
+    }
+
+    CameraProjection apply_re8(CameraProjection observed, float output_aspect,
+                               bool output_vertical) {
+        return apply(observed, output_aspect, output_vertical, false, 1.0f, true);
     }
 
     CameraProjection restore(CameraProjection observed) const {

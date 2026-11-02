@@ -11,6 +11,8 @@
 #include "RE8PluginCursor.hpp"
 #include "../common/RE8CameraProjection.hpp"
 #include "../common/RE8GuiLayout.hpp"
+#include "../common/RE8ManagedNumeric.hpp"
+#include "../common/RE8ViewportPolicy.hpp"
 
 namespace re8_plugin {
 // Only the public host API is used here. No SDK internals, fixed memory offsets,
@@ -22,7 +24,6 @@ class PluginDisplay {
     using Projection = re8_patch::display::CameraProjection;
     using GuiState = re8_patch::display::GuiResolutionState;
     struct Size { float width{}, height{}; };
-    struct ViewState { Size size{}, custom{}; int32_t display{}; };
     struct GuiEntry {
         re8_patch::display::GuiResolutionOverride state;
         uint64_t seen{};
@@ -30,23 +31,27 @@ class PluginDisplay {
 public:
     static PluginDisplay& get() { static PluginDisplay value; return value; }
 
-    void on_frame() {
-        std::scoped_lock lock{m_mutex};
-        if (!initialize()) return;
-        ++m_epoch;
-        // The render pass has finished by the host ImGui/present callback.
-        restore_cameras();
-        const auto config = Context::get().config();
-        cleanup_gui(!config.enabled || !config.display_enabled || !config.uniform_ui);
-        if (!config.enabled || !config.display_enabled) restore_viewport();
-    }
+    // DXGI callbacks only publish invalidation. Managed scene objects belong to
+    // the engine's application-entry cycle, never the Present/reset thread.
+    void invalidate_renderer() { m_reset_pending.store(true, std::memory_order_release); }
 
     void on_pre_application_entry(const char* entry) {
         if (entry == nullptr) return;
         std::scoped_lock lock{m_mutex};
         if (!initialize()) return;
         const std::string_view name{entry};
+        if (m_reset_pending.exchange(false, std::memory_order_acq_rel)) {
+            // Resize invalidates output dimensions, not engine-owned objects.
+            // Restoring Uniform16x9 here then applying Fit retriggered resize
+            // indefinitely, destroying temporal histories and performance.
+            m_logged_projection = false;
+        }
         if (name == "UnlockScene" || name == "UpdateBehavior") restore_cameras();
+        if (name == "UpdateBehavior") {
+            ++m_epoch;
+            const auto config = Context::get().config();
+            cleanup_gui(!config.enabled || !config.display_enabled || !config.uniform_ui);
+        }
         if (name == "UpdateBehavior" || name == "UpdateGUI" || name == "LockScene") {
             apply_viewport();
             if (name == "UpdateGUI") refresh_gui();
@@ -82,14 +87,16 @@ public:
 private:
     std::recursive_mutex m_mutex;
     bool m_ready{};
+    std::atomic<bool> m_reset_pending{};
     uint64_t m_epoch{};
     Object* m_view{};
-    ViewState m_view_original{}, m_view_applied{};
-    bool m_view_active{};
+    re8_patch::display::ViewportDisplayOverride m_view_policy;
+    bool m_logged_projection{};
+    Projection m_logged_native{};
+    float m_logged_output{};
     std::unordered_map<Object*, re8_patch::display::CameraProjectionOverride> m_cameras;
     std::unordered_map<Object*, GuiEntry> m_gui;
-    Method *m_main_view{}, *m_primary_camera{}, *m_size_get{}, *m_size_set{},
-        *m_custom_get{}, *m_custom_set{}, *m_display_get{}, *m_display_set{},
+    Method *m_main_view{}, *m_primary_camera{}, *m_display_get{}, *m_display_set{},
         *m_fov_get{}, *m_fov_set{}, *m_aspect_get{}, *m_aspect_set{},
         *m_vertical_get{}, *m_vertical_set{}, *m_projection_get{},
         *m_gui_get_view{}, *m_view_type{}, *m_parent{}, *m_gui_size{},
@@ -98,20 +105,25 @@ private:
         *m_component_object{}, *m_object_component{}, *m_name_get{}, *m_string_equals{};
     Object* m_gui_runtime_type{};
     Object* m_black_fade_name{};
-    int32_t m_fit{}, m_letterbox{}, m_perspective{}, m_screen{}, m_fit_small{}, m_center{}, m_always{};
+    int32_t m_fit{}, m_perspective{}, m_screen{}, m_fit_small{}, m_center{}, m_always{};
 
     static std::optional<reframework::InvokeRet> invoke(Method* method, Object* object,
                                                         std::vector<void*> args = {}) {
         if (method == nullptr || method->get_function_raw() == nullptr) return std::nullopt;
-        const auto result = method->invoke(object, args);
-        if (result.exception_thrown) return std::nullopt;
+        // API.hpp's convenience wrapper discards non-exception error codes.
+        // Check the public result explicitly so failed getters never become 0.
+        reframework::InvokeRet result{};
+        const auto status = Context::get().api().sdk()->method->invoke(*method, object,
+            args.empty() ? nullptr : args.data(), static_cast<unsigned int>(args.size() * sizeof(void*)),
+            &result, sizeof(result));
+        if (status != REFRAMEWORK_ERROR_NONE || result.exception_thrown) return std::nullopt;
         return result;
     }
     static void* integer_argument(int32_t value) {
         return reinterpret_cast<void*>(static_cast<uintptr_t>(static_cast<uint32_t>(value)));
     }
     static void* float_argument(float value) {
-        return reinterpret_cast<void*>(static_cast<uintptr_t>(std::bit_cast<uint32_t>(value)));
+        return reinterpret_cast<void*>(re8_patch::managed::encode_system_single_argument(value));
     }
     static std::optional<int32_t> enum_value(std::string_view type, std::string_view name) {
         const auto tdb = Context::get().api().tdb();
@@ -126,10 +138,6 @@ private:
         int32_t value{};
         std::memcpy(&value, data, sizeof(value));
         return value;
-    }
-    static bool same_size(Size a, Size b) {
-        return re8_patch::display::same_projection_value(a.width, b.width) &&
-               re8_patch::display::same_projection_value(a.height, b.height);
     }
     static std::optional<Size> size_result(Method* method, Object* object, bool require_positive = true) {
         auto result = invoke(method, object);
@@ -149,8 +157,6 @@ private:
         const auto method = [tdb](const char* type, const char* name) { return tdb->find_method(type, name); };
         m_main_view = method("via.SceneManager", "get_MainView");
         m_primary_camera = method("via.SceneView", "get_PrimaryCamera");
-        m_size_get = method("via.SceneView", "get_Size"); m_size_set = method("via.SceneView", "set_Size");
-        m_custom_get = method("via.SceneView", "get_CustomDisplaySize"); m_custom_set = method("via.SceneView", "set_CustomDisplaySize");
         m_display_get = method("via.SceneView", "get_DisplayType"); m_display_set = method("via.SceneView", "set_DisplayType");
         m_fov_get = method("via.Camera", "get_FOV"); m_fov_set = method("via.Camera", "set_FOV");
         m_aspect_get = method("via.Camera", "get_AspectRatio"); m_aspect_set = method("via.Camera", "set_AspectRatio");
@@ -168,28 +174,27 @@ private:
         m_name_get = method("via.GameObject", "get_Name");
         m_string_equals = method("System.String", "Equals(System.String)");
         const auto fit = enum_value("via.DisplayType", "Fit");
-        const auto letterbox = enum_value("via.DisplayType", "Uniform16x9");
         const auto perspective = enum_value("via.ProjectionType", "PerspectiveFovRH");
         const auto screen = enum_value("via.gui.ViewType", "Screen");
         const auto uniform_scale = enum_value("via.gui.ResolutionAdjustScale", "FitSmallRatioAxis");
         const auto center = enum_value("via.gui.ResolutionAdjustAnchor", "CenterCenter");
         const auto always = enum_value("via.gui.ResolutionAdjustCondition", "Always");
-        if (!fit || !letterbox || !perspective || !screen || !uniform_scale || !center || !always) return false;
-        for (auto required : {m_main_view, m_primary_camera, m_size_get, m_size_set, m_custom_get, m_custom_set,
+        if (!fit || !perspective || !screen || !uniform_scale || !center || !always) return false;
+        for (auto required : {m_main_view, m_primary_camera,
                 m_display_get, m_display_set, m_fov_get, m_fov_set, m_aspect_get, m_aspect_set,
                 m_vertical_get, m_vertical_set, m_projection_get, m_gui_get_view, m_view_type,
                 m_scale_get, m_scale_set, m_anchor_get, m_anchor_set, m_condition_get, m_condition_set,
                 m_adjust_get, m_adjust_set}) {
             if (required == nullptr || required->get_function_raw() == nullptr) return false;
         }
-        m_fit = *fit; m_letterbox = *letterbox; m_perspective = *perspective; m_screen = *screen;
+        m_fit = *fit; m_perspective = *perspective; m_screen = *screen;
         m_fit_small = *uniform_scale; m_center = *center; m_always = *always;
         m_gui_runtime_type = api.typeof("via.gui.GUI");
         if (m_gui_runtime_type != nullptr) m_gui_runtime_type->add_ref();
         m_black_fade_name = api.create_managed_string_normal("BlackFade");
         if (m_black_fade_name != nullptr) m_black_fade_name->add_ref();
         m_ready = true;
-        api.log_info("[RE8Display] Public API controller ready; own automatic projection and root-only uniform GUI; legacy Graphics settings ignored");
+        api.log_info("[RE8Display] Engine-cycle projection; native render sizes retained; RE8 content-aspect calibration and root-only uniform GUI");
         return true;
     }
 
@@ -199,58 +204,48 @@ private:
         const auto result = invoke(m_main_view, reinterpret_cast<Object*>(manager));
         return result ? static_cast<Object*>(result->ptr) : nullptr;
     }
-    std::optional<ViewState> read_view(Object* view) const {
-        const auto size = size_result(m_size_get, view), custom = size_result(m_custom_get, view, false);
-        const auto display = invoke(m_display_get, view);
-        if (!size || !custom || !display) return std::nullopt;
-        return ViewState{*size, *custom, static_cast<int32_t>(display->dword)};
-    }
-    void write_view(Object* view, ViewState state) const {
-        // Value-type arguments are pointers to their data in the public invoke
-        // protocol (same rule used by the host ObjectExplorer).
-        invoke(m_custom_set, view, {&state.custom});
-        invoke(m_size_set, view, {&state.size});
-        invoke(m_display_set, view, {integer_argument(state.display)});
-    }
     void restore_viewport() {
         if (m_view == nullptr) return;
-        if (const auto observed = read_view(m_view); observed && m_view_active) {
-            auto restored = *observed;
-            if (same_size(restored.size, m_view_applied.size)) restored.size = m_view_original.size;
-            if (same_size(restored.custom, m_view_applied.custom)) restored.custom = m_view_original.custom;
-            if (restored.display == m_view_applied.display) restored.display = m_view_original.display;
-            write_view(m_view, restored);
+        const auto observed = invoke(m_display_get, m_view);
+        const auto command = m_view_policy.update(observed ? std::optional<int32_t>{static_cast<int32_t>(observed->dword)} : std::nullopt, false, m_fit);
+        if (command) {
+            invoke(m_display_set, m_view, {integer_argument(*command)});
+            if (const auto actual = invoke(m_display_get, m_view))
+                m_view_policy.update(static_cast<int32_t>(actual->dword), false, m_fit);
         }
-        m_view->release(); m_view = nullptr; m_view_active = false;
+        if (m_view_policy.owns_override()) return; // Retry a failed restoration.
+        m_view->release(); m_view = nullptr; m_view_policy = {};
     }
     void apply_viewport() {
         const auto config = Context::get().config();
         if (!config.enabled || !config.display_enabled) { restore_viewport(); return; }
-        const auto dimensions = Context::get().output_dimensions();
         auto view = main_view();
-        if (view == nullptr || !dimensions) return;
-        const auto state = read_view(view);
+        // Fit does not depend on the swapchain size. Losing dimensions or the
+        // main-view observation temporarily must not undo it during a resize.
+        if (view == nullptr) return;
+        const auto state = invoke(m_display_get, view);
         if (!state) return;
+        const auto display = static_cast<int32_t>(state->dword);
         if (view != m_view) {
-            restore_viewport(); m_view = view; m_view->add_ref();
-            m_view_original = *state; m_view_active = true;
-        } else {
-            if (!same_size(state->size, m_view_applied.size)) m_view_original.size = state->size;
-            if (!same_size(state->custom, m_view_applied.custom)) m_view_original.custom = state->custom;
-            if (state->display != m_view_applied.display) m_view_original.display = state->display;
+            restore_viewport();
+            if (m_view != nullptr) return; // Old view still needs restoration.
+            m_view = view; m_view->add_ref();
         }
-        const Size output{(*dimensions)[0], (*dimensions)[1]};
-        ViewState desired{output, output, m_fit};
-        write_view(view, desired);
-        if (const auto actual = read_view(view)) m_view_applied = *actual;
-        else m_view_applied = desired;
+        // DisplayType removes bars. Size/CustomDisplaySize are engine-owned
+        // render-resource geometry, not the output monitor resolution.
+        if (const auto command = m_view_policy.update(display, true, m_fit))
+            invoke(m_display_set, view, {integer_argument(*command)});
     }
 
     std::optional<Projection> read_camera(Object* camera) const {
         const auto fov = invoke(m_fov_get, camera), aspect = invoke(m_aspect_get, camera), vertical = invoke(m_vertical_get, camera);
-        if (!fov || !aspect || !vertical || !re8_patch::display::valid_fov(fov->f) ||
-            !std::isfinite(aspect->f) || aspect->f <= 0.0f) return std::nullopt;
-        return Projection{fov->f, aspect->f, vertical->byte != 0};
+        if (!fov || !aspect || !vertical) return std::nullopt;
+        // The managed invocation wrapper promotes System.Single to double.
+        // Raw native Method.call<float> would instead use the float ABI.
+        const auto angle = re8_patch::managed::decode_system_single_result(fov->qword);
+        const auto ratio = re8_patch::managed::decode_system_single_result(aspect->qword);
+        if (!angle || !ratio || !re8_patch::display::valid_fov(*angle) || *ratio <= 0.0f) return std::nullopt;
+        return Projection{*angle, *ratio, vertical->byte != 0};
     }
     void write_camera(Object* camera, Projection projection) const {
         invoke(m_aspect_set, camera, {float_argument(projection.aspect)});
@@ -271,13 +266,23 @@ private:
         if (!observed) return;
         auto [entry, inserted] = m_cameras.try_emplace(camera);
         if (inserted) camera->add_ref();
-        auto corrected = entry->second.apply(*observed, ratio, config.vertical_fov, false, 1.0f);
+        auto corrected = entry->second.apply_re8(*observed, ratio, config.vertical_fov);
         if (config.fov_override && !Cursor::get().game_menu_visible()) {
             corrected.fov = re8_patch::display::expanded_fov(config.fov_degrees,
                 re8_patch::display::reference_aspect, ratio, false, config.vertical_fov);
         }
         write_camera(camera, corrected);
-        if (const auto actual = read_camera(camera)) entry->second.confirm_applied(*actual);
+        const auto actual = read_camera(camera);
+        if (actual) entry->second.confirm_applied(*actual);
+        if (!m_logged_projection || !re8_patch::display::same_projection_value(m_logged_output, ratio) ||
+            (config.diagnostics && (!re8_patch::display::same_projection_value(m_logged_native.fov, observed->fov) ||
+                m_logged_native.vertical != observed->vertical))) {
+            Context::get().api().log_info("[RE8Display.Projection] output=%.0fx%.0f native_fov=%.5f native_aspect=%.6f native_vertical=%d content_aspect=%.6f requested_fov=%.5f requested_aspect=%.6f actual_fov=%.5f actual_aspect=%.6f actual_vertical=%d",
+                (*dimensions)[0], (*dimensions)[1], observed->fov, observed->aspect, int(observed->vertical),
+                re8_patch::display::re8_authored_aspect(observed->aspect), corrected.fov, corrected.aspect,
+                actual ? actual->fov : -1.0f, actual ? actual->aspect : -1.0f, actual ? int(actual->vertical) : -1);
+            m_logged_projection = true; m_logged_native = *observed; m_logged_output = ratio;
+        }
     }
     void restore_cameras() {
         for (auto& [camera, state] : m_cameras) {

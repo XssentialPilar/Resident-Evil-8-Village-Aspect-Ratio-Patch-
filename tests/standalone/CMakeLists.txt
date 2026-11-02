@@ -1,7 +1,7 @@
 cmake_minimum_required(VERSION 3.20)
 project(RE8DisplayStandaloneTests LANGUAGES CXX)
 enable_testing()
-foreach(name IN ITEMS geometry projection cursor gui_layout)
+foreach(name IN ITEMS geometry projection cursor gui_layout invoke_numeric viewport)
     add_executable(re8_${name}_tests ${name}.cpp)
     target_include_directories(re8_${name}_tests PRIVATE ../../native/common)
     target_compile_features(re8_${name}_tests PRIVATE cxx_std_20)

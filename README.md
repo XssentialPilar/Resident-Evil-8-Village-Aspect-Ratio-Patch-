@@ -1,10 +1,10 @@
-# Resident Evil Village — RE8Display 2.1.0
+# Resident Evil Village — RE8Display 2.5.0
 
 An independent REFramework plugin for proportional interface scaling, camera aspect/FOV correction and the native Windows cursor in game menus. [Downloads and release notes](https://github.com/XssentialPilar/Resident-Evil-8-Village-Aspect-Ratio-Patch-/releases).
 
 ## Install
 
-Close the game, extract **RE8Display-2.1.0.zip**, then copy its `reframework` folder into the folder containing `re8.exe`. The ZIP contains exactly three files:
+Close the game, extract **RE8Display-2.5.0.zip**, then copy its `reframework` folder into the folder containing `re8.exe`. The ZIP contains exactly three files:
 
 - `reframework/plugins/RE8Display.dll`
 - `reframework/data/RE8Display.ini`
@@ -24,9 +24,13 @@ The cursor policy includes exact menu IDs and the actual typed shop/save drivers
 
 ## Validation and compatibility
 
-The source accepts current output dimensions without a resolution allowlist. Five native/ABI suites, 24 installation/recovery checks, 17 package checks and 100,000 arbitrary proportional-canvas sizes pass. Runtime logs record output changes across 11 resolutions, from 1280x800/1280x1024 through 1920x1200, and activation of the actual save and Duke buy drivers. This does not establish visual correctness on every monitor or compatibility with every mod. See [the verification report](docs/release-2.1.0.md) for the scope actually observed.
+The source accepts current output dimensions without a resolution allowlist. Version 2.5.0 addresses the reported zoom/crop and loss of the 3D scene after changing resolution and aiming. Its current build, test and runtime evidence is recorded in [the verification report](docs/release-2.5.0.md). The previous version's passing arithmetic and package checks did not detect those rendering failures; they do not establish visual correctness or compatibility with every mod.
 
 Only fields owned by this plugin are restored. Display and cursor can be disabled separately to assign ownership when another mod changes the same features. Save files, other plugins/scripts and the framework loader are outside this plugin's installation ownership.
+
+## Optional Agility and DirectStorage modules
+
+`RE8Agility-722-Game.zip` selects Agility SDK 722 before RE8 creates its D3D12 device. `RE8DirectStorage-1.4-Game.zip` routes eligible read-only PAK reads through DirectStorage into CPU memory while retaining the game's decompression. They are installed separately using the original Microsoft preview packages, which are not redistributed. Actual RE8 activation and PAK reads were observed; this does not establish GPU decompression, improved performance or universal compatibility. See [integration status, installation and evidence](docs/technology-integration-status.md).
 
 ## Source and build
 
@@ -38,7 +42,7 @@ The small pinned public SDK and MinHook dependencies are included; a full REFram
 .\tools\RE8Display.Package.ps1
 ```
 
-The build tools also accept `-Generator 'Visual Studio 17 2022'`. Tag `v2.1.0` runs the GitHub Actions build/test/package workflow and publishes the verified three-file ZIP under Releases. Local tools keep recovery receipts and reports outside the public ZIP.
+The build tools also accept `-Generator 'Visual Studio 17 2022'`. Tag `v2.5.0` runs the GitHub Actions build/test/package workflow and publishes the verified three-file ZIP under Releases. Local tools keep recovery receipts and reports outside the public ZIP.
 
 Source is in `native/`, tests in `tests/standalone/`, and dependency provenance in `external/standalone-dependencies.json`. Older `RE8Patch.*` tools, `patches/` and [v1.1.0 documentation](docs/legacy-release-v1.1.0.md) are retained for recovery and audit of the previous bundled implementation.
 

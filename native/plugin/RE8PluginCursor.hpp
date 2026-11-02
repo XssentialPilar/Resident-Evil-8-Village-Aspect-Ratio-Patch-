@@ -37,18 +37,24 @@ public:
         m_window.store(context.window());
     }
     void on_frame() {
-        if (m_context == nullptr) return;
-        const auto config = m_context->config();
-        const bool enabled = (config.enabled && config.cursor_enabled) || m_context->own_ui_open();
-        if (m_enabled.exchange(enabled) != enabled) request_apply();
-        if (!enabled) restore_software_panel();
-        m_diagnostics.store(config.diagnostics || m_environment_diagnostics);
-        const auto window = m_context->window();
-        if (window != nullptr && m_window.load() == nullptr) m_window.store(window);
-        set_patch_config_open(m_context->is_drawing_ui());
-        if (!m_gui_updated.exchange(false)) update("present-fallback");
+        // Present runs on the graphics thread. Only publish native/atomic
+        // state here; managed menu queries and panel writes belong to the
+        // engine's behavior/GUI callbacks.
+        synchronize_native_state();
     }
-    void on_gui_update() { update("post-UpdateGUI"); m_gui_updated.store(true); }
+    void on_behavior_update() {
+        if (m_context == nullptr) return;
+        synchronize_native_state();
+        if (!m_enabled.load()) restore_software_panel();
+        if (!m_gui_updated.exchange(false)) update("post-UpdateBehavior-fallback");
+    }
+    void on_gui_update() {
+        if (m_context == nullptr) return;
+        synchronize_native_state();
+        if (!m_enabled.load()) restore_software_panel();
+        update("post-UpdateGUI");
+        m_gui_updated.store(true);
+    }
     void set_patch_config_open(bool open) {
         std::scoped_lock lock{m_state_mutex};
         m_patch_config_open.store(open);
@@ -156,6 +162,17 @@ private:
         wchar_t value[2]{};
         return GetEnvironmentVariableW(L"RE8PATCH_CURSOR_DIAGNOSTICS", value, 2) == 1 && value[0] == L'1';
     }()};
+
+    void synchronize_native_state() {
+        if (m_context == nullptr) return;
+        const auto config = m_context->config();
+        const bool enabled = (config.enabled && config.cursor_enabled) || m_context->own_ui_open();
+        if (m_enabled.exchange(enabled) != enabled) request_apply();
+        m_diagnostics.store(config.diagnostics || m_environment_diagnostics);
+        const auto window = m_context->window();
+        if (window != nullptr && m_window.load() == nullptr) m_window.store(window);
+        set_patch_config_open(m_context->is_drawing_ui());
+    }
 
     static API& api() { return *API::get(); }
     static bool valid(Object* object) { return object != nullptr && object->is_managed_object(); }

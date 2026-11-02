@@ -14,7 +14,7 @@ if ($fingerprint -ne (Get-RE8DisplayFingerprint $ProjectRoot)) { throw 'Sources 
 $binary = Join-Path $build ($Configuration + '\RE8Display.dll')
 if (-not (Test-Path -LiteralPath $binary -PathType Leaf)) { throw "Missing build output: $binary" }
 Write-RE8Json (Join-Path $ProjectRoot 'artifacts\build\RE8Display-build.json') ([ordered]@{
-    schema = 2; version = '2.1.0'; configuration = $Configuration; builtUtc = [DateTime]::UtcNow.ToString('o')
+    schema = 2; version = '2.5.0'; configuration = $Configuration; builtUtc = [DateTime]::UtcNow.ToString('o')
     elapsedSeconds = [Math]::Round(([DateTime]::UtcNow - $started).TotalSeconds,3)
     sourceFingerprint = $fingerprint; binary = $binary; binarySha256 = Get-RE8Hash $binary
     status = 'compiled-runtime-verification-pending'
