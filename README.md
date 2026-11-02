@@ -93,13 +93,11 @@ Press **`;`** (semicolon) to open **Aspect Ratio Config Menu**.
 
 The REFramework host menu shortcut (`Insert`) remains completely independent.
 
-## Validation and Compatibility
+## Compatibility
 
 Version 2.5.0 has undergone automated validation:
 
 - **Seven native and ABI test suites** covering geometry, camera projection, cursor policies, uniform GUI layout, managed numeric invocation, viewport policy, and plugin ABI.
-- **24 installation and recovery checks**.
-- **17 package verification checks**.
 - Tests across arbitrary canvas dimensions and real-world resolutions.
 
 ### Coexistence with other mods
