@@ -1,15 +1,13 @@
-# Build and temp directories
-staging/
-staging_v120/
-reframework_src/
-REFramework-1.5.9.1/
-scratch/
-build*/
+# External checkout and its working build. Reproducible changes live in patches/.
+/reframework_src/
+/Installed from GitHub*/
+/.recovery/
+/.vscode/
+/artifacts/
+/dist/
+/build/
 *.tmp
 *.log
-Installed from GitHub*/
-
-# Keep large zip packages out of git history
-*.zip
-*.jpg
-.vscode/
+__pycache__/
+*.pyc
+/docs/evidence/

@@ -1,0 +1,23 @@
+{
+  "version": "2.1.0",
+  "format": "independent-reframework-plugin",
+  "state": "latest-visual-retest-interrupted",
+  "binarySha256": "FD960B33E7EA8DB532F0CB1CF48C60DF3EE1566AD166B0E9B785594885EC95DE",
+  "sourceFingerprint": "3E026DBFD421873F4E3D0C47D60020597889DB1E10C85106C506503BCF42227C",
+  "builtUtc": "2026-11-02T04:31:35.220071Z",
+  "nativeSuitesPassed": 5,
+  "installationChecksPassed": 24,
+  "arbitraryCanvasSizes": 100000,
+  "previousStandaloneBootObserved": "1920x1200 DX12 with official REFramework API 1.15",
+  "latestCandidateInstalled": true,
+  "latestVisualRetest": false,
+  "mapInput": "deferred; native controls",
+  "releasePublished": false,
+  "remaining": [
+    "Private semicolon menu and remapping in game",
+    "Software cursor yellow glow removal in inventory",
+    "Save/typewriter cursor",
+    "Duke and other GUI alignment across rendered aspect ratios",
+    "Real gameplay FOV and third-party display/cursor ownership"
+  ]
+}

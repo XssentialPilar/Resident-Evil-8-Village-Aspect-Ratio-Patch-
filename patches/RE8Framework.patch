@@ -1,0 +1,2121 @@
+diff --git a/CMakeLists.txt b/CMakeLists.txt
+index fc97a2f..d1a815a 100644
+--- a/CMakeLists.txt
++++ b/CMakeLists.txt
+@@ -33,11 +33,8 @@ project(reframework
+ 	LANGUAGES
+ 		CXX
+ 		C
+-		CSharp
+ )
+ 
+-include(CSharpUtilities)
+-
+ set(CMAKE_POLICY_VERSION_MINIMUM 3.5)
+ set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} /MP")
+ set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} /MP")
+@@ -616,6 +613,110 @@ if(REF_BUILD_FRAMEWORK AND CMAKE_SIZEOF_VOID_P EQUAL 8) # build-framework
+ 		"shared/sdk/regenny/dd2/via/typeinfo/TypeInfo.hpp"
+ 		"shared/sdk/regenny/dd2/via/vec3.hpp"
+ 		"shared/sdk/regenny/dd2/via/vec4.hpp"
++		"shared/sdk/regenny/dd2_tdb83/BullShit.hpp"
++		"shared/sdk/regenny/dd2_tdb83/DeserializeSequence.hpp"
++		"shared/sdk/regenny/dd2_tdb83/ManagedVtable.hpp"
++		"shared/sdk/regenny/dd2_tdb83/RTInternal.hpp"
++		"shared/sdk/regenny/dd2_tdb83/RayTrace.hpp"
++		"shared/sdk/regenny/dd2_tdb83/RenderEntity.hpp"
++		"shared/sdk/regenny/dd2_tdb83/System/String.hpp"
++		"shared/sdk/regenny/dd2_tdb83/TypeDefinition.hpp"
++		"shared/sdk/regenny/dd2_tdb83/game/IkArmFit.hpp"
++		"shared/sdk/regenny/dd2_tdb83/game/InputSystem.hpp"
++		"shared/sdk/regenny/dd2_tdb83/tdb73/AttributeDef.hpp"
++		"shared/sdk/regenny/dd2_tdb83/tdb73/Field.hpp"
++		"shared/sdk/regenny/dd2_tdb83/tdb73/FieldImpl.hpp"
++		"shared/sdk/regenny/dd2_tdb83/tdb73/MethodDefinition.hpp"
++		"shared/sdk/regenny/dd2_tdb83/tdb73/MethodImpl.hpp"
++		"shared/sdk/regenny/dd2_tdb83/tdb73/ParamList.hpp"
++		"shared/sdk/regenny/dd2_tdb83/tdb73/ParameterDef.hpp"
++		"shared/sdk/regenny/dd2_tdb83/tdb73/Property.hpp"
++		"shared/sdk/regenny/dd2_tdb83/tdb73/PropertyImpl.hpp"
++		"shared/sdk/regenny/dd2_tdb83/tdb73/TDB.hpp"
++		"shared/sdk/regenny/dd2_tdb83/tdb73/TypeDefinition.hpp"
++		"shared/sdk/regenny/dd2_tdb83/tdb73/TypeImpl.hpp"
++		"shared/sdk/regenny/dd2_tdb83/via/Application.hpp"
++		"shared/sdk/regenny/dd2_tdb83/via/BasisPlane.hpp"
++		"shared/sdk/regenny/dd2_tdb83/via/CameraType.hpp"
++		"shared/sdk/regenny/dd2_tdb83/via/Capsule.hpp"
++		"shared/sdk/regenny/dd2_tdb83/via/Color.hpp"
++		"shared/sdk/regenny/dd2_tdb83/via/Component.hpp"
++		"shared/sdk/regenny/dd2_tdb83/via/DeviceOrientation.hpp"
++		"shared/sdk/regenny/dd2_tdb83/via/DisplayType.hpp"
++		"shared/sdk/regenny/dd2_tdb83/via/Folder.hpp"
++		"shared/sdk/regenny/dd2_tdb83/via/GameObject.hpp"
++		"shared/sdk/regenny/dd2_tdb83/via/IntArray.hpp"
++		"shared/sdk/regenny/dd2_tdb83/via/JobSet.hpp"
++		"shared/sdk/regenny/dd2_tdb83/via/Joint.hpp"
++		"shared/sdk/regenny/dd2_tdb83/via/JointArray.hpp"
++		"shared/sdk/regenny/dd2_tdb83/via/JointData.hpp"
++		"shared/sdk/regenny/dd2_tdb83/via/JointDesc.hpp"
++		"shared/sdk/regenny/dd2_tdb83/via/JointMap.hpp"
++		"shared/sdk/regenny/dd2_tdb83/via/ManagedObjectArray.hpp"
++		"shared/sdk/regenny/dd2_tdb83/via/MobileBarState.hpp"
++		"shared/sdk/regenny/dd2_tdb83/via/Motion.hpp"
++		"shared/sdk/regenny/dd2_tdb83/via/Object.hpp"
++		"shared/sdk/regenny/dd2_tdb83/via/Point.hpp"
++		"shared/sdk/regenny/dd2_tdb83/via/Range.hpp"
++		"shared/sdk/regenny/dd2_tdb83/via/RenderType.hpp"
++		"shared/sdk/regenny/dd2_tdb83/via/Scene.hpp"
++		"shared/sdk/regenny/dd2_tdb83/via/SceneArray.hpp"
++		"shared/sdk/regenny/dd2_tdb83/via/SceneManager.hpp"
++		"shared/sdk/regenny/dd2_tdb83/via/SceneView.hpp"
++		"shared/sdk/regenny/dd2_tdb83/via/Size.hpp"
++		"shared/sdk/regenny/dd2_tdb83/via/Sphere.hpp"
++		"shared/sdk/regenny/dd2_tdb83/via/Transform.hpp"
++		"shared/sdk/regenny/dd2_tdb83/via/UInt8Array.hpp"
++		"shared/sdk/regenny/dd2_tdb83/via/UIntArray.hpp"
++		"shared/sdk/regenny/dd2_tdb83/via/UIntArrayArray.hpp"
++		"shared/sdk/regenny/dd2_tdb83/via/Window.hpp"
++		"shared/sdk/regenny/dd2_tdb83/via/array.hpp"
++		"shared/sdk/regenny/dd2_tdb83/via/behaviortree/BehaviorTree.hpp"
++		"shared/sdk/regenny/dd2_tdb83/via/behaviortree/BehaviorTreeCoreHandleArray.hpp"
++		"shared/sdk/regenny/dd2_tdb83/via/behaviortree/BehaviorTreeData.hpp"
++		"shared/sdk/regenny/dd2_tdb83/via/behaviortree/Condition.hpp"
++		"shared/sdk/regenny/dd2_tdb83/via/behaviortree/Core.hpp"
++		"shared/sdk/regenny/dd2_tdb83/via/behaviortree/CoreHandle.hpp"
++		"shared/sdk/regenny/dd2_tdb83/via/behaviortree/NodeArray.hpp"
++		"shared/sdk/regenny/dd2_tdb83/via/behaviortree/NodeArray2.hpp"
++		"shared/sdk/regenny/dd2_tdb83/via/behaviortree/NodeStatus.hpp"
++		"shared/sdk/regenny/dd2_tdb83/via/behaviortree/Selector.hpp"
++		"shared/sdk/regenny/dd2_tdb83/via/behaviortree/SelectorFSM.hpp"
++		"shared/sdk/regenny/dd2_tdb83/via/behaviortree/TreeNode.hpp"
++		"shared/sdk/regenny/dd2_tdb83/via/behaviortree/TreeNodeData.hpp"
++		"shared/sdk/regenny/dd2_tdb83/via/behaviortree/TreeObject.hpp"
++		"shared/sdk/regenny/dd2_tdb83/via/behaviortree/TreeObjectData.hpp"
++		"shared/sdk/regenny/dd2_tdb83/via/clr/ManagedObject.hpp"
++		"shared/sdk/regenny/dd2_tdb83/via/fixed_array_jobs.hpp"
++		"shared/sdk/regenny/dd2_tdb83/via/gui/Control.hpp"
++		"shared/sdk/regenny/dd2_tdb83/via/gui/GUI.hpp"
++		"shared/sdk/regenny/dd2_tdb83/via/gui/GUIManager.hpp"
++		"shared/sdk/regenny/dd2_tdb83/via/gui/GUIMeshRenderer.hpp"
++		"shared/sdk/regenny/dd2_tdb83/via/gui/PlayObject.hpp"
++		"shared/sdk/regenny/dd2_tdb83/via/gui/PrimitiveContext.hpp"
++		"shared/sdk/regenny/dd2_tdb83/via/gui/TransformObject.hpp"
++		"shared/sdk/regenny/dd2_tdb83/via/gui/View.hpp"
++		"shared/sdk/regenny/dd2_tdb83/via/gui/Window.hpp"
++		"shared/sdk/regenny/dd2_tdb83/via/mat4.hpp"
++		"shared/sdk/regenny/dd2_tdb83/via/motion/AxisDirection.hpp"
++		"shared/sdk/regenny/dd2_tdb83/via/motion/Chain.hpp"
++		"shared/sdk/regenny/dd2_tdb83/via/motion/ChainCollisionArray.hpp"
++		"shared/sdk/regenny/dd2_tdb83/via/motion/ChainCollisionData.hpp"
++		"shared/sdk/regenny/dd2_tdb83/via/motion/ChainCollisionTop.hpp"
++		"shared/sdk/regenny/dd2_tdb83/via/motion/ChainCollisions.hpp"
++		"shared/sdk/regenny/dd2_tdb83/via/motion/Data.hpp"
++		"shared/sdk/regenny/dd2_tdb83/via/motion/InterpolationMode.hpp"
++		"shared/sdk/regenny/dd2_tdb83/via/motion/MotionFsm2.hpp"
++		"shared/sdk/regenny/dd2_tdb83/via/motion/MotionFsm2Internal.hpp"
++		"shared/sdk/regenny/dd2_tdb83/via/motion/MotionFsm2Layer.hpp"
++		"shared/sdk/regenny/dd2_tdb83/via/motion/MotionFsm2RawData.hpp"
++		"shared/sdk/regenny/dd2_tdb83/via/motion/MotionFsm2Resource.hpp"
++		"shared/sdk/regenny/dd2_tdb83/via/motion/SecondaryAnimation.hpp"
++		"shared/sdk/regenny/dd2_tdb83/via/motion/TransitionData.hpp"
++		"shared/sdk/regenny/dd2_tdb83/via/motion/TransitionMap.hpp"
++		"shared/sdk/regenny/dd2_tdb83/via/typeinfo/TypeInfo.hpp"
++		"shared/sdk/regenny/dd2_tdb83/via/vec3.hpp"
++		"shared/sdk/regenny/dd2_tdb83/via/vec4.hpp"
+ 		"shared/sdk/regenny/mhrise/via/Capsule.hpp"
+ 		"shared/sdk/regenny/mhrise/via/OBB.hpp"
+ 		"shared/sdk/regenny/mhrise/via/Sphere.hpp"
+diff --git a/cmake.toml b/cmake.toml
+index 93694b5..0819b8d 100644
+--- a/cmake.toml
++++ b/cmake.toml
+@@ -4,7 +4,7 @@
+ # > cmake --build build --config Release
+ [project]
+ name = "reframework"
+-languages = ["CXX", "C", "CSharp"]
++languages = ["CXX", "C"]
+ cmake-after = """
+ set(CMAKE_POLICY_VERSION_MINIMUM 3.5)
+ set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} /MP")
+diff --git a/src/Mods.cpp b/src/Mods.cpp
+index e8509d4..b2d359c 100644
+--- a/src/Mods.cpp
++++ b/src/Mods.cpp
+@@ -162,6 +162,12 @@ void Mods::on_post_frame() const {
+ 
+ void Mods::on_draw_ui() const {
+     for (auto& mod : m_mods) {
++        if (sdk::GameIdentity::get().is_re8()) {
++            const auto mod_name = mod->get_name();
++            if (mod_name != "Graphics" && mod_name != "Configuration" && mod_name != "ScriptRunner") {
++                continue;
++            }
++        }
+         mod->on_draw_ui();
+     }
+ }
+diff --git a/src/REFramework.cpp b/src/REFramework.cpp
+index 3b85ec4..1d603d5 100644
+--- a/src/REFramework.cpp
++++ b/src/REFramework.cpp
+@@ -1294,23 +1294,13 @@ bool REFramework::on_message(HWND wnd, UINT message, WPARAM w_param, LPARAM l_pa
+         return true;
+     }
+ 
++    if (sdk::GameIdentity::get().is_re8() &&
++        Graphics::get()->handle_re8_cursor_message(wnd, message, w_param, l_param)) {
++        return false;
++    }
++
+     bool is_mouse_moving{false};
+     switch (message) {
+-    case WM_SETCURSOR: {
+-        if (sdk::GameIdentity::get().is_re8()) {
+-            bool wants_cursor = m_draw_ui || m_cursor_state || Graphics::get()->is_re8_menu_or_cursor_active();
+-            if (wants_cursor) {
+-                while (::ShowCursor(TRUE) < 0) {}
+-                ::SetCursor(::LoadCursor(nullptr, IDC_ARROW));
+-                return false;
+-            } else {
+-                while (::ShowCursor(FALSE) >= 0) {}
+-                ::SetCursor(nullptr);
+-                return false;
+-            }
+-        }
+-        break;
+-    }
+     case WM_LBUTTONDOWN:
+         m_last_keys[VK_LBUTTON] = true;
+         break;
+@@ -1339,6 +1329,7 @@ bool REFramework::on_message(HWND wnd, UINT message, WPARAM w_param, LPARAM l_pa
+             set_draw_ui(!m_draw_ui);
+         }
+ 
++
+         m_last_keys[w_param] = true;
+         
+         break;
+@@ -1546,6 +1537,10 @@ void REFramework::set_draw_ui(bool state, bool should_save) {
+ 
+     bool prev_state = m_draw_ui;
+     m_draw_ui = state;
++    if (sdk::GameIdentity::get().is_re8()) {
++        Graphics::get()->set_re8_patch_config_open(state);
++    }
++
+ 
+     if (m_game_data_initialized) {
+         REFrameworkConfig::get()->get_menu_open()->value() = state;
+@@ -1988,7 +1983,7 @@ void REFramework::draw_ui() {
+     ImGui::SetNextWindowSize(ImVec2(300, 500), ImGuiCond_::ImGuiCond_FirstUseEver);
+ 
+     ImGui::PushFont(m_default_font, m_font_size);
+-    const char* window_name = "Aspect Ratio Config Menu (16:10 Verified)";
++    const char* window_name = "Aspect Ratio Config Menu";
+     if (!sdk::GameIdentity::get().is_re8()) {
+         static const auto default_name = std::format("REFramework [{}+{}-{:.8}]", REF_TAG, REF_COMMITS_PAST_TAG, REF_COMMIT_HASH);
+         window_name = default_name.c_str();
+@@ -2044,15 +2039,8 @@ void REFramework::draw_ui() {
+ 
+ void REFramework::draw_about() {
+     if (sdk::GameIdentity::get().is_re8()) {
+-        ImGui::TextColored(ImVec4(0.2f, 0.9f, 0.4f, 1.0f), "Resident Evil 8: 16:10 Aspect Ratio & Native Cursor Patch");
+-        ImGui::TextColored(ImVec4(0.7f, 0.7f, 0.7f, 1.0f), "Version v1.1.0 (Demonstrable & Verified for 16:10)");
+-        ImGui::Spacing();
+-        ImGui::TextColored(ImVec4(1.0f, 0.85f, 0.2f, 1.0f), "Optimal 16:10 (1920x1200) Setup:");
+-        ImGui::BulletText("Ultrawide/FOV/Aspect Ratio Fix: ON");
+-        ImGui::BulletText("16:10 Mode (Black Bars): OFF");
+-        ImGui::BulletText("Vertical FOV: OFF");
+-        ImGui::BulletText("Override FOV: ON");
+-        ImGui::BulletText("FOV Multiplier: 1.715");
++        ImGui::TextColored(ImVec4(0.2f, 0.9f, 0.4f, 1.0f), "Resident Evil 8: Aspect Ratio Patch");
++        ImGui::TextColored(ImVec4(0.7f, 0.7f, 0.7f, 1.0f), "Development candidate / pending game verification");
+         ImGui::Separator();
+         return;
+     }
+diff --git a/src/REFramework.hpp b/src/REFramework.hpp
+index 8e3db25..1c296ef 100644
+--- a/src/REFramework.hpp
++++ b/src/REFramework.hpp
+@@ -117,6 +117,10 @@ public:
+         return m_draw_ui;
+     }
+ 
++    bool get_cursor_state() const {
++        return m_cursor_state;
++    }
++
+     void set_draw_ui(bool state, bool should_save = true);
+ 
+     auto& get_hook_monitor_mutex() {
+diff --git a/src/WindowsMessageHook.cpp b/src/WindowsMessageHook.cpp
+index c26847f..24c91a0 100644
+--- a/src/WindowsMessageHook.cpp
++++ b/src/WindowsMessageHook.cpp
+@@ -25,6 +25,9 @@ LRESULT WINAPI window_proc(HWND wnd, UINT message, WPARAM w_param, LPARAM l_para
+     if (on_message) {
+         // If it returns false we don't call the original window procedure.
+         if (!on_message(wnd, message, w_param, l_param)) {
++            if (message == WM_SETCURSOR) {
++                return TRUE;
++            }
+             return DefWindowProc(wnd, message, w_param, l_param);
+         }
+     }
+diff --git a/src/mods/Graphics.cpp b/src/mods/Graphics.cpp
+index 8c40dcd..e93d941 100644
+--- a/src/mods/Graphics.cpp
++++ b/src/mods/Graphics.cpp
+@@ -10,6 +10,9 @@
+ 
+ #include "VR.hpp"
+ #include "Graphics.hpp"
++#include "re8/RE8NativeCursor.hpp"
++#include "re8/RE8MapDragController.hpp"
++#include "re8/RE8DisplayGeometry.hpp"
+ 
+ #ifdef REFRAMEWORK_UNIVERSAL
+ #include "sdk/regenny/re9/via/Window.hpp"
+@@ -48,6 +51,27 @@
+ #endif
+ #endif
+ 
++namespace {
++// Query the current output buffer rather than the desktop size or a fixed list
++// of resolutions. DXGI reports physical render pixels, independent of DPI.
++std::optional<std::array<float, 2>> re8_output_dimensions() {
++    IDXGISwapChain* swapchain = nullptr;
++    if (g_framework->is_dx11()) {
++        const auto& hook = g_framework->get_d3d11_hook();
++        if (hook != nullptr) swapchain = hook->get_swap_chain();
++    } else {
++        const auto& hook = g_framework->get_d3d12_hook();
++        if (hook != nullptr) swapchain = hook->get_swap_chain();
++    }
++    DXGI_SWAP_CHAIN_DESC desc{};
++    if (swapchain == nullptr || FAILED(swapchain->GetDesc(&desc)) ||
++        !re8_patch::display::valid_dimensions(static_cast<float>(desc.BufferDesc.Width), static_cast<float>(desc.BufferDesc.Height))) {
++        return std::nullopt;
++    }
++    return std::array<float, 2>{static_cast<float>(desc.BufferDesc.Width), static_cast<float>(desc.BufferDesc.Height)};
++}
++}
++
+ std::shared_ptr<Graphics>& Graphics::get() {
+     static auto mod = std::make_shared<Graphics>();
+     return mod;
+@@ -227,16 +251,9 @@ void Graphics::on_config_load(const utility::Config& cfg) {
+         option.config_load(cfg);
+     }
+ 
+-    if (sdk::GameIdentity::get().is_re8()) {
+-        m_ultrawide_fix->value() = true;
+-        if (m_ultrawide_fov_multiplier->value() <= 1.0f) {
+-            m_ultrawide_fov_multiplier->value() = 1.715f;
+-            m_ultrawide_custom_fov->value() = true;
+-        }
+-        m_ultrawide_vertical_fov->value() = false;
+-        m_ultrawide_16_10_mode->value() = false;
+-        m_ultrawide_constrain_ui->value() = false;
+-    }
++    // Keep loaded user choices, including manual 1.715 FOV and letterbox mode.
++    // The distribution supplies defaults; loading must not silently replace them.
++
+ }
+ 
+ void Graphics::on_config_save(utility::Config& cfg) {
+@@ -250,94 +267,9 @@ void Graphics::on_frame() {
+         m_disable_gui->toggle();
+     }
+ 
+-    if (m_ultrawide_fix->value() && sdk::GameIdentity::get().is_re8()) {
+-        if (!g_framework->is_game_data_initialized()) {
+-            return;
+-        }
+-
+-        setup_re8_cursor_hooks();
+-
+-        auto main_view = sdk::get_main_view();
+-        if (main_view != nullptr) {
+-            auto window = sdk::via::sv_window(main_view);
+-            if (window != nullptr) {
+-                auto r_win = (sdk::via::W::re8*)window;
+-                auto r_sv = (sdk::via::SV::re8*)main_view;
+-
+-                const float w = static_cast<float>(r_win->width);
+-                const float h = static_cast<float>(r_win->height);
+-
+-                if (w > 0.0f && h > 0.0f) {
+-                    r_sv->size.w = w;
+-                    r_sv->size.h = h;
+-                    r_sv->custom_display_size.w = w;
+-                    r_sv->custom_display_size.h = h;
+-                    r_sv->present_rect.w = w;
+-                    r_sv->present_rect.h = h;
+-                    r_sv->display_type = ns_re8::regenny::via::DisplayType::Fit;
+-                    r_win->borderless_size.w = w;
+-                    r_win->borderless_size.h = h;
+-                }
+-
+-                // If RE Engine via.Window has show_cursor set, trigger cursor active
+-                if (r_win->show_cursor) {
+-                    m_re8_game_wants_cursor = true;
+-                    m_re8_cursor_ticks = 15;
+-                }
+-
+-                // Check RE8 managed managers as secondary verification
+-                if (m_re8_cursor_ticks <= 0) {
+-                    static auto gui_man_t = sdk::find_type_definition("app.GUIManager");
+-                    if (gui_man_t != nullptr) {
+-                        auto gui_man = sdk::get_managed_singleton<::REManagedObject>("app.GUIManager");
+-                        if (gui_man != nullptr) {
+-                            static auto get_is_pause = gui_man_t->get_method("get_isPause");
+-                            if (get_is_pause != nullptr && get_is_pause->call<bool>(sdk::get_thread_context(), gui_man)) {
+-                                m_re8_game_wants_cursor = true;
+-                                m_re8_cursor_ticks = 15;
+-                            } else {
+-                                static auto get_is_menu = gui_man_t->get_method("get_isMenu");
+-                                if (get_is_menu != nullptr && get_is_menu->call<bool>(sdk::get_thread_context(), gui_man)) {
+-                                    m_re8_game_wants_cursor = true;
+-                                    m_re8_cursor_ticks = 15;
+-                                }
+-                            }
+-                        }
+-                    }
+-                }
+-
+-                // Tick countdown for cursor active state
+-                if (m_re8_cursor_ticks > 0) {
+-                    m_re8_cursor_ticks--;
+-                    m_re8_game_wants_cursor = true;
+-                } else {
+-                    m_re8_game_wants_cursor = false;
+-                }
+-
+-                bool menu_active = is_re8_menu_or_cursor_active();
+-
+-                // Synchronize mouse coordinates with RE Engine during menus
+-                HWND hwnd = (HWND)g_framework->get_window();
+-                if (hwnd != nullptr && menu_active) {
+-                    POINT pt{};
+-                    if (GetCursorPos(&pt) && ScreenToClient(hwnd, &pt)) {
+-                        if (pt.x >= 0 && pt.y >= 0 && pt.x <= (LONG)r_win->width && pt.y <= (LONG)r_win->height) {
+-                            r_win->cursor_pos.x = static_cast<float>(pt.x);
+-                            r_win->cursor_pos.y = static_cast<float>(pt.y);
+-                        }
+-                    }
+-                }
+-
+-                // Hardware Windows Cursor display enforcement
+-                if (menu_active) {
+-                    while (::ShowCursor(TRUE) < 0) {}
+-                    ::SetCursor(::LoadCursor(nullptr, IDC_ARROW));
+-                } else {
+-                    while (::ShowCursor(FALSE) >= 0) {}
+-                    ::SetCursor(nullptr);
+-                }
+-            }
+-        }
++    if (sdk::GameIdentity::get().is_re8() && g_framework->is_game_data_initialized()) {
++        re8_patch::NativeCursorController::get().on_frame(g_framework->is_drawing_ui());
++        re8_patch::MapDragController::get().configure(m_re8_map_drag_button->value());
+     }
+ 
+     if (sdk::GameIdentity::get().tdb_ver() >= 69) {
+@@ -353,6 +285,18 @@ void Graphics::on_frame() {
+ }
+ 
+ void Graphics::on_draw_ui() {
++    if (sdk::GameIdentity::get().is_re8()) {
++        re8_patch::NativeCursorController::get().draw_diagnostics();
++        m_re8_map_drag_button->draw("Map click/hold drag button");
++        if (ImGui::IsItemHovered()) {
++            ImGui::SetTooltip("Click to expand/select; hold and move to pan the map.\n"
++                              "Wheel zoom and fixed interface panels keep their native behavior.");
++        }
++        if (!re8_patch::MapDragController::get().available()) {
++            ImGui::TextUnformatted("Map drag: native fallback; custom input interfaces not ready.");
++        }
++    }
++
+     ImGui::SetNextItemOpen(false, ImGuiCond_::ImGuiCond_FirstUseEver);
+     if (!ImGui::CollapsingHeader(get_name().data())) {
+         return;
+@@ -372,17 +316,24 @@ void Graphics::on_draw_ui() {
+                                       "stretching to fill the screen. Prevents UI element misalignment.");
+                 }
+ 
+-                m_ultrawide_vertical_fov->draw("Ultrawide: Enable Vertical FOV");
+-                m_ultrawide_custom_fov->draw("Ultrawide: Override FOV");
+-                m_ultrawide_fov_multiplier->draw("Ultrawide: FOV Multiplier");
+-
+-                ImGui::Spacing();
+-                ImGui::TextColored(ImVec4(1.0f, 0.85f, 0.2f, 1.0f), "Recommended 16:10 (1920x1200) Setup:");
+-                ImGui::BulletText("Ultrawide/FOV Fix: Enabled");
+-                ImGui::BulletText("16:10 Black Bars: Disabled");
+-                ImGui::BulletText("Enable Vertical FOV: Disabled");
+-                ImGui::BulletText("Override FOV: Enabled");
+-                ImGui::BulletText("FOV Multiplier: 1.715");
++                m_ultrawide_constrain_ui->draw("Use proportional UI safe area (experimental)");
++                if (ImGui::IsItemHovered()) {
++                    ImGui::SetTooltip("Uses the engine's uniform FitSmallRatioAxis scale and centered anchor.\n"
++                                      "Check HUD, subtitles and map hit targets in game before enabling permanently.");
++                }
++                m_ultrawide_vertical_fov->draw("Use vertical FOV");
++                m_ultrawide_custom_fov->draw("Manual FOV override (legacy calibration)");
++                if (ImGui::IsItemHovered()) {
++                    ImGui::SetTooltip("Enabled: preserves your manual multiplier, including 1.715.\n"
++                                      "Disabled: automatic Hor+ on wide displays and Vert+ on narrow displays.");
++                }
++                if (m_ultrawide_custom_fov->value()) {
++                    m_ultrawide_fov_multiplier->draw("Manual FOV multiplier");
++                }
++                if (const auto dimensions = re8_output_dimensions()) {
++                    ImGui::Text("Render output: %.0f x %.0f (%.4f:1)", (*dimensions)[0], (*dimensions)[1], (*dimensions)[0] / (*dimensions)[1]);
++                }
++
+             }
+ 
+             ImGui::TreePop();
+@@ -616,6 +567,12 @@ void Graphics::on_pre_application_entry(void* entry, const char* name, size_t ha
+ }
+ 
+ void Graphics::on_application_entry(void* entry, const char* name, size_t hash) {
++    if (hash == "UpdateGUI"_fnv && sdk::GameIdentity::get().is_re8() &&
++        g_framework->is_game_data_initialized()) {
++        re8_patch::NativeCursorController::get().on_gui_update();
++        re8_patch::MapDragController::get().on_gui_update();
++    }
++
+     if (hash == "UpdateBehavior"_fnv) {
+         if (!sdk::GameIdentity::get().is_sf6()) {
+             do_ultrawide_fov_restore();
+@@ -706,6 +663,28 @@ bool Graphics::on_pre_gui_draw_element(REComponent* gui_element, void* primitive
+         return true;
+     }
+ 
++    if (sdk::GameIdentity::get().is_re8() && gui_element != nullptr) {
++        static const auto cursor_type = sdk::find_type_definition("app.GUIMouseCursor");
++        static const auto cursor_retype = cursor_type != nullptr ? cursor_type->get_type() : nullptr;
++        static const auto get_panel = cursor_type != nullptr ? cursor_type->get_method("get_cursorPanel") : nullptr;
++        static const auto play_type = sdk::find_type_definition("via.gui.PlayObject");
++        static const auto force_invisible = play_type != nullptr ? play_type->get_method("set_ForceInvisible") : nullptr;
++        const auto object = gui_element->get_game_object();
++        REComponent* cursor = cursor_retype != nullptr && gui_element->get_type() == cursor_retype ? gui_element : nullptr;
++        if (cursor == nullptr && cursor_retype != nullptr && object != nullptr && object->get_transform() != nullptr) {
++            cursor = object->get_transform()->find<REComponent>(cursor_retype);
++        }
++        if (cursor != nullptr && get_panel != nullptr && force_invisible != nullptr &&
++            get_panel->get_function() != nullptr && force_invisible->get_function() != nullptr) {
++            const auto panel = get_panel->call<::REManagedObject*>(sdk::get_thread_context(), cursor);
++            if (panel != nullptr) {
++                // Hide only the cursor's visual panel. Run the original GUI draw
++                // path so layout, hit processing and map input remain intact.
++                force_invisible->call<void>(sdk::get_thread_context(), panel, true);
++            }
++        }
++    }
++
+     if (m_disable_gui->value()) {
+         return false;
+     }
+@@ -743,41 +722,6 @@ bool Graphics::on_pre_gui_draw_element(REComponent* gui_element, void* primitive
+         const auto name = game_object->get_name();
+         const auto name_hash = utility::hash(name);
+ 
+-        if (sdk::GameIdentity::get().is_re8()) {
+-            static auto gui_mouse_cursor_t = sdk::find_type_definition("app.GUIMouseCursor");
+-            static auto gui_mouse_cursor_retype = gui_mouse_cursor_t != nullptr ? gui_mouse_cursor_t->get_type() : nullptr;
+-
+-            bool is_cursor_elem = false;
+-
+-            if (gui_mouse_cursor_retype != nullptr && gui_element->get_type() == gui_mouse_cursor_retype) {
+-                is_cursor_elem = true;
+-            } else if (!name.empty()) {
+-                std::string lower_name = name;
+-                std::transform(lower_name.begin(), lower_name.end(), lower_name.begin(), [](unsigned char c) { return (char)::tolower(c); });
+-                if (lower_name.find("cursor") != std::string::npos ||
+-                    lower_name.find("pointer") != std::string::npos ||
+-                    lower_name.find("mouse") != std::string::npos) 
+-                {
+-                    is_cursor_elem = true;
+-                }
+-            } else if (gui_mouse_cursor_retype != nullptr && game_object->get_transform() != nullptr) {
+-                auto comp = game_object->get_transform()->find<REComponent*>(gui_mouse_cursor_retype);
+-                if (comp != nullptr) {
+-                    is_cursor_elem = true;
+-                }
+-            }
+-
+-            if (is_cursor_elem) {
+-                // The game is trying to render the in-game software cursor.
+-                // This confirms an in-game menu, inventory, pause, or shop is active!
+-                m_re8_game_wants_cursor = true;
+-                m_re8_cursor_ticks = 15;
+-
+-                // Completely suppress the internal software cursor sprite
+-                game_object->set_shouldDraw(false);
+-                return false;
+-            }
+-        }
+ 
+         switch(name_hash) {
+         // RE2/3?
+@@ -852,6 +796,12 @@ void correct_window_size_if_needed(REManagedObject* scene_view) {
+         return;
+     }
+ 
++    if (sdk::GameIdentity::get().is_re8()) {
++        // Window/borderless and present-rectangle values are input transform
++        // metadata owned by the engine, not aliases for the render buffer.
++        return;
++    }
++
+     auto window = sdk::via::sv_window(scene_view);
+ 
+     if (window == nullptr) {
+@@ -895,51 +845,53 @@ void correct_window_size_if_needed(REManagedObject* scene_view) {
+     bw = target_w;
+     bh = target_h;
+ 
+-    if (sdk::GameIdentity::get().is_re8()) {
+-        auto r_sv = (sdk::via::SV::re8*)scene_view;
+-        r_sv->size.w = target_w;
+-        r_sv->size.h = target_h;
+-        r_sv->custom_display_size.w = target_w;
+-        r_sv->custom_display_size.h = target_h;
+-        r_sv->present_rect.w = target_w;
+-        r_sv->present_rect.h = target_h;
+-        r_sv->display_type = ns_re8::regenny::via::DisplayType::Fit;
+-    }
++
+ }
+ 
+ void Graphics::on_view_get_size(REManagedObject* scene_view, float* result) {
+-    if (m_ultrawide_fix->value()) {
+-        correct_window_size_if_needed(scene_view);
+-
+-        auto window = sdk::via::sv_window(scene_view);
+-        float width = 0.0f;
+-        float height = 0.0f;
+-
+-        if (m_backbuffer_size.has_value() && (*m_backbuffer_size)[0] > 0 && (*m_backbuffer_size)[1] > 0) {
+-            width = static_cast<float>((*m_backbuffer_size)[0]);
+-            height = static_cast<float>((*m_backbuffer_size)[1]);
+-        } else if (window != nullptr) {
+-            width = static_cast<float>(sdk::via::window_width(window));
+-            height = static_cast<float>(sdk::via::window_height(window));
+-        }
+-
+-        if (width > 0.0f && height > 0.0f) {
+-            result[0] = width;
+-            result[1] = height;
+-
+-            if (sdk::GameIdentity::get().is_re8()) {
+-                auto r_sv = (sdk::via::SV::re8*)scene_view;
+-                r_sv->size.w = width;
+-                r_sv->size.h = height;
+-                r_sv->custom_display_size.w = width;
+-                r_sv->custom_display_size.h = height;
+-                r_sv->present_rect.w = width;
+-                r_sv->present_rect.h = height;
+-                r_sv->display_type = ns_re8::regenny::via::DisplayType::Fit;
+-            } else if (sdk::GameIdentity::get().tdb_ver() >= 73) {
+-                sdk::via::sv_size_w(scene_view) = width;
+-                sdk::via::sv_size_h(scene_view) = height;
+-            }
++    if (!m_ultrawide_fix->value() || scene_view == nullptr || result == nullptr) {
++        return;
++    }
++    if (sdk::GameIdentity::get().is_re8()) {
++        if (!g_framework->is_game_data_initialized()) return;
++        // Auxiliary views (map, previews, UI cameras) retain their own size.
++        if (scene_view != sdk::get_main_view()) {
++            return;
++        }
++        const auto dimensions = re8_output_dimensions();
++        if (!dimensions) return; // Startup/resize: retain engine geometry.
++        const auto width = (*dimensions)[0];
++        const auto height = (*dimensions)[1];
++        if (m_ultrawide_16_10_mode->value() && std::abs(width / height - 16.0f / 10.0f) < 0.01f) {
++            return; // The engine's Uniform16x9 mode supplies the safe fallback.
++        }
++        result[0] = width;
++        result[1] = height;
++        // Preserve engine-owned present_rect and window input coordinates.
++        auto r_sv = reinterpret_cast<sdk::via::SV::re8*>(scene_view);
++        r_sv->size.w = width;
++        r_sv->size.h = height;
++        r_sv->custom_display_size.w = width;
++        r_sv->custom_display_size.h = height;
++        return;
++    }
++    correct_window_size_if_needed(scene_view);
++    const auto window = sdk::via::sv_window(scene_view);
++    float width = 0.0f;
++    float height = 0.0f;
++    if (m_backbuffer_size.has_value() && (*m_backbuffer_size)[0] > 0 && (*m_backbuffer_size)[1] > 0) {
++        width = static_cast<float>((*m_backbuffer_size)[0]);
++        height = static_cast<float>((*m_backbuffer_size)[1]);
++    } else if (window != nullptr) {
++        width = static_cast<float>(sdk::via::window_width(window));
++        height = static_cast<float>(sdk::via::window_height(window));
++    }
++    if (re8_patch::display::valid_dimensions(width, height)) {
++        result[0] = width;
++        result[1] = height;
++        if (sdk::GameIdentity::get().tdb_ver() >= 73) {
++            sdk::via::sv_size_w(scene_view) = width;
++            sdk::via::sv_size_h(scene_view) = height;
+         }
+     }
+ }
+@@ -1008,12 +960,16 @@ void Graphics::do_ultrawide_fix() {
+     }
+ 
+     // When 16:10 letterbox mode is active, we intentionally skip the FOV correction
+-    // because the content will be displayed at 16:9 with black bars — no FOV adjustment needed.
++    // because the content will be displayed at 16:9 with black bars â€” no FOV adjustment needed.
+     const bool use_16_10_letterbox = [this]() -> bool {
+-        if (!m_ultrawide_16_10_mode->value() || !m_backbuffer_size.has_value()) return false;
+-        const auto& size = m_backbuffer_size.value();
+-        const double ratio = static_cast<double>(size[0]) / static_cast<double>(size[1]);
+-        return glm::abs(ratio - 16.0 / 10.0) < 0.01;
++        if (!m_ultrawide_16_10_mode->value()) return false;
++        if (sdk::GameIdentity::get().is_re8()) {
++            const auto size = re8_output_dimensions();
++            return size && std::abs((*size)[0] / (*size)[1] - 16.0f / 10.0f) < 0.01f;
++        }
++        if (!m_backbuffer_size.has_value() || (*m_backbuffer_size)[1] == 0) return false;
++        const auto& size = *m_backbuffer_size;
++        return std::abs(static_cast<double>(size[0]) / size[1] - 16.0 / 10.0) < 0.01;
+     }();
+ 
+     if (!use_16_10_letterbox) {
+@@ -1030,7 +986,7 @@ void Graphics::do_ultrawide_fix() {
+     }
+ 
+     static auto via_scene_view = sdk::find_type_definition("via.SceneView");
+-    static auto set_display_type_method = via_scene_view->get_method("set_DisplayType");
++    static auto set_display_type_method = via_scene_view != nullptr ? via_scene_view->get_method("set_DisplayType") : nullptr;
+ 
+     auto main_view = sdk::get_main_view();
+ 
+@@ -1042,32 +998,14 @@ void Graphics::do_ultrawide_fix() {
+     // This cannot be directly restored once applied.
+     if (set_display_type_method != nullptr) {
+         auto display_type = via::DisplayType::Fit;
+-        auto graphics = Graphics::get();
+-
+-        if (graphics->m_backbuffer_size.has_value()) {
+-            const auto& size = graphics->m_backbuffer_size.value();
+-            const double ratio = static_cast<double>(size[0]) / static_cast<double>(size[1]);
+-            constexpr double epsilon = 0.01;
+-            constexpr double _4_3   = 4.0 / 3.0;
+-            constexpr double _16_9  = 16.0 / 9.0;
+-            constexpr double _16_10 = 16.0 / 10.0;
+-            constexpr double _21_9  = 21.0 / 9.0;
+-            constexpr double _32_9  = 32.0 / 9.0;
+-            constexpr double _48_9  = 48.0 / 9.0;
+-            
+-            if (glm::abs(ratio - _4_3) < epsilon) {
++        if (sdk::GameIdentity::get().is_re8()) {
++            // A continuous viewport; the camera projection uses render dimensions.
++            display_type = use_16_10_letterbox ? via::DisplayType::Uniform16x9 : via::DisplayType::Fit;
++        } else if (m_backbuffer_size.has_value() && (*m_backbuffer_size)[1] != 0) {
++            // Preserve the upstream 4:3 behavior for other games in this source tree.
++            const double ratio = static_cast<double>((*m_backbuffer_size)[0]) / (*m_backbuffer_size)[1];
++            if (std::abs(ratio - 4.0 / 3.0) < 0.01) {
+                 display_type = via::DisplayType::Uniform4x3;
+-            } else if (glm::abs(ratio - _16_9) < epsilon) {
+-                display_type = via::DisplayType::Uniform16x9;
+-            } else if (glm::abs(ratio - _16_10) < epsilon) {
+-                // In 16:10, Fit completely removes black bars without stretching
+-                display_type = via::DisplayType::Fit;
+-            } else if (glm::abs(ratio - _21_9) < epsilon) {
+-                display_type = via::DisplayType::Uniform21x9;
+-            } else if (glm::abs(ratio - _32_9) < epsilon) {
+-                display_type = via::DisplayType::Uniform32x9;
+-            } else if (glm::abs(ratio - _48_9) < epsilon) {
+-                display_type = via::DisplayType::Uniform48x9;
+             }
+         }
+ 
+@@ -1085,6 +1023,11 @@ void Graphics::do_ultrawide_fov_restore(bool force) {
+         return;
+     }
+ 
++    if (sdk::GameIdentity::get().is_re8()) {
++        restore_re8_camera_projection();
++        return;
++    }
++
+     if (sdk::GameIdentity::get().is_re4()) { // Don't restore the FOV if we've just opened the inventory
+         const auto now = std::chrono::steady_clock::now();
+         if (now - m_re4.last_inventory_open < std::chrono::milliseconds(100)) {
+@@ -1093,8 +1036,8 @@ void Graphics::do_ultrawide_fov_restore(bool force) {
+     }
+ 
+     static auto via_camera = sdk::find_type_definition("via.Camera");
+-    static auto set_fov_method = via_camera->get_method("set_FOV");
+-    static auto set_vertical_enable_method = via_camera->get_method("set_VerticalEnable");
++    static auto set_fov_method = via_camera != nullptr ? via_camera->get_method("set_FOV") : nullptr;
++    static auto set_vertical_enable_method = via_camera != nullptr ? via_camera->get_method("set_VerticalEnable") : nullptr;
+ 
+     std::scoped_lock _{m_fov_mutex};
+ 
+@@ -1125,6 +1068,10 @@ float ver_to_hor_fov(float fov, float aspect_ratio) {
+ }
+ 
+ void Graphics::set_ultrawide_fov(bool use_vertical_fov) {
++    if (sdk::GameIdentity::get().is_re8()) {
++        apply_re8_camera_projection(use_vertical_fov);
++        return;
++    }
+     auto camera = sdk::get_primary_camera();
+ 
+     if (camera == nullptr) {
+@@ -1146,11 +1093,11 @@ void Graphics::set_ultrawide_fov(bool use_vertical_fov) {
+     }
+ 
+     static auto via_camera = sdk::find_type_definition("via.Camera");
+-    static auto get_vertical_enable_method = via_camera->get_method("get_VerticalEnable");
+-    static auto set_vertical_enable_method = via_camera->get_method("set_VerticalEnable");
+-    static auto get_fov_method = via_camera->get_method("get_FOV");
+-    static auto set_fov_method = via_camera->get_method("set_FOV");
+-    static auto get_aspect_method = via_camera->get_method("get_AspectRatio");
++    static auto get_vertical_enable_method = via_camera != nullptr ? via_camera->get_method("get_VerticalEnable") : nullptr;
++    static auto set_vertical_enable_method = via_camera != nullptr ? via_camera->get_method("set_VerticalEnable") : nullptr;
++    static auto get_fov_method = via_camera != nullptr ? via_camera->get_method("get_FOV") : nullptr;
++    static auto set_fov_method = via_camera != nullptr ? via_camera->get_method("set_FOV") : nullptr;
++    static auto get_aspect_method = via_camera != nullptr ? via_camera->get_method("get_AspectRatio") : nullptr;
+ 
+     bool was_vertical_fov_enabled = false;
+     bool is_vertical_fov_enabled = false;
+@@ -1249,199 +1196,101 @@ void Graphics::set_ultrawide_fov(bool use_vertical_fov) {
+     }
+ }
+ 
+-union REPointRet {
+-    struct {
+-        float x;
+-        float y;
+-    };
+-    uint64_t raw;
+-};
+-
+-uint64_t Graphics::get_view_cursor_pos_hook(void* this_ptr, void* scene_view) {
+-    HWND hwnd = (HWND)g_framework->get_window();
+-    if (hwnd != nullptr) {
+-        POINT pt{};
+-        if (GetCursorPos(&pt) && ScreenToClient(hwnd, &pt)) {
+-            REPointRet ret{};
+-            ret.x = static_cast<float>(pt.x);
+-            ret.y = static_cast<float>(pt.y);
+-            return ret.raw;
+-        }
+-    }
+-
+-    auto original = Graphics::get()->m_get_view_cursor_pos_hook->get_original<decltype(get_view_cursor_pos_hook)>();
+-    return original(this_ptr, scene_view);
+-}
+-
+-uint64_t Graphics::get_present_rect_cursor_pos_hook(void* this_ptr, void* scene_view) {
+-    HWND hwnd = (HWND)g_framework->get_window();
+-    if (hwnd != nullptr) {
+-        POINT pt{};
+-        if (GetCursorPos(&pt) && ScreenToClient(hwnd, &pt)) {
+-            REPointRet ret{};
+-            ret.x = static_cast<float>(pt.x);
+-            ret.y = static_cast<float>(pt.y);
+-            return ret.raw;
++namespace {
++struct RE8CameraAccess {
++    sdk::REMethodDefinition* fov_get{};
++    sdk::REMethodDefinition* fov_set{};
++    sdk::REMethodDefinition* aspect_get{};
++    sdk::REMethodDefinition* aspect_set{};
++    sdk::REMethodDefinition* vertical_get{};
++    sdk::REMethodDefinition* vertical_set{};
++    sdk::REMethodDefinition* projection_get{};
++    sdk::REField* perspective{};
++    RE8CameraAccess() {
++        const auto type = sdk::find_type_definition("via.Camera");
++        if (type == nullptr) return;
++        fov_get = type->get_method("get_FOV"); fov_set = type->get_method("set_FOV");
++        aspect_get = type->get_method("get_AspectRatio"); aspect_set = type->get_method("set_AspectRatio");
++        vertical_get = type->get_method("get_VerticalEnable"); vertical_set = type->get_method("set_VerticalEnable");
++        projection_get = type->get_method("get_ProjectionType");
++        const auto projection = sdk::find_type_definition("via.ProjectionType");
++        if (projection != nullptr) perspective = projection->get_field("PerspectiveFovRH");
++    }
++    bool available() const {
++        for (auto method : {fov_get, fov_set, aspect_get, aspect_set, vertical_get, vertical_set}) {
++            if (method == nullptr || method->get_function() == nullptr) return false;
+         }
++        return true;
+     }
+-
+-    auto original = Graphics::get()->m_get_present_rect_cursor_pos_hook->get_original<decltype(get_present_rect_cursor_pos_hook)>();
+-    return original(this_ptr, scene_view);
+-}
+-
+-uint64_t Graphics::get_physical_to_virtual_mouse_pos_hook(void* this_ptr, const void* physical_pos, uint32_t offset) {
+-    if (physical_pos != nullptr) {
+-        const float* fpos = reinterpret_cast<const float*>(physical_pos);
+-        REPointRet ret{};
+-        ret.x = fpos[0];
+-        ret.y = fpos[1];
+-        return ret.raw;
++    re8_patch::display::CameraProjection read(::REManagedObject* camera) const {
++        auto ctx = sdk::get_thread_context();
++        return {fov_get->call<float>(ctx, camera), aspect_get->call<float>(ctx, camera),
++                vertical_get->call<bool>(ctx, camera)};
+     }
+-
+-    HWND hwnd = (HWND)g_framework->get_window();
+-    if (hwnd != nullptr) {
+-        POINT pt{};
+-        if (GetCursorPos(&pt) && ScreenToClient(hwnd, &pt)) {
+-            REPointRet ret{};
+-            ret.x = static_cast<float>(pt.x);
+-            ret.y = static_cast<float>(pt.y);
+-            return ret.raw;
+-        }
++    void write(::REManagedObject* camera, re8_patch::display::CameraProjection state) const {
++        auto ctx = sdk::get_thread_context();
++        aspect_set->call<void>(ctx, camera, state.aspect);
++        vertical_set->call<void>(ctx, camera, state.vertical);
++        fov_set->call<void>(ctx, camera, state.fov);
+     }
+-
+-    auto original = Graphics::get()->m_get_physical_to_virtual_mouse_pos_hook->get_original<decltype(get_physical_to_virtual_mouse_pos_hook)>();
+-    return original(this_ptr, physical_pos, offset);
++};
++const RE8CameraAccess& re8_camera_access() {
++    static const RE8CameraAccess access;
++    return access;
+ }
+-
+-uint64_t Graphics::get_cursor_pos_hook(void* this_ptr) {
+-    HWND hwnd = (HWND)g_framework->get_window();
+-    if (hwnd != nullptr) {
+-        POINT pt{};
+-        if (GetCursorPos(&pt) && ScreenToClient(hwnd, &pt)) {
+-            REPointRet ret{};
+-            ret.x = static_cast<float>(pt.x);
+-            ret.y = static_cast<float>(pt.y);
+-            return ret.raw;
+-        }
+-    }
+-
+-    auto original = Graphics::get()->m_get_cursor_pos_hook->get_original<decltype(get_cursor_pos_hook)>();
+-    return original(this_ptr);
+ }
+ 
+-void Graphics::set_show_cursor_hook(void* this_ptr, bool show) {
+-    Graphics::get()->m_re8_game_wants_cursor = show;
+-    auto original = Graphics::get()->m_set_show_cursor_hook->get_original<decltype(set_show_cursor_hook)>();
+-    if (original != nullptr) {
+-        // ALWAYS pass false so RE Engine's internal MouseDevice never renders the software cursor
+-        original(this_ptr, false);
+-    }
++void Graphics::apply_re8_camera_projection(bool vertical) {
++    if (!g_framework->is_game_data_initialized() ||
++        re8_patch::NativeCursorController::get().game_menu_visible()) return;
++    const auto dimensions = re8_output_dimensions();
++    auto camera = sdk::get_primary_camera();
++    const auto& access = re8_camera_access();
++    if (camera == nullptr || !dimensions || !access.available() ||
++        access.projection_get == nullptr || access.projection_get->get_function() == nullptr ||
++        access.perspective == nullptr) return;
++    const auto perspective = access.perspective->get_data_raw(nullptr, true);
++    if (perspective == nullptr || access.projection_get->call<int32_t>(sdk::get_thread_context(), camera) !=
++        *static_cast<const int32_t*>(perspective)) return;
++    const auto observed = access.read(camera); // BEFORE any axis/aspect mutation.
++    const float multiplier = m_ultrawide_fov_multiplier->value();
++    if (!re8_patch::display::valid_fov(observed.fov) || !std::isfinite(observed.aspect) ||
++        observed.aspect <= 0.0f || !std::isfinite(multiplier) || multiplier <= 0.0f) return;
++    std::scoped_lock lock{m_fov_mutex};
++    auto [entry, inserted] = m_re8_projection_overrides.try_emplace(camera);
++    if (inserted) camera->add_ref();
++    const auto target = entry->second.apply(observed, (*dimensions)[0] / (*dimensions)[1],
++                                           vertical, m_ultrawide_custom_fov->value(), multiplier);
++    access.write(camera, target);
++    entry->second.confirm_applied(access.read(camera));
+ }
+ 
+-bool Graphics::get_show_cursor_hook(void* this_ptr) {
+-    // RE Engine queries this to decide whether to draw the software cursor sprite.
+-    // By returning false, RE Engine will never draw its in-game cursor!
+-    return false;
++void Graphics::restore_re8_camera_projection() {
++    if (!g_framework->is_game_data_initialized()) return;
++    const auto& access = re8_camera_access();
++    if (!access.available()) return;
++    std::scoped_lock lock{m_fov_mutex};
++    for (auto& [camera, snapshot] : m_re8_projection_overrides) {
++        // Restore only our values; preserve engine updates made during behavior.
++        access.write(camera, snapshot.restore(access.read(camera)));
++        camera->release();
++    }
++    m_re8_projection_overrides.clear();
+ }
+ 
+-void Graphics::set_show_mouse_cursor_gui_hook(void* this_ptr, bool show) {
+-    Graphics::get()->m_re8_game_wants_cursor = show;
+-    auto original = Graphics::get()->m_set_show_mouse_cursor_gui_hook->get_original<decltype(set_show_mouse_cursor_gui_hook)>();
+-    if (original != nullptr) {
+-        // ALWAYS pass false so RE Engine's internal GUIManager never shows its in-game cursor!
+-        original(this_ptr, false);
+-    }
++bool Graphics::is_re8_menu_or_cursor_active() const {
++    return re8_patch::NativeCursorController::get().wants_cursor();
+ }
+ 
+-void Graphics::setup_re8_cursor_hooks() {
+-    if (m_attempted_re8_cursor_hooks) {
+-        return;
+-    }
+-    m_attempted_re8_cursor_hooks = true;
+-
+-    if (!sdk::GameIdentity::get().is_re8()) {
+-        return;
+-    }
+-
+-    spdlog::info("[Graphics] Initializing RE8 low-level hardware cursor & virtual mouse hooks...");
+-
+-    auto view_get_cursor_fn = sdk::find_native_method("via.hid.MouseDevice", "getViewCursorPosition");
+-    if (view_get_cursor_fn != nullptr) {
+-        spdlog::info("[Graphics] Hooking via.hid.MouseDevice::getViewCursorPosition: {:x}", (uintptr_t)view_get_cursor_fn);
+-        m_get_view_cursor_pos_hook = std::make_unique<FunctionHook>((uintptr_t)view_get_cursor_fn, (uintptr_t)get_view_cursor_pos_hook);
+-        if (m_get_view_cursor_pos_hook->create()) {
+-            spdlog::info("[Graphics] Hooked via.hid.MouseDevice::getViewCursorPosition successfully!");
+-        } else {
+-            spdlog::error("[Graphics] Failed to hook via.hid.MouseDevice::getViewCursorPosition");
+-        }
+-    }
+-
+-    auto present_rect_cursor_fn = sdk::find_native_method("via.hid.MouseDevice", "getPresentRectCursorPosition");
+-    if (present_rect_cursor_fn != nullptr) {
+-        spdlog::info("[Graphics] Hooking via.hid.MouseDevice::getPresentRectCursorPosition: {:x}", (uintptr_t)present_rect_cursor_fn);
+-        m_get_present_rect_cursor_pos_hook = std::make_unique<FunctionHook>((uintptr_t)present_rect_cursor_fn, (uintptr_t)get_present_rect_cursor_pos_hook);
+-        if (m_get_present_rect_cursor_pos_hook->create()) {
+-            spdlog::info("[Graphics] Hooked via.hid.MouseDevice::getPresentRectCursorPosition successfully!");
+-        } else {
+-            spdlog::error("[Graphics] Failed to hook via.hid.MouseDevice::getPresentRectCursorPosition");
+-        }
+-    }
+-
+-    auto phys_to_virt_fn = sdk::find_native_method("via.gui.View", "getPhysicalToVirtualMousePos");
+-    if (phys_to_virt_fn != nullptr) {
+-        spdlog::info("[Graphics] Hooking via.gui.View::getPhysicalToVirtualMousePos: {:x}", (uintptr_t)phys_to_virt_fn);
+-        m_get_physical_to_virtual_mouse_pos_hook = std::make_unique<FunctionHook>((uintptr_t)phys_to_virt_fn, (uintptr_t)get_physical_to_virtual_mouse_pos_hook);
+-        if (m_get_physical_to_virtual_mouse_pos_hook->create()) {
+-            spdlog::info("[Graphics] Hooked via.gui.View::getPhysicalToVirtualMousePos successfully!");
+-        } else {
+-            spdlog::error("[Graphics] Failed to hook via.gui.View::getPhysicalToVirtualMousePos");
+-        }
+-    }
+-
+-    auto cursor_pos_fn = sdk::find_native_method("via.hid.MouseDevice", "get_CursorPos");
+-    if (cursor_pos_fn == nullptr) {
+-        cursor_pos_fn = sdk::find_native_method("via.hid.MouseDevice", "getCursorPos");
+-    }
+-    if (cursor_pos_fn != nullptr) {
+-        spdlog::info("[Graphics] Hooking via.hid.MouseDevice::get_CursorPos: {:x}", (uintptr_t)cursor_pos_fn);
+-        m_get_cursor_pos_hook = std::make_unique<FunctionHook>((uintptr_t)cursor_pos_fn, (uintptr_t)get_cursor_pos_hook);
+-        if (m_get_cursor_pos_hook->create()) {
+-            spdlog::info("[Graphics] Hooked via.hid.MouseDevice::get_CursorPos successfully!");
+-        } else {
+-            spdlog::error("[Graphics] Failed to hook via.hid.MouseDevice::get_CursorPos");
+-        }
+-    }
+-
+-    auto set_show_cursor_fn = sdk::find_native_method("via.hid.MouseDevice", "set_ShowCursor");
+-    if (set_show_cursor_fn != nullptr) {
+-        spdlog::info("[Graphics] Hooking via.hid.MouseDevice::set_ShowCursor: {:x}", (uintptr_t)set_show_cursor_fn);
+-        m_set_show_cursor_hook = std::make_unique<FunctionHook>((uintptr_t)set_show_cursor_fn, (uintptr_t)set_show_cursor_hook);
+-        if (m_set_show_cursor_hook->create()) {
+-            spdlog::info("[Graphics] Hooked via.hid.MouseDevice::set_ShowCursor successfully!");
+-        }
+-    }
+-
+-    auto get_show_cursor_fn = sdk::find_native_method("via.hid.MouseDevice", "get_ShowCursor");
+-    if (get_show_cursor_fn != nullptr) {
+-        spdlog::info("[Graphics] Hooking via.hid.MouseDevice::get_ShowCursor: {:x}", (uintptr_t)get_show_cursor_fn);
+-        m_get_show_cursor_hook = std::make_unique<FunctionHook>((uintptr_t)get_show_cursor_fn, (uintptr_t)get_show_cursor_hook);
+-        if (m_get_show_cursor_hook->create()) {
+-            spdlog::info("[Graphics] Hooked via.hid.MouseDevice::get_ShowCursor successfully!");
+-        }
+-    }
++bool Graphics::handle_re8_cursor_message(HWND window, UINT message, WPARAM wparam, LPARAM lparam) {
++    return re8_patch::NativeCursorController::get().on_message(window, message, wparam, lparam);
++}
+ 
+-    auto set_show_gui_cursor_fn = sdk::find_native_method("app.GUIManager", "setShowMouseCursorGUI");
+-    if (set_show_gui_cursor_fn != nullptr) {
+-        spdlog::info("[Graphics] Hooking app.GUIManager::setShowMouseCursorGUI: {:x}", (uintptr_t)set_show_gui_cursor_fn);
+-        m_set_show_mouse_cursor_gui_hook = std::make_unique<FunctionHook>((uintptr_t)set_show_gui_cursor_fn, (uintptr_t)set_show_mouse_cursor_gui_hook);
+-        if (m_set_show_mouse_cursor_gui_hook->create()) {
+-            spdlog::info("[Graphics] Hooked app.GUIManager::setShowMouseCursorGUI successfully!");
+-        } else {
+-            spdlog::error("[Graphics] Failed to hook app.GUIManager::setShowMouseCursorGUI");
+-        }
+-    }
++void Graphics::set_re8_patch_config_open(bool open) {
++    re8_patch::NativeCursorController::get().set_patch_config_open(open);
+ }
+ 
++
+ #if defined(REFRAMEWORK_UNIVERSAL) || TDB_VER >= 69
+ void Graphics::setup_shader_interception_hook() {
+     if (m_attempted_shader_interception_hook) {
+diff --git a/src/mods/Graphics.hpp b/src/mods/Graphics.hpp
+index ad833ab..c856682 100644
+--- a/src/mods/Graphics.hpp
++++ b/src/mods/Graphics.hpp
+@@ -9,6 +9,7 @@
+ #include <sdk/renderer/PipelineState.hpp>
+ 
+ #include "Mod.hpp"
++#include "re8/RE8CameraProjection.hpp"
+ 
+ class REManagedObject;
+ class REComponent;
+@@ -54,20 +55,9 @@ public:
+ #endif
+ 
+ public:
+-    bool is_re8_menu_or_cursor_active() const {
+-        return g_framework->is_drawing_ui() || g_framework->get_cursor_state() || m_re8_game_wants_cursor;
+-    }
+-    bool re8_game_wants_cursor() const {
+-        return m_re8_game_wants_cursor;
+-    }
+-    void set_re8_game_wants_cursor(bool wants) {
+-        m_re8_game_wants_cursor = wants;
+-        if (wants) {
+-            m_re8_cursor_ticks = 15;
+-        }
+-    }
+-    bool m_re8_game_wants_cursor{ false };
+-    int32_t m_re8_cursor_ticks{ 0 };
++    bool is_re8_menu_or_cursor_active() const;
++    bool handle_re8_cursor_message(HWND window, UINT message, WPARAM wparam, LPARAM lparam);
++    void set_re8_patch_config_open(bool open);
+ 
+ private:
+     void fix_ui_element(REComponent* gui_element);
+@@ -75,25 +65,9 @@ private:
+     void do_ultrawide_fix();
+     void do_ultrawide_fov_restore(bool force = false);
+     void set_ultrawide_fov(bool enable);
++    void apply_re8_camera_projection(bool vertical);
++    void restore_re8_camera_projection();
+ 
+-    void setup_re8_cursor_hooks();
+-
+-    static uint64_t get_view_cursor_pos_hook(void* this_ptr, void* scene_view);
+-    static uint64_t get_present_rect_cursor_pos_hook(void* this_ptr, void* scene_view);
+-    static uint64_t get_physical_to_virtual_mouse_pos_hook(void* this_ptr, const void* physical_pos, uint32_t offset);
+-    static uint64_t get_cursor_pos_hook(void* this_ptr);
+-    static void set_show_cursor_hook(void* this_ptr, bool show);
+-    static bool get_show_cursor_hook(void* this_ptr);
+-    static void set_show_mouse_cursor_gui_hook(void* this_ptr, bool show);
+-
+-    std::unique_ptr<FunctionHook> m_get_view_cursor_pos_hook{};
+-    std::unique_ptr<FunctionHook> m_get_present_rect_cursor_pos_hook{};
+-    std::unique_ptr<FunctionHook> m_get_physical_to_virtual_mouse_pos_hook{};
+-    std::unique_ptr<FunctionHook> m_get_cursor_pos_hook{};
+-    std::unique_ptr<FunctionHook> m_set_show_cursor_hook{};
+-    std::unique_ptr<FunctionHook> m_get_show_cursor_hook{};
+-    std::unique_ptr<FunctionHook> m_set_show_mouse_cursor_gui_hook{};
+-    bool m_attempted_re8_cursor_hooks{ false };
+ 
+ #if defined(REFRAMEWORK_UNIVERSAL) || TDB_VER >= 69
+     void setup_path_trace_hook();
+@@ -212,6 +186,9 @@ private:
+     std::recursive_mutex m_fov_mutex{};
+     std::unordered_map<::REManagedObject*, float> m_fov_map{};
+     std::unordered_map<::REManagedObject*, bool> m_vertical_fov_map{};
++    std::unordered_map<::REManagedObject*, re8_patch::display::CameraProjectionOverride> m_re8_projection_overrides{};
++    const ModCombo::Ptr m_re8_map_drag_button{ModCombo::create(generate_name("RE8MapDragButton"),
++        {"Native controls", "Left mouse", "Right mouse", "Middle mouse", "Mouse 4", "Mouse 5"}, 1)};
+ 
+     struct {
+         std::shared_mutex time_mtx{};
+@@ -342,6 +319,7 @@ private:
+ 
+     ValueList m_options{
+         *m_ultrawide_fix,
++        *m_re8_map_drag_button,
+         *m_ultrawide_16_10_mode,
+         *m_ultrawide_vertical_fov,
+         *m_ultrawide_custom_fov,
+diff --git a/src/mods/REFrameworkConfig.hpp b/src/mods/REFrameworkConfig.hpp
+index c0fee07..701b2d9 100644
+--- a/src/mods/REFrameworkConfig.hpp
++++ b/src/mods/REFrameworkConfig.hpp
+@@ -49,7 +49,7 @@ private:
+     ModToggle::Ptr m_menu_open{ ModToggle::create(generate_name("MenuOpen"), true) };
+     ModToggle::Ptr m_remember_menu_state{ ModToggle::create(generate_name("RememberMenuState"), false) };
+ #if defined(RE8) && !defined(REFRAMEWORK_UNIVERSAL)
+-    ModToggle::Ptr m_always_show_cursor{ ModToggle::create(generate_name("DrawCursorWithMenuOpen"), true) };
++    ModToggle::Ptr m_always_show_cursor{ ModToggle::create(generate_name("DrawCursorWithMenuOpen"), false) };
+ #else
+     ModToggle::Ptr m_always_show_cursor{ ModToggle::create(generate_name("DrawCursorWithMenuOpen"), false) };
+ #endif
+diff --git a/src/mods/ScriptRunner.cpp b/src/mods/ScriptRunner.cpp
+index f3e38b2..9981117 100644
+--- a/src/mods/ScriptRunner.cpp
++++ b/src/mods/ScriptRunner.cpp
+@@ -1170,6 +1170,18 @@ void ScriptRunner::on_frame() {
+ }
+ 
+ void ScriptRunner::on_draw_ui() {
++    // RE8 exposes script settings in the patch menu without the dependency's
++    // development controls. This keeps re8_display.lua diagnostics reachable.
++    if (sdk::GameIdentity::get().is_re8()) {
++        if (!m_last_online_match_state) {
++            std::scoped_lock _{m_access_mutex};
++            for (auto& state : m_states) {
++                state->on_draw_ui();
++            }
++        }
++        return;
++    }
++
+     ImGui::SetNextItemOpen(false, ImGuiCond_::ImGuiCond_Once);
+ 
+     if (ImGui::CollapsingHeader(get_name().data())) {
+diff --git a/src/mods/re8/RE8CameraProjection.hpp b/src/mods/re8/RE8CameraProjection.hpp
+new file mode 100644
+index 0000000..385ff06
+--- /dev/null
++++ b/src/mods/re8/RE8CameraProjection.hpp
+@@ -0,0 +1,60 @@
++#pragma once
++#include "RE8DisplayGeometry.hpp"
++
++namespace re8_patch::display {
++struct CameraProjection {
++    float fov{};
++    float aspect{};
++    bool vertical{};
++};
++
++inline bool same_projection_value(float a, float b) {
++    return std::isfinite(a) && std::isfinite(b) && std::abs(a - b) < 0.0001f;
++}
++
++// A render-pass override owns only values it actually wrote. Repeated apply
++// calls cannot treat an already corrected FOV as a new source calibration.
++class CameraProjectionOverride {
++public:
++    CameraProjection apply(CameraProjection observed, float output_aspect,
++                           bool output_vertical, bool manual, float multiplier) {
++        if (!m_active) {
++            m_original = observed;
++            m_active = true;
++        } else {
++            // Preserve genuine engine changes (aim, zoom, cutscene camera).
++            if (!same_projection_value(observed.fov, m_applied.fov)) m_original.fov = observed.fov;
++            if (!same_projection_value(observed.aspect, m_applied.aspect)) m_original.aspect = observed.aspect;
++            if (observed.vertical != m_applied.vertical) m_original.vertical = observed.vertical;
++        }
++        float corrected = expanded_fov(m_original.fov, m_original.aspect,
++                                       output_aspect, m_original.vertical, output_vertical);
++        if (manual) {
++            const float horizontal = m_original.vertical
++                ? vertical_to_horizontal(m_original.fov, m_original.aspect) : m_original.fov;
++            const float scaled = std::clamp(horizontal * multiplier, 1.0f, 179.0f);
++            corrected = output_vertical ? horizontal_to_vertical(scaled, output_aspect) : scaled;
++        }
++        // The physical viewport and actual camera must use the SAME aspect.
++        m_applied = {corrected, output_aspect, output_vertical};
++        return m_applied;
++    }
++
++    CameraProjection restore(CameraProjection observed) const {
++        if (!m_active) return observed;
++        if (same_projection_value(observed.fov, m_applied.fov)) observed.fov = m_original.fov;
++        if (same_projection_value(observed.aspect, m_applied.aspect)) observed.aspect = m_original.aspect;
++        if (observed.vertical == m_applied.vertical) observed.vertical = m_original.vertical;
++        return observed;
++    }
++
++    void confirm_applied(CameraProjection actual) {
++        m_applied = actual; // Account for engine-side setter limits.
++    }
++
++private:
++    bool m_active{};
++    CameraProjection m_original{};
++    CameraProjection m_applied{};
++};
++} // namespace re8_patch::display
+diff --git a/src/mods/re8/RE8CursorPolicy.hpp b/src/mods/re8/RE8CursorPolicy.hpp
+new file mode 100644
+index 0000000..c58c180
+--- /dev/null
++++ b/src/mods/re8/RE8CursorPolicy.hpp
+@@ -0,0 +1,39 @@
++#pragma once
++#include <array>
++#include <string_view>
++
++namespace re8_patch {
++// Exact app.MenuDefine fields recovered from RE8's TDB69. No name substrings,
++// generic GUI state, player absence, HID cursor requests or keyboard guesses.
++inline constexpr auto authorized_cursor_menus = std::to_array<std::string_view>({
++    "TitleMenu", "ShowTitleMenu", "MainMenu", "DemoTitle", "DemoMainMenu",
++    "Ch10MainMenu", "RogueMainMenu", "RogueTitle", "RogueTitleGE",
++    "BonusMenu", "GE_BonusMenu", "GalleryMenu", "StoreMenu", "SubMenu",
++    "DifficultyMenu", "DifficultyWithVeryHardMenu", "ConceptArt", "ConceptArtList",
++    "Figure", "FigureList", "ExtraArt", "ExtraArtList", "MovieList",
++    "PauseMenu", "PauseClearGameMenu", "SystemPauseMenu", "EventPauseMenu",
++    "EventPauseClearGameMenu", "EventPauseEndingMenu", "EventPauseNoSkipMenu",
++    "EventPauseNoSkipClearGameMenu", "MoviePauseMenu", "MoviePauseClearGameMenu",
++    "RoguePauseMenu", "RoguePauseClearGameMenu",
++    "OptionPreset", "InitialSetting", "AdjustmentMenu", "AccessibilitySetting",
++    "PlayerCameraTypeSetting", "KeyAssignMenu", "KeyHelpMenu", "KeyHelpVitaMenu",
++    "AdditionalKeyAssignMenuGE", "AdditionalKeyHelpMenuGE", "ReNetSetting", "ReNetAgreement",
++    "ShopMenu", "ShopMenuUnlimited", "ShopBuyMenu", "ShopSellMenu", "ShopRecipeMenu",
++    "ShopCustomizeMenu", "ShopCustomizing", "ShopCustomizingSubMenu0",
++    "ShopCustomizingSubMenu1", "ShopCustomizingSubMenu2", "ShopCustomizingSubMenu3",
++    "InventoryMenu", "InventoryRogueMenu", "InventoryItem", "InventoryCraft",
++    "InventoryKeyItem", "InventoryTreasure", "InventoryAbility", "InventoryStatus",
++    "SaveMenu", "LoadMenu", "Ch10SaveMenu", "Ch10LoadMenu",
++    "SaveTransitionMenu", "SaveTransitionMenuCh10", "Map"
++});
++constexpr bool is_authorized_cursor_menu(std::string_view name) {
++    for (auto allowed : authorized_cursor_menus) {
++        if (name == allowed) return true;
++    }
++    return false;
++}
++constexpr bool should_show_native_cursor(bool known_menu_visible, bool patch_config_open,
++                                         bool focused_client) {
++    return focused_client && (known_menu_visible || patch_config_open);
++}
++}
+diff --git a/src/mods/re8/RE8DisplayGeometry.hpp b/src/mods/re8/RE8DisplayGeometry.hpp
+new file mode 100644
+index 0000000..672e860
+--- /dev/null
++++ b/src/mods/re8/RE8DisplayGeometry.hpp
+@@ -0,0 +1,61 @@
++#pragma once
++
++#include <algorithm>
++#include <cmath>
++
++namespace re8_patch::display {
++inline constexpr float reference_aspect = 16.0f / 9.0f;
++inline constexpr float degrees_to_radians = 0.017453292519943295f;
++
++inline bool valid_dimensions(float width, float height) {
++    return std::isfinite(width) && std::isfinite(height) && width > 0.0f && height > 0.0f;
++}
++
++inline bool valid_fov(float degrees) {
++    return std::isfinite(degrees) && degrees > 0.0f && degrees < 180.0f;
++}
++
++inline float horizontal_to_vertical(float horizontal, float aspect) {
++    return 2.0f * std::atan(std::tan(horizontal * degrees_to_radians * 0.5f) / aspect) / degrees_to_radians;
++}
++
++inline float vertical_to_horizontal(float vertical, float aspect) {
++    return 2.0f * std::atan(std::tan(vertical * degrees_to_radians * 0.5f) * aspect) / degrees_to_radians;
++}
++
++// Preserve horizontal coverage on narrow outputs (Vert+), vertical coverage on
++// wide outputs (Hor+). This adjusts projection, never stretches a finished image.
++// source_aspect is the camera's current projection, including native Hor+.
++inline float expanded_fov(float source_fov, float source_aspect, float target_aspect,
++                          bool source_vertical, bool target_vertical) {
++    if (!valid_fov(source_fov) || !std::isfinite(source_aspect) || source_aspect <= 0.0f ||
++        !std::isfinite(target_aspect) || target_aspect <= 0.0f) {
++        return source_fov;
++    }
++    const float horizontal = source_vertical ? vertical_to_horizontal(source_fov, source_aspect) : source_fov;
++    const float target_horizontal = target_aspect > source_aspect
++        ? vertical_to_horizontal(horizontal_to_vertical(horizontal, source_aspect), target_aspect)
++        : horizontal;
++    const float result = target_vertical ? horizontal_to_vertical(target_horizontal, target_aspect) : target_horizontal;
++    return std::clamp(result, 1.0f, 179.0f);
++}
++
++struct SafeArea {
++    float x;
++    float y;
++    float width;
++    float height;
++};
++
++// A centered, uniformly scaled 16:9 reference canvas; useful for diagnostics
++// and matching the engine's FitSmallRatioAxis policy. No per-widget anchors
++// are invented here; the engine retains responsibility for those controls.
++inline SafeArea safe_area(float width, float height) {
++    if (!valid_dimensions(width, height)) {
++        return {};
++    }
++    const float safe_width = std::min(width, height * reference_aspect);
++    const float safe_height = std::min(height, width / reference_aspect);
++    return {(width - safe_width) * 0.5f, (height - safe_height) * 0.5f, safe_width, safe_height};
++}
++} // namespace re8_patch::display
+diff --git a/src/mods/re8/RE8MapDragController.hpp b/src/mods/re8/RE8MapDragController.hpp
+new file mode 100644
+index 0000000..d754b8c
+--- /dev/null
++++ b/src/mods/re8/RE8MapDragController.hpp
+@@ -0,0 +1,202 @@
++#pragma once
++#include <array>
++#include <atomic>
++#include <cstring>
++#include "RE8MapDragPolicy.hpp"
++#include "RE8NativeCursor.hpp"
++
++namespace re8_patch {
++// Translate the user's map-only gesture into the engine's original click/pan
++// buttons. Never move GUI panels, icons, world coordinates or the OS pointer.
++class MapDragController {
++public:
++    static MapDragController& get() { static MapDragController controller; return controller; }
++    void configure(int binding) {
++        m_binding.store(std::clamp(binding, 0, 5));
++        if (g_framework->is_game_data_initialized() && !m_attempted.exchange(true)) {
++            initialize();
++            if (!available()) spdlog::warn("[RE8MapDrag] Required map/input interfaces unavailable; native controls retained");
++        }
++    }
++    bool available() const { return m_available.load(std::memory_order_acquire); }
++    void on_gui_update() {
++        std::scoped_lock lock{m_update_mutex};
++        const int binding = m_binding.load();
++        if (!available() || binding == 0 || g_framework->is_drawing_ui() ||
++            !NativeCursorController::get().game_menu_visible() || !map_showing()) {
++            m_policy.update(false, false, false);
++            m_captured = false;
++            m_frame.store(0);
++            return;
++        }
++        POINT point{};
++        const bool focused = focused_client(point);
++        const bool map_content = available() && binding != 0 && focused &&
++            !g_framework->is_drawing_ui() && pointer_over_map_content(point);
++        const bool held = binding != 0 && (GetAsyncKeyState(virtual_keys[binding]) & 0x8000) != 0;
++        // Once a pan starts, retain capture over fixed panels until release.
++        const bool eligible = map_content || (m_captured && focused &&
++            !g_framework->is_drawing_ui() && map_showing());
++        const bool moved = point.x != m_previous.x || point.y != m_previous.y;
++        const auto frame = m_policy.update(eligible, held, moved);
++        m_captured = frame.dragging;
++        m_previous = point;
++        m_frame.store((frame.eligible ? 1u : 0u) | (frame.held ? 2u : 0u) |
++            (frame.dragging ? 4u : 0u) | (frame.started ? 8u : 0u) | (frame.ended ? 16u : 0u));
++    }
++private:
++    struct Point { float x; float y; };
++    static constexpr std::array<int, 6> virtual_keys{0, VK_LBUTTON, VK_RBUTTON, VK_MBUTTON, VK_XBUTTON1, VK_XBUTTON2};
++    std::atomic<int> m_binding{1};
++    std::atomic<bool> m_attempted{};
++    std::atomic<bool> m_available{};
++    std::atomic<uint32_t> m_frame{};
++    std::array<uint32_t, 6> m_masks{};
++    std::array<std::unique_ptr<FunctionHook>, 3> m_button_hooks;
++    MapDragPolicy m_policy;
++    std::mutex m_update_mutex;
++    POINT m_previous{};
++    bool m_captured{};
++    sdk::REField* m_map_hash{};
++    sdk::REField* m_step{};
++    sdk::REField* m_world{};
++    sdk::REField* m_area{};
++    sdk::REField* m_panel{};
++    std::array<sdk::REField*, 4> m_fixed_panels{};
++    sdk::RETypeDefinition* m_step_type{};
++    sdk::REMethodDefinition* m_find{};
++    sdk::REMethodDefinition* m_driver{};
++    sdk::REMethodDefinition* m_showing{};
++    sdk::REMethodDefinition* m_to_virtual{};
++    sdk::REMethodDefinition* m_hit_test{};
++
++    static bool focused_client(POINT& point) {
++        const auto window = static_cast<HWND>(g_framework->get_window());
++        RECT rectangle{};
++        return window != nullptr && GetForegroundWindow() == window && !IsIconic(window) &&
++            GetCursorPos(&point) && ScreenToClient(window, &point) &&
++            GetClientRect(window, &rectangle) && PtInRect(&rectangle, point);
++    }
++    static sdk::REMethodDefinition* method(sdk::RETypeDefinition* type, const char* name) {
++        auto result = type != nullptr ? type->get_method(name) : nullptr;
++        return result != nullptr && result->get_function() != nullptr ? result : nullptr;
++    }
++    static ::REManagedObject* object_field(sdk::REField* field, ::REManagedObject* object) {
++        const auto data = field != nullptr ? field->get_data_raw(object) : nullptr;
++        return data != nullptr ? *static_cast<::REManagedObject**>(data) : nullptr;
++    }
++    bool map_showing() const {
++        if (!NativeCursorController::get().authorized_menu_visible("Map")) return false;
++        const auto data = m_map_hash != nullptr ? m_map_hash->get_data_raw(nullptr) : nullptr;
++        auto manager = sdk::get_managed_singleton<::REManagedObject>("app.GUIManager");
++        return data != nullptr && manager != nullptr && m_showing != nullptr &&
++            m_showing->call_safe<bool>(sdk::get_thread_context(), manager, *static_cast<const uint32_t*>(data));
++    }
++    bool pointer_over_map_content(POINT point) const {
++        auto manager = sdk::get_managed_singleton<::REManagedObject>("app.GUIManager");
++        const auto hash_data = m_map_hash->get_data_raw(nullptr);
++        const auto handle = m_find->call_safe<::REManagedObject*>(sdk::get_thread_context(), manager,
++            *static_cast<const uint32_t*>(hash_data));
++        if (handle == nullptr) return false;
++        const auto driver = m_driver->call_safe<::REManagedObject*>(sdk::get_thread_context(), handle);
++        if (driver == nullptr || !::REManagedObject::is_managed_object(driver) ||
++            driver->get_type_definition() == nullptr || !driver->get_type_definition()->is_a("app.GUIMap")) return false;
++        const auto step = m_step->get_data_raw(driver);
++        const auto world = m_world->get_data_raw(nullptr);
++        const auto area = m_area->get_data_raw(nullptr);
++        const size_t size = m_step_type->is_value_type() ? m_step_type->get_valuetype_size() : sizeof(void*);
++        if (step == nullptr || world == nullptr || area == nullptr || size == 0 || size > 32 ||
++            (std::memcmp(step, world, size) != 0 && std::memcmp(step, area, size) != 0)) return false;
++        const auto object = reinterpret_cast<REComponent*>(driver)->get_game_object();
++        const auto transform = object != nullptr ? object->get_transform() : nullptr;
++        const auto gui = transform != nullptr ? transform->find<REComponent>("via.gui.GUI") : nullptr;
++        const auto panel = object_field(m_panel, driver);
++        if (gui == nullptr || panel == nullptr) return false;
++        // Use the original GUI conversion, including its view, DPI and scaling.
++        const auto logical = m_to_virtual->call<Point>(sdk::get_thread_context(), gui,
++            Point{static_cast<float>(point.x), static_cast<float>(point.y)});
++        if (!m_hit_test->call<bool>(sdk::get_thread_context(), panel, logical)) return false;
++        for (auto field : m_fixed_panels) {
++            const auto fixed = object_field(field, driver);
++            if (fixed != nullptr && m_hit_test->call<bool>(sdk::get_thread_context(), fixed, logical)) return false;
++        }
++        return true;
++    }
++    uint32_t remap(uint32_t original, MapButtonSample sample) const {
++        const auto bits = m_frame.load();
++        if ((bits & 1u) == 0) return original;
++        POINT point{};
++        const int binding = m_binding.load();
++        if (!available() || binding == 0 || g_framework->is_drawing_ui() || !focused_client(point)) return original;
++        const MapDragFrame frame{(bits & 1u) != 0, (bits & 2u) != 0, (bits & 4u) != 0,
++                                 (bits & 8u) != 0, (bits & 16u) != 0};
++        return map_drag_buttons(original, m_masks[binding], m_masks[1], m_masks[3], sample, frame);
++    }
++    static uint32_t held_hook(void* device) {
++        auto& self = get();
++        return self.remap(self.m_button_hooks[0]->get_original<decltype(held_hook)>()(device), MapButtonSample::Held);
++    }
++    static uint32_t down_hook(void* device) {
++        auto& self = get();
++        return self.remap(self.m_button_hooks[1]->get_original<decltype(down_hook)>()(device), MapButtonSample::Down);
++    }
++    static uint32_t up_hook(void* device) {
++        auto& self = get();
++        return self.remap(self.m_button_hooks[2]->get_original<decltype(up_hook)>()(device), MapButtonSample::Up);
++    }
++    void initialize() {
++        const auto map = sdk::find_type_definition("app.GUIMap");
++        const auto define = sdk::find_type_definition("app.MenuDefine");
++        const auto manager = sdk::find_type_definition("app.GUIManager");
++        const auto handle = sdk::find_type_definition("app.GUIHandle");
++        const auto buttons = sdk::find_type_definition("via.hid.MouseButton");
++        const auto gui = sdk::find_type_definition("via.gui.GUI");
++        const auto control = sdk::find_type_definition("via.gui.Control");
++        m_step_type = sdk::find_type_definition("app.GUIMap.StepType");
++        if (!map || !define || !buttons || !m_step_type) return;
++        m_map_hash = define->get_field("Map"); m_step = map->get_field("<step>k__BackingField");
++        m_panel = map->get_field("<mainPanel>k__BackingField");
++        m_world = m_step_type->get_field("World"); m_area = m_step_type->get_field("Area");
++        m_fixed_panels = {map->get_field("<legendPanel>k__BackingField"), map->get_field("<statusPanel>k__BackingField"),
++            map->get_field("<floorPanel>k__BackingField"), map->get_field("<naviPanel>k__BackingField")};
++        m_find = method(manager, "findGUI(System.UInt32)");
++        m_showing = method(manager, "isShowingGUI(System.UInt32)");
++        m_driver = method(handle, "get_driver");
++        m_to_virtual = method(gui, "getPhysicalToVirtualMousePos(via.Point)");
++        m_hit_test = method(control, "hitTest(via.Point)");
++        if (!m_map_hash || !m_step || !m_panel || !m_world || !m_area || !m_find ||
++            !m_showing || !m_driver || !m_to_virtual || !m_hit_test) return;
++        const std::array<const char*, 6> names{"NONE", "L", "R", "C", "EX0", "EX1"};
++        for (size_t i = 0; i < names.size(); ++i) {
++            const auto field = buttons->get_field(names[i]);
++            const auto data = field != nullptr ? field->get_data_raw(nullptr, true) : nullptr;
++            if (data == nullptr) return;
++            m_masks[i] = *static_cast<const uint32_t*>(data);
++        }
++        const std::array<const char*, 3> getters{"get_Button", "get_ButtonDown", "get_ButtonUp"};
++        const std::array<uintptr_t, 3> callbacks{reinterpret_cast<uintptr_t>(&held_hook),
++            reinterpret_cast<uintptr_t>(&down_hook), reinterpret_cast<uintptr_t>(&up_hook)};
++        std::array<uintptr_t, 3> targets{};
++        for (size_t i = 0; i < targets.size(); ++i) {
++            targets[i] = reinterpret_cast<uintptr_t>(sdk::find_native_method("via.hid.MouseDevice", getters[i]));
++            if (targets[i] == 0) return;
++            for (size_t j = 0; j < i; ++j) if (targets[j] == targets[i]) return;
++            size_t decoded = 0;
++            while (decoded < 5) {
++                hde64s instruction{};
++                const auto length = hde64_disasm(reinterpret_cast<const void*>(targets[i] + decoded), &instruction);
++                if (length == 0 || (instruction.flags & F_ERROR) || instruction.opcode == 0xc2 ||
++                    instruction.opcode == 0xc3 || instruction.opcode == 0xcc || instruction.opcode == 0xe9 ||
++                    instruction.opcode == 0xeb || (instruction.opcode == 0xff && instruction.modrm_reg == 4)) return;
++                decoded += length;
++            }
++        }
++        for (size_t i = 0; i < targets.size(); ++i) {
++            m_button_hooks[i] = std::make_unique<FunctionHook>(targets[i], callbacks[i]);
++            if (!m_button_hooks[i]->create()) return;
++        }
++        m_available.store(true, std::memory_order_release);
++        spdlog::info("[RE8MapDrag] Map-only click/hold mapping initialized; original wheel and map transforms preserved");
++    }
++};
++} // namespace re8_patch
+diff --git a/src/mods/re8/RE8MapDragPolicy.hpp b/src/mods/re8/RE8MapDragPolicy.hpp
+new file mode 100644
+index 0000000..ec456ac
+--- /dev/null
++++ b/src/mods/re8/RE8MapDragPolicy.hpp
+@@ -0,0 +1,44 @@
++#pragma once
++#include <cstdint>
++
++namespace re8_patch {
++struct MapDragFrame {
++    bool eligible{};
++    bool held{};
++    bool dragging{};
++    bool started{};
++    bool ended{};
++};
++class MapDragPolicy {
++public:
++    MapDragFrame update(bool eligible, bool held, bool moved) {
++        MapDragFrame frame{eligible, eligible && held};
++        if (frame.held) frame.dragging = m_dragging || (m_held && moved);
++        frame.started = frame.dragging && !m_dragging;
++        frame.ended = eligible && !held && m_dragging;
++        m_held = frame.held;
++        m_dragging = frame.dragging;
++        return frame;
++    }
++private:
++    bool m_held{};
++    bool m_dragging{};
++};
++enum class MapButtonSample { Held, Down, Up };
++inline uint32_t map_drag_buttons(uint32_t original, uint32_t assigned, uint32_t left,
++                                 uint32_t center, MapButtonSample sample, MapDragFrame frame) {
++    if (!frame.eligible || assigned == 0 || left == 0 || center == 0) return original;
++    const bool source = (original & assigned) != 0;
++    uint32_t result = original & ~assigned;
++    if (sample == MapButtonSample::Held) {
++        if (frame.held) result |= frame.dragging ? center : left;
++    } else if (sample == MapButtonSample::Down) {
++        if (source && !frame.dragging) result |= left; // Normal click expands/selects.
++        if (frame.started) result |= center; // Begin the engine's own pan gesture.
++    } else {
++        if (source) result |= frame.ended ? center : left;
++        if (frame.ended) result |= center;
++    }
++    return result;
++}
++} // namespace re8_patch
+diff --git a/src/mods/re8/RE8NativeCursor.hpp b/src/mods/re8/RE8NativeCursor.hpp
+new file mode 100644
+index 0000000..a8ed5bc
+--- /dev/null
++++ b/src/mods/re8/RE8NativeCursor.hpp
+@@ -0,0 +1,487 @@
++#pragma once
++
++#include <algorithm>
++#include <atomic>
++#include <hde64.h>
++#include <mutex>
++#include <vector>
++#include <Windows.h>
++#include <sdk/RETypeDB.hpp>
++#include "../../HookManager.hpp"
++#include "RE8CursorPolicy.hpp"
++
++namespace re8_patch {
++// One owner for policy and Win32 rendering. RE Engine retains its original mouse
++// mode, deltas, drag, wheel and physical/virtual coordinate conversion.
++class NativeCursorController {
++public:
++    static NativeCursorController& get() {
++        static NativeCursorController controller;
++        return controller;
++    }
++
++    void on_frame(bool patch_config_open) {
++        set_patch_config_open(patch_config_open);
++        // Normally one reflection scan after UpdateGUI. If an engine frame omits
++        // that entry (loading/scene transition), reconcile once at Present.
++        if (!m_gui_updated.exchange(false, std::memory_order_relaxed)) update("present-fallback");
++    }
++
++    void on_gui_update() {
++        update("post-UpdateGUI");
++        m_gui_updated.store(true, std::memory_order_relaxed);
++    }
++
++    void update(std::string_view reason = "menu-state") {
++        std::unique_lock lock{m_state_mutex, std::try_to_lock};
++        if (!lock.owns_lock()) return;
++        if (!g_framework->is_game_data_initialized()) return;
++        if (!m_initialized) initialize();
++        if (!m_hooks_ready.load(std::memory_order_acquire)) return;
++        bool visible = false;
++        if (m_query != nullptr) {
++            auto manager = sdk::get_managed_singleton<::REManagedObject>("app.GUIManager");
++            if (manager != nullptr) {
++                for (auto& menu : m_menus) {
++                    // Static readonly menu hashes can be uninitialized at startup.
++                    // Resolve lazily without keeping managed object pointers alive.
++                    const auto data = menu.field->get_data_raw(nullptr);
++                    if (data == nullptr) continue;
++                    const auto hash = *static_cast<const uint32_t*>(data);
++                    if (hash == 0) continue;
++                    const auto showing = m_query->call_safe<bool>(sdk::get_thread_context(), manager, hash);
++                    // Closing remains authoritative through fading/transient
++                    // engine states. Only an explicit open operation resets it.
++                    const bool effective = showing && !menu.closing;
++                    if (m_diagnostics && (showing != menu.last_showing || effective != menu.last_effective)) {
++                        LARGE_INTEGER now{};
++                        QueryPerformanceCounter(&now);
++                        spdlog::info("[RE8NativeCursor] menu-edge qpc={} tid={} name={} hash={:08x} showing={} closing={} effective={} reason={}",
++                            now.QuadPart, GetCurrentThreadId(), menu.field->get_name(), hash,
++                            showing, menu.closing, effective, reason);
++                    }
++                    menu.last_showing = showing;
++                    menu.last_effective = effective;
++                    if (effective) visible = true;
++                }
++            }
++        }
++        publish(visible, reason);
++    }
++
++    void set_patch_config_open(bool open) {
++        std::scoped_lock lock{m_state_mutex};
++        m_patch_config_open.store(open, std::memory_order_relaxed);
++        publish(m_menu_visible.load(std::memory_order_relaxed), "patch-config");
++    }
++
++    bool wants_cursor() const {
++        return m_desired.load(std::memory_order_relaxed);
++    }
++
++    bool game_menu_visible() const {
++        return m_menu_visible.load(std::memory_order_relaxed);
++    }
++
++    bool authorized_menu_visible(std::string_view name) {
++        std::scoped_lock lock{m_state_mutex};
++        for (const auto& menu : m_menus) {
++            if (menu.field->get_name() == name) return menu.last_effective;
++        }
++        return false;
++    }
++
++    // Called from the game's own WndProc. Cursor counter changes must stay on
++    // that thread; rendering/managed callbacks only publish policy and post.
++    bool on_message(HWND window, UINT message, WPARAM wparam, LPARAM lparam) {
++        if (message == m_apply_message && m_apply_message != 0) {
++            m_apply_pending.store(false, std::memory_order_relaxed);
++            apply(window);
++            return true;
++        }
++        if (message == WM_KILLFOCUS || (message == WM_ACTIVATEAPP && !wparam) ||
++            (message == WM_SIZE && wparam == SIZE_MINIMIZED)) {
++            restore_visibility_counter();
++            return false;
++        }
++        if (message == WM_SETCURSOR && LOWORD(lparam) == HTCLIENT &&
++            focused_client(window)) {
++            apply(window);
++            return true;
++        }
++        if (message == WM_SETFOCUS || (message == WM_ACTIVATEAPP && wparam)) {
++            request_apply();
++        }
++        return false;
++    }
++
++    void draw_diagnostics() {
++        std::scoped_lock lock{m_state_mutex};
++        bool diagnostics = m_diagnostics.load(std::memory_order_relaxed);
++        if (ImGui::Checkbox("Record cursor transition diagnostics", &diagnostics))
++            m_diagnostics.store(diagnostics, std::memory_order_relaxed);
++        ImGui::Text("Cursor authority: %s (%zu exact menu IDs)",
++                    m_query != nullptr ? "initialized" : "unavailable; unknown states hidden", m_menus.size());
++        ImGui::Text("Authorized menu visible: %s", m_menu_visible.load() ? "yes" : "no");
++        ImGui::Text("Policy-to-WndProc sample: %.3f ms", m_last_apply_us.load() / 1000.0);
++        ImGui::TextUnformatted("This sample excludes monitor/display latency; runtime checks remain necessary.");
++    }
++
++private:
++    struct MenuState {
++        sdk::REField* field{};
++        bool closing{false};
++        bool last_showing{false};
++        bool last_effective{false};
++    };
++    std::recursive_mutex m_state_mutex;
++    std::vector<MenuState> m_menus;
++    sdk::REMethodDefinition* m_query{};
++    sdk::REField* m_driver_status{};
++    std::vector<std::pair<sdk::REMethodDefinition*, HookManager::HookId>> m_hooks;
++    std::vector<void*> m_hook_entries;
++    std::atomic<bool> m_hooks_ready{false};
++    std::unique_ptr<FunctionHook> m_set_cursor_hook;
++    bool m_initialized{false};
++    std::atomic<bool> m_diagnostics{[] {
++        wchar_t enabled[2]{};
++        return GetEnvironmentVariableW(L"RE8PATCH_CURSOR_DIAGNOSTICS", enabled, 2) == 1 && enabled[0] == L'1';
++    }()};
++    std::atomic<bool> m_gui_updated{false};
++    std::atomic<bool> m_menu_visible{false};
++    std::atomic<bool> m_patch_config_open{false};
++    std::atomic<bool> m_desired{false};
++    std::atomic<bool> m_apply_pending{false};
++    struct PolicyRequest {
++        uint64_t sequence{0};
++        bool visible{false};
++        int64_t requested_qpc{0};
++    };
++    // Pair generation, decision and timestamp atomically. WndProc holds this
++    // tiny lock through the native call so samples cannot mix two transitions.
++    std::mutex m_policy_mutex;
++    PolicyRequest m_policy_request;
++    uint64_t m_last_measured_sequence{0};
++    std::atomic<int64_t> m_last_apply_us{0};
++    UINT m_apply_message{RegisterWindowMessageW(L"RE8Patch.NativeCursor.Apply")};
++    HCURSOR m_arrow{LoadCursorW(nullptr, MAKEINTRESOURCEW(32512))};
++    int m_visibility_adjustments{0}; // Only accessed on the window thread.
++
++    static bool focused_client(HWND window) {
++        if (window == nullptr || GetForegroundWindow() != window || IsIconic(window)) return false;
++        POINT point{};
++        RECT client{};
++        return GetCursorPos(&point) && ScreenToClient(window, &point) &&
++               GetClientRect(window, &client) && PtInRect(&client, point);
++    }
++
++    static HCURSOR WINAPI set_cursor_hook(HCURSOR requested) {
++        auto& self = get();
++        const auto original = self.m_set_cursor_hook->get_original<decltype(set_cursor_hook)>();
++        const auto window = static_cast<HWND>(g_framework->get_window());
++        // Non-client chrome, Alt+Tab, other windows and other applications retain
++        // their own cursor. The hook never changes ShowCursor's counter.
++        if (focused_client(window)) requested = self.wants_cursor() ? self.m_arrow : nullptr;
++        return original(requested);
++    }
++
++    void initialize() {
++        m_initialized = true;
++        const auto set_cursor = GetProcAddress(GetModuleHandleW(L"user32.dll"), "SetCursor");
++        if (set_cursor != nullptr) {
++            m_set_cursor_hook = std::make_unique<FunctionHook>(reinterpret_cast<uintptr_t>(set_cursor),
++                                                            reinterpret_cast<uintptr_t>(&set_cursor_hook));
++            if (!m_set_cursor_hook->create()) {
++                m_set_cursor_hook.reset();
++                spdlog::error("[RE8NativeCursor] SetCursor interception failed; runtime enforcement degraded");
++            }
++        }
++        request_apply();
++
++        const auto define = sdk::find_type_definition("app.MenuDefine");
++        const auto manager = sdk::find_type_definition("app.GUIManager");
++        if (define == nullptr || manager == nullptr) {
++            spdlog::error("[RE8NativeCursor] Required menu metadata absent; unknown states stay hidden");
++            return;
++        }
++        auto query = manager->get_method("isShowingGUI(System.UInt32)");
++        if (query == nullptr) query = manager->get_method("isShowingGUI");
++        if (query == nullptr || query->get_num_params() != 1 || query->get_function() == nullptr ||
++            query->get_return_type() == nullptr || query->get_return_type()->get_full_name() != "System.Boolean" ||
++            query->get_param_types().at(0) == nullptr ||
++            query->get_param_types().at(0)->get_full_name() != "System.UInt32") {
++            spdlog::error("[RE8NativeCursor] GUIManager.isShowingGUI signature unavailable; unknown states stay hidden");
++            return;
++        }
++        m_query = query;
++        for (auto name : authorized_cursor_menus) {
++            auto field = define->get_field(name);
++            if (field != nullptr && field->is_static() && field->get_type() != nullptr &&
++                field->get_type()->get_full_name() == "System.UInt32") {
++                m_menus.push_back({field, false});
++            } else {
++                spdlog::warn("[RE8NativeCursor] Authorized menu field unavailable: {}", name);
++            }
++        }
++        // Hooks use REFramework's metadata-aware dispatcher, never guessed native
++        // calling conventions. Pre-close excludes a fading menu immediately;
++        // post-create/stack transitions reconcile all remaining authorized menus.
++        for (auto name : {"hideGUI", "suicideGUI", "forceSuicideGUI", "createGUI"}) {
++            auto method = manager->get_method(name);
++            if (method == nullptr || method->get_function() == nullptr || method->is_static()) continue;
++            const auto params = method->get_param_types();
++            if (params.empty() || params[0] == nullptr || params[0]->get_full_name() != "System.UInt32") continue;
++            const bool closing = std::string_view{name} != "createGUI";
++            const auto id = add_transition_hook(method,
++                [this, closing, operation = std::string_view{name}](auto& args, auto&, uintptr_t) {
++                    if (args.size() > 2) set_closing(static_cast<uint32_t>(args[2]), closing, operation);
++                    return HookManager::PreHookResult::CALL_ORIGINAL;
++                },
++                [this, operation = std::string_view{name}](uintptr_t&, sdk::RETypeDefinition*, uintptr_t) {
++                    update(std::string{operation} + ".post");
++                });
++            if (id != 0) m_hooks.emplace_back(method, id);
++        }
++        const auto driver_type = sdk::find_type_definition("app.GUIDriver");
++        if (driver_type != nullptr) {
++            m_driver_status = driver_type->get_field("guiStatus");
++            // These entry points also cover reopening a previously created GUI.
++            // Read its typed GUIStatus.hash, never GUI object/display names.
++            for (auto name : {"show", "hide", "suicide"}) {
++                auto method = driver_type->get_method(name);
++                if (method == nullptr || method->get_function() == nullptr || method->is_static()) continue;
++                const auto parameters = method->get_param_types();
++                if (parameters.size() != 1 || parameters[0] == nullptr ||
++                    parameters[0]->get_full_name() != "app.GUIRequest.Parameter" ||
++                    method->get_return_type() == nullptr ||
++                    method->get_return_type()->get_full_name() != "app.GUIDriver.ExecuteResult.Value") continue;
++                const bool closing = std::string_view{name} != "show";
++                const auto id = add_transition_hook(method,
++                    [this, closing, operation = std::string_view{name}](auto& args, auto&, uintptr_t) {
++                        if (args.size() > 1) driver_transition(reinterpret_cast<::REManagedObject*>(args[1]), closing, operation);
++                        return HookManager::PreHookResult::CALL_ORIGINAL;
++                    }, [this, operation = std::string_view{name}](uintptr_t&, sdk::RETypeDefinition*, uintptr_t) {
++                        update(std::string{"driver."} + std::string{operation} + ".post");
++                    });
++                if (id != 0) m_hooks.emplace_back(method, id);
++            }
++        }
++        // Save/load lists have their own reopen command. A reused typewriter
++        // list can call openList without createGUI or GUIDriver.show, so its
++        // previous close exclusion must reset on this real, typed entry point.
++        // Do not authorize SaveLoadFlowManager execution: autosaves use it too.
++        for (auto type_name : {"app.GUISaveLoad", "app.GUISaveDataTransition"}) {
++            const auto save_type = sdk::find_type_definition(type_name);
++            if (save_type == nullptr) continue;
++            const auto method = save_type->get_method("openList");
++            if (method == nullptr || method->get_function() == nullptr || method->is_static()) continue;
++            const auto parameters = method->get_param_types();
++            if (parameters.size() != 1 || parameters[0] == nullptr ||
++                parameters[0]->get_full_name() != "app.GUIRequest.Parameter" ||
++                method->get_return_type() == nullptr ||
++                method->get_return_type()->get_full_name() != "app.GUIDriver.ExecuteResult.Value") continue;
++            const auto id = add_transition_hook(method,
++                [this, save_type, type_name](auto& args, auto&, uintptr_t) {
++                    if (args.size() > 1) {
++                        const auto driver = reinterpret_cast<::REManagedObject*>(args[1]);
++                        if (::REManagedObject::is_managed_object(driver) && driver->get_type_definition() != nullptr &&
++                            driver->get_type_definition()->is_a(save_type)) {
++                            driver_transition(driver, false, std::string{type_name} + ".openList");
++                        }
++                    }
++                    return HookManager::PreHookResult::CALL_ORIGINAL;
++                }, [this, type_name](uintptr_t&, sdk::RETypeDefinition*, uintptr_t) {
++                    update(std::string{type_name} + ".openList.post");
++                });
++            if (id != 0) m_hooks.emplace_back(method, id);
++        }
++        const auto menu_manager = sdk::find_type_definition("app.MenuManager");
++        if (menu_manager != nullptr) {
++            for (auto name : {"pushMenu", "popMenu", "clear"}) {
++                auto method = menu_manager->get_method(name);
++                if (method == nullptr || method->get_function() == nullptr || method->is_static()) continue;
++                const auto params = method->get_param_types();
++                if (std::string_view{name} == "clear") {
++                    if (!params.empty()) continue;
++                } else if (params.size() != 1 || params[0] == nullptr || params[0]->get_full_name() != "System.UInt32") {
++                    continue;
++                }
++                const bool opening = std::string_view{name} == "pushMenu";
++                const auto id = add_transition_hook(method,
++                    [this, opening, operation = std::string_view{name}](auto& args, auto&, uintptr_t) {
++                        if (opening && args.size() > 2) set_closing(static_cast<uint32_t>(args[2]), false, operation);
++                        return HookManager::PreHookResult::CALL_ORIGINAL;
++                    }, [this, operation = std::string_view{name}](uintptr_t&, sdk::RETypeDefinition*, uintptr_t) {
++                        update(std::string{"navigation."} + std::string{operation} + ".post");
++                    });
++                if (id != 0) m_hooks.emplace_back(method, id);
++            }
++        }
++        m_hooks_ready.store(true, std::memory_order_release);
++        spdlog::info("[RE8NativeCursor] Authority initialized: {} menu IDs, {} transition hooks; no coordinate overrides",
++                     m_menus.size(), m_hooks.size());
++        request_apply();
++    }
++
++    HookManager::HookId add_transition_hook(sdk::REMethodDefinition* method,
++                                           HookManager::PreHookFn pre,
++                                           HookManager::PostHookFn post) {
++        const auto entry = method->get_function();
++        if (entry == nullptr || std::find(m_hook_entries.begin(), m_hook_entries.end(), entry) != m_hook_entries.end()) {
++            spdlog::warn("[RE8NativeCursor] Skipping duplicate transition target: {}", method->get_name());
++            return 0;
++        }
++        // RE8 folds unrelated empty managed methods into the same RET stub.
++        // Hooking that stub misinterprets arbitrary callers as a GUI driver.
++        // Also reject existing JMP detours instead of chasing their trampoline.
++        auto instruction = static_cast<const uint8_t*>(entry);
++        size_t decoded = 0;
++        while (decoded < 5) {
++            hde64s decoded_instruction{};
++            const auto length = hde64_disasm(instruction + decoded, &decoded_instruction);
++            const auto opcode = decoded_instruction.opcode;
++            if (length == 0 || (decoded_instruction.flags & F_ERROR) != 0 || opcode == 0xC2 ||
++                opcode == 0xC3 || opcode == 0xCC || opcode == 0xE9 || opcode == 0xEB ||
++                (opcode == 0xFF && decoded_instruction.modrm_reg == 4)) {
++                spdlog::warn("[RE8NativeCursor] Skipping trivial/jump transition target: {} @ {:p}",
++                             method->get_name(), entry);
++                return 0;
++            }
++            decoded += length;
++        }
++        const auto id = g_hookman.add(method,
++            [this, pre = std::move(pre)](auto& args, auto& types, uintptr_t ret) {
++                if (m_hooks_ready.load(std::memory_order_acquire) && pre) return pre(args, types, ret);
++                return HookManager::PreHookResult::CALL_ORIGINAL;
++            },
++            [this, post = std::move(post)](uintptr_t& value, sdk::RETypeDefinition* type, uintptr_t ret) {
++                if (m_hooks_ready.load(std::memory_order_acquire) && post) post(value, type, ret);
++            }, true); // Bind the verified raw entry; never follow a patched JMP.
++        if (id != 0) m_hook_entries.push_back(entry);
++        return id;
++    }
++
++    void driver_transition(::REManagedObject* driver, bool closing, std::string_view operation) {
++        if (driver == nullptr || m_driver_status == nullptr ||
++            !::REManagedObject::is_managed_object(driver) || driver->get_type_definition() == nullptr ||
++            !driver->get_type_definition()->is_a("app.GUIDriver")) return;
++        const auto data = m_driver_status->get_data_raw(driver);
++        if (data == nullptr) return;
++        const auto status = *static_cast<::REManagedObject**>(data);
++        if (status == nullptr || !::REManagedObject::is_managed_object(status) ||
++            status->get_type_definition() == nullptr) return;
++        const auto hash_field = status->get_type_definition()->get_field("<hash>k__BackingField");
++        if (hash_field == nullptr || hash_field->get_type() == nullptr ||
++            hash_field->get_type()->get_full_name() != "System.UInt32") return;
++        const auto hash_data = hash_field->get_data_raw(status);
++        if (hash_data != nullptr) set_closing(*static_cast<const uint32_t*>(hash_data), closing, std::string{"driver."} + std::string{operation});
++    }
++
++    void set_closing(uint32_t hash, bool closing, std::string_view operation) {
++        std::scoped_lock lock{m_state_mutex};
++        bool matched = false;
++        for (auto& menu : m_menus) {
++            const auto data = menu.field->get_data_raw(nullptr);
++            if (data != nullptr && *static_cast<const uint32_t*>(data) == hash) {
++                if (m_diagnostics) {
++                    LARGE_INTEGER now{};
++                    QueryPerformanceCounter(&now);
++                    spdlog::info("[RE8NativeCursor] lifecycle qpc={} tid={} operation={} name={} hash={:08x} closing={} previous_closing={}",
++                        now.QuadPart, GetCurrentThreadId(), operation, menu.field->get_name(), hash,
++                        closing, menu.closing);
++                }
++                menu.closing = closing;
++                matched = true;
++            }
++        }
++        if (matched) update(operation);
++    }
++
++    void publish(bool menu_visible, std::string_view reason) {
++        m_menu_visible.store(menu_visible, std::memory_order_relaxed);
++        const auto desired = should_show_native_cursor(menu_visible,
++            m_patch_config_open.load(std::memory_order_relaxed), true);
++        PolicyRequest request;
++        {
++            std::scoped_lock lock{m_policy_mutex};
++            if (m_desired.load(std::memory_order_relaxed) == desired) return;
++            LARGE_INTEGER now{};
++            QueryPerformanceCounter(&now);
++            m_policy_request = {m_policy_request.sequence + 1, desired, now.QuadPart};
++            m_desired.store(desired, std::memory_order_relaxed);
++            request = m_policy_request;
++        }
++        if (m_diagnostics) {
++            spdlog::info("[RE8NativeCursor] policy seq={} qpc={} tid={} visible={} reason={}",
++                request.sequence, request.requested_qpc, GetCurrentThreadId(), request.visible, reason);
++        }
++        request_apply();
++    }
++
++    void request_apply() {
++        const auto window = static_cast<HWND>(g_framework->get_window());
++        if (window == nullptr || m_apply_message == 0) return;
++        if (GetWindowThreadProcessId(window, nullptr) == GetCurrentThreadId()) {
++            apply(window);
++        } else if (!m_apply_pending.exchange(true, std::memory_order_relaxed)) {
++            // A cross-thread sent notification returns without waiting and is
++            // dispatched ahead of posted/input backlog by the owner's pump.
++            if (!SendNotifyMessageW(window, m_apply_message, 0, 0)) m_apply_pending.store(false);
++        }
++    }
++
++    void restore_visibility_counter() {
++        // Undo exactly our contributions. Never normalize another application's
++        // counter or drive it down once per frame/message.
++        while (m_visibility_adjustments > 0) {
++            ::ShowCursor(FALSE);
++            --m_visibility_adjustments;
++        }
++    }
++
++    void apply(HWND window) {
++        if (!focused_client(window)) {
++            restore_visibility_counter();
++            return;
++        }
++        PolicyRequest applied;
++        int64_t elapsed = -1;
++        int64_t applied_qpc = 0;
++        {
++            std::scoped_lock lock{m_policy_mutex};
++            applied = m_policy_request;
++            const bool show = applied.visible;
++            ::SetCursor(show ? m_arrow : nullptr);
++            if (!show) restore_visibility_counter();
++            if (show) {
++                CURSORINFO info{sizeof(CURSORINFO)};
++                if (GetCursorInfo(&info) && (info.flags & CURSOR_SHOWING) == 0) {
++                    // Bounded, conditional correction; gameplay uses NULL.
++                    for (int attempt = 0; attempt < 32 && m_visibility_adjustments < 32; ++attempt) {
++                        const auto count = ::ShowCursor(TRUE);
++                        ++m_visibility_adjustments;
++                        if (count >= 0) break;
++                    }
++                    if (m_visibility_adjustments == 32 && GetCursorInfo(&info) && (info.flags & CURSOR_SHOWING) == 0) {
++                        spdlog::error("[RE8NativeCursor] Visibility counter correction bound reached; menu cursor requires runtime investigation");
++                    }
++                }
++            }
++            if (applied.requested_qpc != 0 && applied.sequence != m_last_measured_sequence) {
++                LARGE_INTEGER now{}, frequency{};
++                QueryPerformanceCounter(&now);
++                QueryPerformanceFrequency(&frequency);
++                applied_qpc = now.QuadPart;
++                elapsed = (applied_qpc - applied.requested_qpc) * 1000000 / frequency.QuadPart;
++                m_last_measured_sequence = applied.sequence;
++                m_last_apply_us.store(elapsed, std::memory_order_relaxed);
++            }
++        }
++        if (elapsed >= 0 && m_diagnostics) {
++            spdlog::info("[RE8NativeCursor] apply seq={} qpc={} request_qpc={} tid={} visible={} policy_to_apply_us={}",
++                applied.sequence, applied_qpc, applied.requested_qpc, GetCurrentThreadId(), applied.visible, elapsed);
++        }
++    }
++
++};
++}

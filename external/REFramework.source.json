@@ -1,0 +1,16 @@
+{
+  "repository": "https://github.com/praydog/REFramework.git",
+  "sourceRevision": "5b0ec09c1f096c1ea41961f0a5cf0d8926afe367",
+  "imguiRevision": "85b2fe8486190fa9326565a2fb5fccb6caea4396",
+  "submodules": [
+    " bf71a834948186f4097caa076cd2663c69a10e1e dependencies/glm (bf71a83)",
+    " 85b2fe8486190fa9326565a2fb5fccb6caea4396 dependencies/imgui (85b2fe8)",
+    " 98b74f1fc12d00313d91f10450e5b3e0036175e3 dependencies/minhook (98b74f1)",
+    " 7c02e204c92545f869e2f04edaab1f19fe8b19fd dependencies/spdlog (7c02e20)"
+  ],
+  "patches": {
+    "RE8Framework.patch": "2e7948e297765b44a125a1a8ceb79babfa6049d9580ea1d406cb721e6ee77cf3",
+    "RE8ImGuiStartup.patch": "39733bc192f89ed2d206d8acac99cdc13275ff08df0571dacbfcee9cb09ec556"
+  },
+  "note": "Includes pre-existing local fixes and current development changes. No commit or release created."
+}

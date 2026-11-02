@@ -1,0 +1,17 @@
+{
+  "state": "development-candidate-runtime-verification-pending",
+  "configuration": "Release",
+  "builtUtc": "2026-11-02T03:35:27.0064303Z",
+  "binarySha256": "547533F154D2E8808B572F95B0E3B019AC58D3A607ADB5A456E5106C5120712C",
+  "sourceFingerprint": "034E3723074D4B474FD350437579043C21B6A2718E2B7AB6F32B9EAE4CADA515",
+  "buildElapsedSeconds": 13.903,
+  "nativeAndLuaSuites": 5,
+  "toolingChecks": 57,
+  "observedRuntimeOutput": "1920x1200 DirectX12",
+  "reportedFailuresOnPriorCandidate": [
+    "altered/nonuniform FOV",
+    "expanded-map panning"
+  ],
+  "latestCandidateInstalled": false,
+  "noReleasePublished": true
+}

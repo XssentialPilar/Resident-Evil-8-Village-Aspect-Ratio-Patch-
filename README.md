@@ -1,115 +1,56 @@
-# Resident Evil 8: Village — Aspect Ratio & Windows Native Cursor Patch
+# Resident Evil Village — Display & Native Cursor
 
-![Resident Evil Village](https://img.shields.io/badge/Game-Resident%20Evil%20Village%20(RE8)-red.svg)
-![Version](https://img.shields.io/badge/Release-v1.1.0-blue.svg)
-![Platform](https://img.shields.io/badge/Platform-PC%20Windows%20(DirectX%2012)-green.svg)
-![Aspect Ratio](https://img.shields.io/badge/Aspect%20Ratio-16:10%20(1920x1200%20%7C%202560x1600)-orange.svg)
-![Status](https://img.shields.io/badge/Status-16:10%20Demostrable%20y%20Verificado-success.svg)
-![License](https://img.shields.io/badge/License-MIT-purple.svg)
+Version **2.1.0** is being prepared as an independent **REFramework plugin**. Its package contains `reframework/plugins/RE8Display.dll` and `reframework/data/RE8Display.ini`. It does not include or replace `dinput8.dll`, edit shared framework settings, or replace other mods. Runtime verification is in progress; see the [2.1.0 report](docs/release-2.1.0.md) for actual results and limits.
 
-An independent patch for **Resident Evil 8: Village on Windows PC**, focused on improving the game's presentation on **16:10 displays** and addressing the mouse cursor issues associated with removing the original black bars.
+The previous bundled implementation is preserved in Git history, source patches and recovery tools. It is not the runtime shipped by the independent plugin. The [original v1.1.0 documentation](docs/legacy-release-v1.1.0.md) remains available.
 
-**v1.1.0 is the Latest Release.** The aspect ratio fix and native cursor integration have made progress, but one cursor issue remains.
+## Behavior
 
-> [!IMPORTANT]
-> **Known issue in v1.1.0 — Cursor behavior during gameplay:** The native Windows cursor is now visible and usable in menus. It also hides during gameplay, but **it may take some time to disappear after leaving a menu and can occasionally reappear unexpectedly while playing**. The cursor should be visible only in the game's menus and other interactive interfaces. **I am actively working on a fix.**
+- Output dimensions come from the current DXGI swap chain. Camera aspect and FOV are corrected together without accumulating adjustments; aiming and scene changes remain under engine control.
+- Screen-space interface roots use proportional resolution adjustment. Nested widget positions, sizes and anchors are not individually rewritten. Text, cards and icons are not assigned separate horizontal and vertical stretch factors.
+- Automatic projection and proportional UI are enabled by default. The old manual `1.715` calibration is **not inherited**. A manual multiplier remains an explicit option in the plugin's own settings.
+- The Windows cursor is authorized by exact game menu identifiers. HUD, ammunition, autosaves and interaction prompts do not authorize it. Save/typewriter lists have their own typed reopen path.
+- Additional map dragging is deferred. The game retains map input and mouse coordinate conversions.
 
-## Key Features
-
-### 1. Improved 16:10 (Verified) Display Support
-
-- Removes the original black bars and makes better use of the display in the **tested 16:10 configuration**.
-- Preserves natural image proportions without intentionally stretching the game image.
-- Includes aspect ratio and field-of-view (FOV) controls for fine-tuning the presentation.
-
-### 2. Native Windows Cursor Integration
-
-- Disables RE Engine's original software-drawn mouse pointer, which could become misaligned after the aspect ratio adjustment.
-- Uses the standard **Windows mouse pointer** for interface interaction, including:
-  - Main menu
-  - Pause menu (`Esc`)
-  - Ethan's inventory (`Tab`)
-  - Typewriters and save/load screens
-  - The Duke's shop
-  - Map (`M`)
-  - Settings and configuration screens
-- **Current limitation:** The Windows cursor may remain visible briefly after returning to gameplay or reappear unexpectedly. It should stay hidden during exploration, aiming, and combat; this behavior is still being refined.
-
-### 3. Simplified Configuration Menu
-
-Press `Insert` to open **Aspect Ratio Config Menu**. It provides the essential aspect ratio and FOV settings in a cleaner interface without unnecessary development options.
-
-## Recommended FOV Settings for 16:10 (1920 × 1200)
-
-The following settings are recommended for the tested **1920 × 1200** configuration:
-
-| Menu Option | Recommended Value | Purpose |
-| :--- | :---: | :--- |
-| `Ultrawide/FOV/Aspect Ratio Fix` | **ON** | Enables the aspect ratio adjustment. |
-| `16:10 Mode: Use Black Bars` | **OFF** | Removes the black bars to use the available display area. |
-| `Ultrawide: Enable Vertical FOV` | **OFF** | Keeps the vertical FOV behavior consistent with the recommended setup. |
-| `Ultrawide: Override FOV` | **ON** | Enables the custom FOV multiplier. |
-| `Ultrawide: FOV Multiplier` | **1.715** | Recommended starting value for the tested 1920 × 1200 setup. |
-
-> [!TIP]
-> These values are included as the patch's recommended defaults. You can review them in **Aspect Ratio Config Menu** if the image or FOV does not look right on your system.
-
-## Compatibility and Testing
-
-**This patch has only been tested on a 16:10 display.** The documented test setup uses **1920 × 1200**. Other 16:10 resolutions, such as 2560 × 1600 and 2880 × 1800, have not been individually verified. Compatibility with **16:9, 21:9, 32:9, and other aspect ratios is unknown and not guaranteed**.
-
-The aspect ratio badge above identifies the intended display family; it should not be interpreted as confirmation that every listed resolution has been tested.
-
-- **Game:** Resident Evil 8: Village
-- **Platform:** Windows PC (DirectX 12)
-- **Release:** v1.1.0 — Latest Release
+Valid output dimensions are accepted without a resolution allowlist. Mathematical uniform-scale tests are recorded separately from rendered-menu verification. Mods that independently control the same camera, GUI scaling or cursor require an explicit ownership choice; no finite test run proves compatibility with every third-party mod.
 
 ## Installation
 
-### Option 1 — Automatic Installer (Recommended)
+1. Close the game and remove the previous bundled aspect patch using its own uninstaller. Keep its backups.
+2. Install unmodified REFramework with **plugin API 1.15 or newer**. Stable v1.5.9.1 has API 1.10 and is too old; see the official [nightly downloads](https://github.com/praydog/REFramework-nightly/releases).
+3. Disable a separate REFramework ultrawide/FOV correction or another display patch before enabling this plugin's display correction. Shared settings are preserved by the installer.
+4. Extract the complete RE8Display package and run:
 
-1. Download `Resident-Evil-8-Village-16-10-Aspect-Ratio-Patch-v1.1.0.zip` from [Releases](https://github.com/XssentialPilar/Resident-Evil-8-Village-Aspect-Ratio-Patch-/releases).
-2. Extract the ZIP file to a folder of your choice.
-3. Run `install.bat`. The installer is designed to locate the Steam installation of **Resident Evil Village** and copy the required files.
-4. Launch the game.
-
-### Option 2 — Manual Installation
-
-Copy the following into the **game's root folder** (the directory containing the game executable):
-
-- `dinput8.dll`
-- `re2_fw_config.txt` *(optional; contains the recommended configuration)*
-- The complete `reframework/` folder, including `reframework/autorun/re8_aspect_ratio_fix.lua`
-
-Default Steam path:
-
-```text
-C:\Program Files (x86)\Steam\steamapps\common\Resident Evil Village BIOHAZARD VILLAGE
+```bat
+install.bat "C:\path\to\Resident Evil Village"
 ```
 
-> [!CAUTION]
-> If you already have **REFramework or other mods installed**, back up their files before installing this patch. Shared files may be overwritten or cause conflicts.
+The folder must contain `re8.exe` and the existing REFramework loader. Only the plugin DLL and its configuration are installed. Old autorun scripts belonging to this patch are backed up and retired. Other plugins, scripts, save files, shared settings and existing personal `RE8Display.ini` settings are preserved.
 
-## In-Game Controls
+Press **`;`** to open the independent **Aspect Ratio Config Menu**. Its **Change menu key** button remaps this shortcut; **Reset menu key to ;** restores the default character using the current keyboard layout. The host keeps its own Insert binding. Manual FOV, multiplier, FOV axis and proportional UI controls are present in this window. If the host C ImGui interface is unavailable, use the private INI: `ManualFOV=0` and `UniformUI=1` select automatic behavior. `MenuKey=0` means the semicolon character.
 
-| Key | Action |
-| --- | --- |
-| `Insert` | Open or close **Aspect Ratio Config Menu**. |
-| `Tab` | Open Ethan's inventory. |
-| `Esc` | Open the pause/options menu. |
-| `M` | Open the map. |
+To remove the plugin:
 
-The Windows cursor is intended for these interfaces. In v1.1.0, its disappearance after returning to gameplay may be delayed, and it may reappear unexpectedly.
+```bat
+uninstall.bat "C:\path\to\Resident Evil Village"
+```
 
-## Uninstallation
+Removal checks ownership and backups before changing files. A modified DLL blocks removal; modified personal configuration is retained. The entire `reframework/` folder is never deleted.
 
-- **Automatic:** Run `uninstall.bat` from the patch package.
-- **Manual:** Remove `reframework/autorun/re8_aspect_ratio_fix.lua`. Remove `dinput8.dll`, `re2_fw_config.txt`, or other bundled REFramework files **only if they were installed exclusively for this patch**.
+## Build and verify
 
-**Do not delete the entire `reframework/` folder if other mods depend on it.** Doing so may break those mods.
+The standalone source includes its small pinned SDK/MinHook dependencies. No full REFramework source checkout is required. Windows x64, CMake and Visual Studio 2026 C++ Build Tools are used:
 
-## Credits and Thanks
+```powershell
+.\tools\RE8Display.Build.ps1
+.\tools\RE8Display.Test.ps1
+.\tools\RE8Display.Package.ps1
+```
 
-This project is based on **[REFramework by Praydog](https://github.com/praydog/REFramework)** and has been adapted specifically to address **Resident Evil Village's aspect ratio and mouse cursor issues**.
+Build/package receipts bind the DLL hash to the source fingerprint. Packaging does not publish a release. Code is in `native/plugin/`, engine-independent logic in `native/common/`, tests in `tests/standalone/`, and dependency provenance in `external/standalone-dependencies.json`.
 
-**Thank you to everyone who has downloaded and used this patch.** I sincerely appreciate your support and patience while I continue working to improve cursor behavior during gameplay.
+The older `RE8Patch.*` tools and `patches/` are retained for recovery and audit of the previous bundled implementation. They are not the standalone build/install path.
+
+## Credits
+
+Maintained by XssentialPilar. REFramework and its SDK are by [Praydog and contributors](https://github.com/praydog/REFramework); interception uses [MinHook](https://github.com/TsudaKageyu/minhook). Licenses and provenance are retained. Resident Evil Village belongs to Capcom; neither the game nor its assets are distributed here.
