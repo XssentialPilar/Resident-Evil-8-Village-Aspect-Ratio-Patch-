@@ -1,7 +1,0 @@
-{
-    "enabled": true,
-    "remove_black_bars": true,
-    "sync_borderless_size": true,
-    "suppress_black_bar_elements": true,
-    "show_diagnostics": false
-}

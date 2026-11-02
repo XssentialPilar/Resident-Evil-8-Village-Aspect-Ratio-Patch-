@@ -1,0 +1,97 @@
+[
+  {
+    "source": "reframework_src/dependencies/glm/copying.txt",
+    "license": "licenses/glm/copying.txt"
+  },
+  {
+    "source": "reframework_src/dependencies/imgui/LICENSE.txt",
+    "license": "licenses/imgui/LICENSE.txt"
+  },
+  {
+    "source": "reframework_src/dependencies/imguizmo/LICENSE",
+    "license": "licenses/imguizmo/LICENSE"
+  },
+  {
+    "source": "reframework_src/dependencies/imnodes/LICENSE.md",
+    "license": "licenses/imnodes/LICENSE.md"
+  },
+  {
+    "source": "reframework_src/dependencies/minhook/LICENSE.txt",
+    "license": "licenses/minhook/LICENSE.txt"
+  },
+  {
+    "source": "reframework_src/dependencies/sol2/LICENSE.txt",
+    "license": "licenses/sol2/LICENSE.txt"
+  },
+  {
+    "source": "reframework_src/dependencies/spdlog/LICENSE",
+    "license": "licenses/spdlog/LICENSE"
+  },
+  {
+    "source": "reframework_src/build/_deps/asmjit-src/LICENSE.md",
+    "license": "licenses/asmjit/LICENSE.md"
+  },
+  {
+    "source": "reframework_src/build/_deps/bddisasm-src/LICENSE",
+    "license": "licenses/bddisasm/LICENSE"
+  },
+  {
+    "source": "reframework_src/build/_deps/directxtk-src/LICENSE",
+    "license": "licenses/directxtk/LICENSE"
+  },
+  {
+    "source": "reframework_src/build/_deps/directxtk12-src/LICENSE",
+    "license": "licenses/directxtk12/LICENSE"
+  },
+  {
+    "source": "reframework_src/build/_deps/freetype-src/LICENSE.TXT",
+    "license": "licenses/freetype/LICENSE.TXT"
+  },
+  {
+    "source": "reframework_src/build/_deps/kananlib-src/LICENSE",
+    "license": "licenses/kananlib/LICENSE"
+  },
+  {
+    "source": "reframework_src/build/_deps/openxr-src/COPYING.adoc",
+    "license": "licenses/openxr/COPYING.adoc"
+  },
+  {
+    "source": "reframework_src/build/_deps/openxr-src/LICENSE",
+    "license": "licenses/openxr/LICENSE"
+  },
+  {
+    "source": "reframework_src/build/_deps/safetyhook-src/LICENSE",
+    "license": "licenses/safetyhook/LICENSE"
+  },
+  {
+    "source": "reframework_src/build/_deps/zydis-src/LICENSE",
+    "license": "licenses/zydis/LICENSE"
+  },
+  {
+    "source": "reframework_src/build/_deps/freetype-src/docs/FTL.TXT",
+    "license": "licenses/freetype/FTL.TXT"
+  },
+  {
+    "source": "reframework_src/build/_deps/freetype-src/docs/GPLv2.TXT",
+    "license": "licenses/freetype/GPLv2.TXT"
+  },
+  {
+    "source": "reframework_src/build/_deps/zydis-src/dependencies/zycore/LICENSE",
+    "license": "licenses/zycore/LICENSE"
+  },
+  {
+    "source": "reframework_src/LICENSE",
+    "license": "licenses/REFramework-MIT.txt",
+    "method": "verbatim copy"
+  },
+  {
+    "source": "reframework_src/dependencies/lua/src/lua.h",
+    "license": "licenses/lua/LICENSE.txt",
+    "method": "verbatim final copyright comment block"
+  },
+  {
+    "source": "reframework_src/dependencies/nlohmann/json.hpp",
+    "license": "licenses/nlohmann-json/LICENSE.txt",
+    "method": "verbatim first comment block"
+  }
+]
