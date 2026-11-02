@@ -9,7 +9,7 @@
     " 7c02e204c92545f869e2f04edaab1f19fe8b19fd dependencies/spdlog (7c02e20)"
   ],
   "patches": {
-    "RE8Framework.patch": "fc2adc2ba7ecb2be6bfaebac683d8a0b9f967a4526c2b4bf436745b67ff7699c",
+    "RE8Framework.patch": "d2fea66a89f04df9c83b6d961a804d30724633225051f079cb7ce6f547c8eea0",
     "RE8ImGuiStartup.patch": "39733bc192f89ed2d206d8acac99cdc13275ff08df0571dacbfcee9cb09ec556"
   },
   "note": "Includes pre-existing local fixes and current development changes. No commit or release created."

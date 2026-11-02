@@ -21,7 +21,7 @@ $map = @(
     @{ source = (Join-Path $ProjectRoot 'config\re2_fw_config.txt'); destination = 're2_fw_config.txt'; preserveExisting = $true }
 )
 $supportFiles = @('install.bat', 'uninstall.bat', 'LICENSE', 'README.md', 'tools\RE8Patch.Common.ps1', 'tools\RE8Patch.Install.ps1', 'tools\RE8Patch.Uninstall.ps1', 'docs\technical-report.md', 'docs\validation-matrix.md', 'docs\file-audit.md')
-foreach ($optional in @('docs\cursor-evidence.json', 'docs\cursor-evidence.md', 'docs\cursor-controller.md', 'docs\aspect-evidence.md', 'docs\legacy-release-v1.1.0.md')) {
+foreach ($optional in @('docs\cursor-evidence.json', 'docs\cursor-evidence.md', 'docs\cursor-controller.md', 'docs\aspect-evidence.md', 'docs\legacy-release-v1.1.0.md', 'docs\validation-results.json')) {
     if (Test-Path -LiteralPath (Get-RE8ContainedPath $ProjectRoot $optional) -PathType Leaf) { $supportFiles += $optional }
 }
 $licenseRoot = Join-Path $ProjectRoot 'licenses'

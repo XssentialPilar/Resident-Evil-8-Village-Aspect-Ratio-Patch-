@@ -13,3 +13,14 @@ python .\tools\RE8Patch.ExportSources.py
 ```
 
 El exportador no modifica el índice Git y verifica que ambos parches se puedan revertir sobre el árbol actual. La compilación completa se documenta por separado; comprobar la aplicación de un parche no sustituye compilarlo ni ejecutarlo.
+
+Preparación automatizada desde el checkout fuente (sin sobrescribir cambios ajenos):
+
+```powershell
+.\tools\RE8Patch.PrepareSource.ps1
+.\tools\RE8Patch.Build.ps1
+.\tools\RE8Patch.Test.ps1
+.\tools\RE8Patch.Package.ps1
+```
+
+El preparador verifica revisión, hashes y cambios exactos antes de aplicar los dos parches. Si el árbol ya coincide, lo conserva. Rechaza modificaciones adicionales y revisiones distintas; no utiliza reset ni fuerza su sustitución.

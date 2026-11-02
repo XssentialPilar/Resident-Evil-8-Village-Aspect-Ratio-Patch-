@@ -72,3 +72,7 @@ Estos resultados verifican código y matemáticas fuera del juego. No son prueba
 3. Probar con/sin override manual y con/sin área segura; confirmar que abrir el mapa no altera la cámara de gameplay ni las vistas auxiliares.
 4. Cambiar resolución y tamaño de ventana mientras corre el juego; probar pantalla completa, sin bordes, escalas Windows y varias frecuencias. Medir tiempos y estabilidad, sin inferirlos de las pruebas de funciones puras.
 5. Verificar películas prerenderizadas y transiciones: conservar proporcionalidad mediante opciones originales o barras cuando el contenido no permite expansión real. No se han modificado decodificadores ni texturas de vídeo.
+
+## Correcciones tras la prueba del usuario
+
+El candidato anterior falló visualmente según el usuario. La revisión actual añade `RE8CameraProjection.hpp`: aplica realmente el aspecto de salida a la cámara, conserva una instantánea por ciclo, evita acumular el FOV, restaura sólo sus valores y respeta cambios del motor. Las cámaras ortográficas y los menús conservan su proyección. El cursor se suprime en su panel visual sin omitir la ruta GUI completa. El nuevo arrastre de mapa configurable se describe en el informe principal. Las nuevas rutas compilan y sus pruebas de lógica pasan; su resultado visual e interacción siguen pendientes de prueba real. Las cifras matemáticas anteriores no deben presentarse como prueba de la imagen final.

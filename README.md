@@ -10,11 +10,11 @@ The published v1.1.0 can delay hiding the Windows cursor after leaving a menu an
 
 The native implementation replaces broad GUI-triggered cursor activation with an explicit RE8 menu policy. The authorized interfaces are the main menu and its submenus, pause, settings, the Duke's shop and submenus, Ethan's inventory, save/load screens, the map and the patch configuration menu. HUD updates, ammunition, notifications and interaction prompts do not authorize the cursor. See the [cursor controller notes](docs/cursor-controller.md).
 
-Map input keeps the engine's original coordinate conversions, relative motion, buttons and wheel handling. The previous global coordinate overrides have been removed; natural map navigation still requires in-game verification.
+Map input keeps the engine's original coordinate conversions and wheel zoom. The development configuration offers a map-only click/hold drag button, including left, right, middle and side buttons; a click selects/expands, then holding and moving requests native panning. Fixed interface panels are excluded. The previous global coordinate overrides have been removed. **The previous gameplay candidate still failed the requested expanded-map gesture. The new binding requires in-game verification; this issue is not declared resolved.**
 
-Projection calculations use the current render output dimensions. The manual FOV multiplier **1.715** remains available; disabling the manual override selects the automatic calculation. **Aspect Ratio Config Menu** still opens with `Insert`. The [display and map evidence](docs/aspect-evidence.md) explains the implemented calculations and the limits of proportional UI handling.
+Projection calculations use the current render output dimensions. The manual FOV multiplier **1.715** remains available as a legacy calibration; it deliberately changes the viewing angle. New installations select automatic projection. Existing personal settings are preserved, so an existing manual override remains manual until you disable it. **Aspect Ratio Config Menu** still opens with `Insert`. The [display and map evidence](docs/aspect-evidence.md) explains the implemented calculations and the limits of proportional UI handling.
 
-Compilation and automated tests do not establish gameplay correctness or universal display compatibility. The [validation matrix](docs/validation-matrix.md) separates executed checks from pending cursor, map, resolution, DPI and display-mode tests.
+**Current gameplay feedback also reports an excessively altered, nonuniform FOV.** This is under investigation alongside the expanded map interaction. Compilation and automated tests do not establish gameplay correctness or universal display compatibility. The [validation matrix](docs/validation-matrix.md) separates executed checks from pending cursor, map, resolution, DPI and display-mode tests.
 
 ## Source organization
 
@@ -41,8 +41,9 @@ These commands are for the **source repository**. Install packages intentionally
 The current tools use Windows x64, Visual Studio 2026 Build Tools with C++, CMake and the recorded dependencies. From the source root:
 
 ```powershell
-.\tools\RE8Patch.Test.ps1
+.\tools\RE8Patch.PrepareSource.ps1
 .\tools\RE8Patch.Build.ps1
+.\tools\RE8Patch.Test.ps1
 .\tools\RE8Patch.Package.ps1
 ```
 

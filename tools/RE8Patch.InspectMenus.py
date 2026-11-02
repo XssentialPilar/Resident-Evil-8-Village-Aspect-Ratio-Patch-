@@ -106,11 +106,13 @@ def main():
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument('executable', type=Path)
     parser.add_argument('--output', type=Path)
+    parser.add_argument('--type', dest='extra_types', action='append', default=[], help='Additional exact reflected type name')
     args = parser.parse_args()
     tdb = TDB69(args.executable)
     relevant = {'app.MenuDefine', 'app.GUIManager', 'app.MenuManager', 'app.GUIDriver',
                 'app.GUIMouseCursor', 'app.GUIHandle', 'app.GUIStatus',
                 'app.MenuManagerUserData.Unit'}
+    relevant.update(args.extra_types)
     result = {
         'source': str(args.executable.resolve()),
         'sha256': hashlib.sha256(tdb.data).hexdigest(),
