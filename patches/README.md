@@ -1,3 +1,5 @@
+> Historical bundled development implementation. RE8Display 2.1.0 uses the standalone source in native/ and the vendored public SDK; these patches are preserved for audit and recovery, and are not its shipped runtime.
+
 # Dependencia externa reproducible
 
 `external/REFramework.source.json` registra la revisión real del código fuente, los submódulos y los hashes de los parches. La revisión del antiguo binario se conserva separadamente: no coincide con la revisión del checkout fuente y no debe usarse para reconstruirlo.

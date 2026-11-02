@@ -13,6 +13,12 @@ int main() {
                            "RogueScore", "NightVision", "Scope", "Movie", "Book", "UnknownGUI",
                            "MouseCursor", "MapNotification", "MainMenuNotification", ""})
         require(!is_authorized_cursor_menu(forbidden), "HUD/unknown element authorized");
+    // Interactive save-list variants are exact menu IDs; background persistence
+    // and the in-world typewriter interaction prompt remain unauthorized.
+    for (auto save_menu : {"SaveMenu", "Ch10SaveMenu", "SaveTransitionMenu", "SaveTransitionMenuCh10"})
+        require(is_authorized_cursor_menu(save_menu), "Interactive save list not authorized");
+    for (auto persistence : {"AutoSave", "SystemSave", "SaveLoadFlowManager", "SaveIcon", "TypewriterPrompt"})
+        require(!is_authorized_cursor_menu(persistence), "Background save or interaction prompt authorized");
     // Exercise rapid menu/gameplay cycles: policy has no timers or sticky latch.
     for (int cycle = 0; cycle < 10000; ++cycle) {
         require(should_show_native_cursor(true, false, true), "Authorized menu hidden");

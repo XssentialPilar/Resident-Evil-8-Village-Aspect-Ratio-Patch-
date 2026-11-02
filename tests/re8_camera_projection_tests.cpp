@@ -1,4 +1,4 @@
-#include "re8/RE8CameraProjection.hpp"
+#include "../native/common/RE8CameraProjection.hpp"
 #include <cassert>
 #include <iostream>
 
@@ -37,5 +37,43 @@ int main() {
     assert(near(limited.apply(clamped, 1.6f, false, true, 1.715f).fov, 154.35f));
     limited.confirm_applied(clamped); // The second native write is limited again.
     assert(near(limited.restore(clamped).fov, 90));
+    // Regression: the native scalar can represent a vertical FOV. Legacy 1.715
+    // must multiply that raw scalar once, never convert it to horizontal first.
+    CameraProjectionOverride native_vertical;
+    const CameraProjection vertical_source{45, 16.0f / 9.0f, true};
+    const auto legacy_vertical = native_vertical.apply(vertical_source, 1.6f, false, true, 1.715f);
+    assert(near(legacy_vertical.fov, 77.175f));
+    auto engine_changed = legacy_vertical;
+    engine_changed.fov = 60;
+    const auto preserved = native_vertical.restore(engine_changed);
+    assert(near(preserved.fov, 60) && preserved.vertical == false);
+    const auto recaptured = native_vertical.apply(engine_changed, 1.6f, false, true, 1.715f);
+    assert(near(recaptured.fov, 102.9f));
+    // The same tuple actually written to a fake camera drives pixel projection.
+    // This checks helper integration, not an unexecuted RE Engine render.
+    struct FakeCamera {
+        CameraProjection state;
+        void write(CameraProjection value) { state.aspect = value.aspect; state.vertical = value.vertical; state.fov = value.fov; }
+        float x_scale(float width) const {
+            const float horizontal = state.vertical ? vertical_to_horizontal(state.fov, state.aspect) : state.fov;
+            return width / std::tan(horizontal * degrees_to_radians / 2);
+        }
+        float y_scale(float height) const {
+            const float vertical = state.vertical ? state.fov : horizontal_to_vertical(state.fov, state.aspect);
+            return height / std::tan(vertical * degrees_to_radians / 2);
+        }
+    } fake{vertical_source};
+    for (int cycle = 0; cycle < 10000; ++cycle) {
+        CameraProjectionOverride pass;
+        fake.write(pass.apply(fake.state, 1.6f, false, false, 1.715f));
+        assert(near(fake.x_scale(1920), fake.y_scale(1200)));
+        fake.write(pass.apply(fake.state, 1.6f, false, false, 1.715f));
+        assert(near(fake.x_scale(1920), fake.y_scale(1200)));
+        fake.write(pass.restore(fake.state));
+        assert(near(fake.state.fov, 45) && near(fake.state.aspect, 16.0f / 9.0f) && fake.state.vertical);
+    }
+    CameraProjectionOverride invalid;
+    const auto unchanged = invalid.apply(native, 0, false, false, 1.715f);
+    assert(near(unchanged.fov, native.fov) && near(unchanged.aspect, native.aspect));
     std::cout << "PASS: actual camera aspect, axis capture, 10000 repeated pass cycles, legacy calibration, engine updates and setter limits.\n";
 }

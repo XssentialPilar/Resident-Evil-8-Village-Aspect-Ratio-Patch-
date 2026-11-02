@@ -1,4 +1,4 @@
-#include "../reframework_src/src/mods/re8/RE8DisplayGeometry.hpp"
+#include "../native/common/RE8DisplayGeometry.hpp"
 #include <array>
 #include <cassert>
 #include <iostream>

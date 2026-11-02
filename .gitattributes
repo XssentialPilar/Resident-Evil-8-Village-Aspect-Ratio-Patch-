@@ -3,3 +3,4 @@
 licenses/** -whitespace
 *.bat text eol=crlf
 docs/legacy-release-v1.1.0.md -text
+/external/reframework-sdk/** -text -whitespace

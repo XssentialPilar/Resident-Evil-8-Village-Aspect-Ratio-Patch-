@@ -1,0 +1,18 @@
+{
+  "REFrameworkSDK": {
+    "repository": "https://github.com/praydog/REFramework",
+    "revision": "5b0ec09c1f096c1ea41961f0a5cf0d8926afe367",
+    "apiVersion": "1.15.0",
+    "files": {
+      "reframework-sdk/reframework/API.h": "CD17FCDE1384C04E2CDDAC27BEB0A1DE273EA6EA406BD37AA3BDA67093FABE0A",
+      "reframework-sdk/reframework/API.hpp": "B4F580E6CF9236F1D9B85A2E4BAEB2B56168EDA4B3F97D7244FB429A48C5B880"
+    },
+    "license": "../licenses/REFramework-MIT.txt"
+  },
+  "MinHook": {
+    "repository": "https://github.com/TsudaKageyu/minhook",
+    "revision": "98b74f1fc12d00313d91f10450e5b3e0036175e3",
+    "subset": ["include", "src", "LICENSE.txt"],
+    "license": "minhook/LICENSE.txt"
+  }
+}

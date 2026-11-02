@@ -65,3 +65,15 @@ La metadata real define resultados de `GUIDriver.show/hide/suicide` mediante `ap
 Las trazas nuevas identifican qué menú y qué operación solicitan abrir/cerrar. Todavía no registran el resultado devuelto por cada operación. Por ello, no se ha demostrado si alguna oscilación observada al abrir responde a un hide rechazado, redundante, interno o a un cambio legítimo entre pantallas. El controlador actual procesa la solicitud de cierre antes de conocer ese resultado. Cualquier modificación futura para distinguir solicitudes aceptadas/rechazadas deberá basarse en una traza real del retorno y compararlo con los estados reflejados del juego, sin asignar significados a números adivinados.
 
 El cambio posterior de entrega al hilo de ventana utiliza `SendNotifyMessageW` entre hebras, conservando el retorno inmediato al emisor. Esto evita depender únicamente de la cola de mensajes publicados, pero no garantiza una latencia determinada cuando el hilo receptor está ocupado. Su efecto real exige repetir la medición del candidato que incluye el cambio.
+
+## Ajuste localizado del menú de guardado
+
+El usuario confirmó que el cursor funciona correctamente en los demás menús, incluida la carga desde el menú principal, y señaló un fallo específico en GUARDADO. El mapa se aplazó y no se modifica como parte de este ajuste.
+
+La metadata real muestra que `app.GUISaveLoad` y `app.GUISaveDataTransition` ofrecen el comando propio `openList(app.GUIRequest.Parameter)`, que devuelve `app.GUIDriver.ExecuteResult.Value`. `GUISaveLoadOrder.openList(Boolean, Result)` y su parámetro `isSaveList` confirman la ruta diferenciada de listas de guardado/carga. Las firmas y la herencia se conservan en `docs/save-cursor-evidence.json`.
+
+El controlador reiniciaba la exclusión de cierre solamente mediante creación del GUI, `GUIDriver.show` o `MenuManager.pushMenu`; no reconocía ese comando de reapertura de listas reutilizadas. Se añaden exclusivamente los dos `openList` tipados a los hooks protegidos existentes. El objeto debe ser administrado y pertenecer a la clase concreta esperada; su hash debe seguir perteneciendo a la autorización explícita y `isShowingGUI(hash)` debe confirmar la visibilidad. No se autoriza solamente porque se haya llamado al método.
+
+También se incorporan los identificadores exactos `SaveTransitionMenu` y `SaveTransitionMenuCh10`, declarados por `app.MenuDefine`, para sus listas interactivas. El guardado automático, la ejecución general de SaveLoadFlowManager y los avisos o indicaciones del HUD no conceden autorización.
+
+La prueba portable incorpora estos identificadores de guardado y rechaza nombres de persistencia en segundo plano. La compilación y la repetición real en una máquina de escribir corresponden a la validación del siguiente candidato: no se afirma que el fallo de GUARDADO haya sido superado todavía. La ruta de reapertura omitida está demostrada por el código y la metadata; atribuirle por completo el síntoma concreto exige esa prueba.

@@ -5,5 +5,5 @@ if "%~1"=="" (
     echo The supplied folder must contain re8.exe. Close the game first.
     exit /b 2
 )
-powershell.exe -NoProfile -ExecutionPolicy Bypass -File "%~dp0tools\RE8Patch.Uninstall.ps1" -GamePath "%~1"
+powershell.exe -NoProfile -ExecutionPolicy Bypass -File "%~dp0tools\RE8Display.Uninstall.ps1" -GamePath "%~1"
 exit /b %ERRORLEVEL%

@@ -1258,10 +1258,10 @@ index 0000000..385ff06
 +} // namespace re8_patch::display
 diff --git a/src/mods/re8/RE8CursorPolicy.hpp b/src/mods/re8/RE8CursorPolicy.hpp
 new file mode 100644
-index 0000000..b330cf3
+index 0000000..c58c180
 --- /dev/null
 +++ b/src/mods/re8/RE8CursorPolicy.hpp
-@@ -0,0 +1,38 @@
+@@ -0,0 +1,39 @@
 +#pragma once
 +#include <array>
 +#include <string_view>
@@ -1287,7 +1287,8 @@ index 0000000..b330cf3
 +    "ShopCustomizingSubMenu1", "ShopCustomizingSubMenu2", "ShopCustomizingSubMenu3",
 +    "InventoryMenu", "InventoryRogueMenu", "InventoryItem", "InventoryCraft",
 +    "InventoryKeyItem", "InventoryTreasure", "InventoryAbility", "InventoryStatus",
-+    "SaveMenu", "LoadMenu", "Ch10SaveMenu", "Ch10LoadMenu", "Map"
++    "SaveMenu", "LoadMenu", "Ch10SaveMenu", "Ch10LoadMenu",
++    "SaveTransitionMenu", "SaveTransitionMenuCh10", "Map"
 +});
 +constexpr bool is_authorized_cursor_menu(std::string_view name) {
 +    for (auto allowed : authorized_cursor_menus) {
@@ -1627,10 +1628,10 @@ index 0000000..ec456ac
 +} // namespace re8_patch
 diff --git a/src/mods/re8/RE8NativeCursor.hpp b/src/mods/re8/RE8NativeCursor.hpp
 new file mode 100644
-index 0000000..1f63311
+index 0000000..a8ed5bc
 --- /dev/null
 +++ b/src/mods/re8/RE8NativeCursor.hpp
-@@ -0,0 +1,458 @@
+@@ -0,0 +1,487 @@
 +#pragma once
 +
 +#include <algorithm>
@@ -1898,6 +1899,35 @@ index 0000000..1f63311
 +                    });
 +                if (id != 0) m_hooks.emplace_back(method, id);
 +            }
++        }
++        // Save/load lists have their own reopen command. A reused typewriter
++        // list can call openList without createGUI or GUIDriver.show, so its
++        // previous close exclusion must reset on this real, typed entry point.
++        // Do not authorize SaveLoadFlowManager execution: autosaves use it too.
++        for (auto type_name : {"app.GUISaveLoad", "app.GUISaveDataTransition"}) {
++            const auto save_type = sdk::find_type_definition(type_name);
++            if (save_type == nullptr) continue;
++            const auto method = save_type->get_method("openList");
++            if (method == nullptr || method->get_function() == nullptr || method->is_static()) continue;
++            const auto parameters = method->get_param_types();
++            if (parameters.size() != 1 || parameters[0] == nullptr ||
++                parameters[0]->get_full_name() != "app.GUIRequest.Parameter" ||
++                method->get_return_type() == nullptr ||
++                method->get_return_type()->get_full_name() != "app.GUIDriver.ExecuteResult.Value") continue;
++            const auto id = add_transition_hook(method,
++                [this, save_type, type_name](auto& args, auto&, uintptr_t) {
++                    if (args.size() > 1) {
++                        const auto driver = reinterpret_cast<::REManagedObject*>(args[1]);
++                        if (::REManagedObject::is_managed_object(driver) && driver->get_type_definition() != nullptr &&
++                            driver->get_type_definition()->is_a(save_type)) {
++                            driver_transition(driver, false, std::string{type_name} + ".openList");
++                        }
++                    }
++                    return HookManager::PreHookResult::CALL_ORIGINAL;
++                }, [this, type_name](uintptr_t&, sdk::RETypeDefinition*, uintptr_t) {
++                    update(std::string{type_name} + ".openList.post");
++                });
++            if (id != 0) m_hooks.emplace_back(method, id);
 +        }
 +        const auto menu_manager = sdk::find_type_definition("app.MenuManager");
 +        if (menu_manager != nullptr) {

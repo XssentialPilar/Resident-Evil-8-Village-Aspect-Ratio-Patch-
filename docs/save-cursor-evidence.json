@@ -1,0 +1,656 @@
+{
+  "source": "C:\\Program Files (x86)\\Steam\\steamapps\\common\\Resident Evil Village BIOHAZARD VILLAGE\\re8.exe",
+  "sha256": "b489826fd3e8aeea0dd0b1c4adcf35d5c98d1b599eed022623aa73241fe21e3b",
+  "evidence_kind": "Offline TDB69 signatures and inheritance; save-menu fix has not been retested in-game",
+  "tdb_file_offset": "0x8ee5480",
+  "types": [
+    {
+      "type": "app.GUISaveDataTransitionOrder",
+      "methods": [
+        {
+          "name": ".ctor",
+          "return": "System.Void",
+          "parameters": [
+            "app.GUIDriver"
+          ]
+        },
+        {
+          "name": "openList",
+          "return": "System.Void",
+          "parameters": [
+            "System.Boolean",
+            "app.GUISaveLoad.Result"
+          ]
+        }
+      ],
+      "fields": [],
+      "base_types": [
+        "app.GUIOrder",
+        "app.ObjectApp",
+        "System.Object"
+      ]
+    },
+    {
+      "type": "app.GUISaveDataTransition",
+      "methods": [
+        {
+          "name": "get_isSenderList",
+          "return": "System.Boolean",
+          "parameters": []
+        },
+        {
+          "name": "set_isSenderList",
+          "return": "System.Void",
+          "parameters": [
+            "System.Boolean"
+          ]
+        },
+        {
+          "name": "get_hasAutoSave",
+          "return": "System.Boolean",
+          "parameters": []
+        },
+        {
+          "name": "set_hasAutoSave",
+          "return": "System.Void",
+          "parameters": [
+            "System.Boolean"
+          ]
+        },
+        {
+          "name": "get_mainPanel",
+          "return": "via.gui.Panel",
+          "parameters": []
+        },
+        {
+          "name": "set_mainPanel",
+          "return": "System.Void",
+          "parameters": [
+            "via.gui.Panel"
+          ]
+        },
+        {
+          "name": "get_modePanel",
+          "return": "via.gui.Panel",
+          "parameters": []
+        },
+        {
+          "name": "set_modePanel",
+          "return": "System.Void",
+          "parameters": [
+            "via.gui.Panel"
+          ]
+        },
+        {
+          "name": "get_scrollList",
+          "return": "via.gui.ScrollList",
+          "parameters": []
+        },
+        {
+          "name": "set_scrollList",
+          "return": "System.Void",
+          "parameters": [
+            "via.gui.ScrollList"
+          ]
+        },
+        {
+          "name": "get_systemdataPanel",
+          "return": "via.gui.Panel",
+          "parameters": []
+        },
+        {
+          "name": "set_systemdataPanel",
+          "return": "System.Void",
+          "parameters": [
+            "via.gui.Panel"
+          ]
+        },
+        {
+          "name": "get_roguedataPanel",
+          "return": "via.gui.Panel",
+          "parameters": []
+        },
+        {
+          "name": "set_roguedataPanel",
+          "return": "System.Void",
+          "parameters": [
+            "via.gui.Panel"
+          ]
+        },
+        {
+          "name": "get_scrollController",
+          "return": "app.GUIMisc.ScrollController",
+          "parameters": []
+        },
+        {
+          "name": "set_scrollController",
+          "return": "System.Void",
+          "parameters": [
+            "app.GUIMisc.ScrollController"
+          ]
+        },
+        {
+          "name": "createOrder",
+          "return": "app.IGUIOrder",
+          "parameters": []
+        },
+        {
+          "name": "setupResource",
+          "return": "System.Void",
+          "parameters": []
+        },
+        {
+          "name": "awake",
+          "return": "System.Void",
+          "parameters": []
+        },
+        {
+          "name": "onLateUpdate",
+          "return": "System.Void",
+          "parameters": []
+        },
+        {
+          "name": "onDecide",
+          "return": "System.Void",
+          "parameters": []
+        },
+        {
+          "name": "onCancel",
+          "return": "System.Void",
+          "parameters": []
+        },
+        {
+          "name": "setSlotText",
+          "return": "System.Void",
+          "parameters": [
+            "via.gui.SelectItem",
+            "System.String",
+            "System.String"
+          ]
+        },
+        {
+          "name": "setSlotText",
+          "return": "System.Void",
+          "parameters": [
+            "via.gui.SelectItem",
+            "System.String",
+            "System.Guid"
+          ]
+        },
+        {
+          "name": "setSlotVisibility",
+          "return": "System.Void",
+          "parameters": [
+            "via.gui.SelectItem",
+            "System.String",
+            "System.Boolean"
+          ]
+        },
+        {
+          "name": "initializeScrollList",
+          "return": "System.Void",
+          "parameters": []
+        },
+        {
+          "name": "setupScrollList",
+          "return": "System.Void",
+          "parameters": []
+        },
+        {
+          "name": "onShow",
+          "return": "System.Void",
+          "parameters": [
+            "System.Boolean"
+          ]
+        },
+        {
+          "name": "onHide",
+          "return": "System.Void",
+          "parameters": [
+            "System.Boolean"
+          ]
+        },
+        {
+          "name": "openList",
+          "return": "app.GUIDriver.ExecuteResult.Value",
+          "parameters": [
+            "app.GUIRequest.Parameter"
+          ]
+        },
+        {
+          "name": "mainStateFinished",
+          "return": "System.Void",
+          "parameters": [
+            "via.gui.Control"
+          ]
+        },
+        {
+          "name": "scrollListSelectionChanged",
+          "return": "System.Void",
+          "parameters": []
+        },
+        {
+          "name": ".ctor",
+          "return": "System.Void",
+          "parameters": []
+        }
+      ],
+      "fields": [
+        {
+          "name": "<isSenderList>k__BackingField",
+          "type": "System.Boolean",
+          "flags": "0x1"
+        },
+        {
+          "name": "<hasAutoSave>k__BackingField",
+          "type": "System.Boolean",
+          "flags": "0x1"
+        },
+        {
+          "name": "<mainPanel>k__BackingField",
+          "type": "via.gui.Panel",
+          "flags": "0x1"
+        },
+        {
+          "name": "<modePanel>k__BackingField",
+          "type": "via.gui.Panel",
+          "flags": "0x1"
+        },
+        {
+          "name": "<scrollList>k__BackingField",
+          "type": "via.gui.ScrollList",
+          "flags": "0x1"
+        },
+        {
+          "name": "<systemdataPanel>k__BackingField",
+          "type": "via.gui.Panel",
+          "flags": "0x1"
+        },
+        {
+          "name": "<roguedataPanel>k__BackingField",
+          "type": "via.gui.Panel",
+          "flags": "0x1"
+        },
+        {
+          "name": "lastIndex",
+          "type": "System.Int32",
+          "flags": "0x1"
+        },
+        {
+          "name": "<scrollController>k__BackingField",
+          "type": "app.GUIMisc.ScrollController",
+          "flags": "0x1"
+        }
+      ],
+      "base_types": [
+        "app.GUIDriver",
+        "app.BehaviorApp",
+        "via.Behavior",
+        "via.Component",
+        "System.Object"
+      ]
+    },
+    {
+      "type": "app.GUISaveLoad",
+      "methods": [
+        {
+          "name": "get_isSaveList",
+          "return": "System.Boolean",
+          "parameters": []
+        },
+        {
+          "name": "set_isSaveList",
+          "return": "System.Void",
+          "parameters": [
+            "System.Boolean"
+          ]
+        },
+        {
+          "name": "get_derivedOperationResult",
+          "return": "app.GUISaveLoad.Result",
+          "parameters": []
+        },
+        {
+          "name": "set_derivedOperationResult",
+          "return": "System.Void",
+          "parameters": [
+            "app.GUISaveLoad.Result"
+          ]
+        },
+        {
+          "name": "get_mainPanel",
+          "return": "via.gui.Panel",
+          "parameters": []
+        },
+        {
+          "name": "set_mainPanel",
+          "return": "System.Void",
+          "parameters": [
+            "via.gui.Panel"
+          ]
+        },
+        {
+          "name": "get_modePanel",
+          "return": "via.gui.Panel",
+          "parameters": []
+        },
+        {
+          "name": "set_modePanel",
+          "return": "System.Void",
+          "parameters": [
+            "via.gui.Panel"
+          ]
+        },
+        {
+          "name": "get_scrollList",
+          "return": "via.gui.ScrollList",
+          "parameters": []
+        },
+        {
+          "name": "set_scrollList",
+          "return": "System.Void",
+          "parameters": [
+            "via.gui.ScrollList"
+          ]
+        },
+        {
+          "name": "get_saveFileDetailList",
+          "return": "System.Collections.Generic.List`1",
+          "parameters": []
+        },
+        {
+          "name": "set_saveFileDetailList",
+          "return": "System.Void",
+          "parameters": [
+            "System.Collections.Generic.List`1"
+          ]
+        },
+        {
+          "name": "get_childOperationResult",
+          "return": "app.OperationResultBase",
+          "parameters": []
+        },
+        {
+          "name": "set_childOperationResult",
+          "return": "System.Void",
+          "parameters": [
+            "app.OperationResultBase"
+          ]
+        },
+        {
+          "name": "get_scrollController",
+          "return": "app.GUIMisc.ScrollController",
+          "parameters": []
+        },
+        {
+          "name": "set_scrollController",
+          "return": "System.Void",
+          "parameters": [
+            "app.GUIMisc.ScrollController"
+          ]
+        },
+        {
+          "name": "get_mouseHitController",
+          "return": "app.GUIMisc.MouseHitController",
+          "parameters": []
+        },
+        {
+          "name": "set_mouseHitController",
+          "return": "System.Void",
+          "parameters": [
+            "app.GUIMisc.MouseHitController"
+          ]
+        },
+        {
+          "name": "createOrder",
+          "return": "app.IGUIOrder",
+          "parameters": []
+        },
+        {
+          "name": "setupResource",
+          "return": "System.Void",
+          "parameters": []
+        },
+        {
+          "name": "awake",
+          "return": "System.Void",
+          "parameters": []
+        },
+        {
+          "name": "onLateUpdate",
+          "return": "System.Void",
+          "parameters": []
+        },
+        {
+          "name": "setSlotText",
+          "return": "System.Void",
+          "parameters": [
+            "via.gui.SelectItem",
+            "System.String",
+            "System.String"
+          ]
+        },
+        {
+          "name": "setSlotText",
+          "return": "System.Void",
+          "parameters": [
+            "via.gui.SelectItem",
+            "System.String",
+            "System.Guid"
+          ]
+        },
+        {
+          "name": "setSlotVisibility",
+          "return": "System.Void",
+          "parameters": [
+            "via.gui.SelectItem",
+            "System.String",
+            "System.Boolean"
+          ]
+        },
+        {
+          "name": "onDecideDifficulty",
+          "return": "System.Void",
+          "parameters": []
+        },
+        {
+          "name": "onCancelDifficulty",
+          "return": "System.Void",
+          "parameters": []
+        },
+        {
+          "name": "initializeScrollList",
+          "return": "System.Void",
+          "parameters": []
+        },
+        {
+          "name": "setupScrollList",
+          "return": "System.Void",
+          "parameters": []
+        },
+        {
+          "name": "onShow",
+          "return": "System.Void",
+          "parameters": [
+            "System.Boolean"
+          ]
+        },
+        {
+          "name": "onHide",
+          "return": "System.Void",
+          "parameters": [
+            "System.Boolean"
+          ]
+        },
+        {
+          "name": "onFinishedHide",
+          "return": "System.Void",
+          "parameters": []
+        },
+        {
+          "name": "openList",
+          "return": "app.GUIDriver.ExecuteResult.Value",
+          "parameters": [
+            "app.GUIRequest.Parameter"
+          ]
+        },
+        {
+          "name": "mainStateFinished",
+          "return": "System.Void",
+          "parameters": [
+            "via.gui.Control"
+          ]
+        },
+        {
+          "name": "scrollListSelectionChanged",
+          "return": "System.Void",
+          "parameters": []
+        },
+        {
+          "name": ".ctor",
+          "return": "System.Void",
+          "parameters": []
+        }
+      ],
+      "fields": [
+        {
+          "name": "<isSaveList>k__BackingField",
+          "type": "System.Boolean",
+          "flags": "0x1"
+        },
+        {
+          "name": "<derivedOperationResult>k__BackingField",
+          "type": "app.GUISaveLoad.Result",
+          "flags": "0x1"
+        },
+        {
+          "name": "<mainPanel>k__BackingField",
+          "type": "via.gui.Panel",
+          "flags": "0x1"
+        },
+        {
+          "name": "<modePanel>k__BackingField",
+          "type": "via.gui.Panel",
+          "flags": "0x1"
+        },
+        {
+          "name": "<scrollList>k__BackingField",
+          "type": "via.gui.ScrollList",
+          "flags": "0x1"
+        },
+        {
+          "name": "<saveFileDetailList>k__BackingField",
+          "type": "System.Collections.Generic.List`1",
+          "flags": "0x1"
+        },
+        {
+          "name": "<childOperationResult>k__BackingField",
+          "type": "app.OperationResultBase",
+          "flags": "0x1"
+        },
+        {
+          "name": "lastIndex",
+          "type": "System.Int32",
+          "flags": "0x1"
+        },
+        {
+          "name": "<scrollController>k__BackingField",
+          "type": "app.GUIMisc.ScrollController",
+          "flags": "0x1"
+        },
+        {
+          "name": "<mouseHitController>k__BackingField",
+          "type": "app.GUIMisc.MouseHitController",
+          "flags": "0x1"
+        }
+      ],
+      "base_types": [
+        "app.GUIDriver",
+        "app.BehaviorApp",
+        "via.Behavior",
+        "via.Component",
+        "System.Object"
+      ]
+    },
+    {
+      "type": "app.GUISaveLoadOrder",
+      "methods": [
+        {
+          "name": ".ctor",
+          "return": "System.Void",
+          "parameters": [
+            "app.GUIDriver"
+          ]
+        },
+        {
+          "name": "openList",
+          "return": "System.Void",
+          "parameters": [
+            "System.Boolean",
+            "app.GUISaveLoad.Result"
+          ]
+        }
+      ],
+      "fields": [],
+      "base_types": [
+        "app.GUIOrder",
+        "app.ObjectApp",
+        "System.Object"
+      ]
+    },
+    {
+      "type": "app.GUISaveLoadOrder.GUIRequestSaveLoadParameter",
+      "methods": [
+        {
+          "name": "get_isSaveList",
+          "return": "System.Boolean",
+          "parameters": []
+        },
+        {
+          "name": "set_isSaveList",
+          "return": "System.Void",
+          "parameters": [
+            "System.Boolean"
+          ]
+        },
+        {
+          "name": "get_result",
+          "return": "app.GUISaveLoad.Result",
+          "parameters": []
+        },
+        {
+          "name": "set_result",
+          "return": "System.Void",
+          "parameters": [
+            "app.GUISaveLoad.Result"
+          ]
+        },
+        {
+          "name": ".ctor",
+          "return": "System.Void",
+          "parameters": [
+            "System.Boolean",
+            "app.GUISaveLoad.Result"
+          ]
+        }
+      ],
+      "fields": [
+        {
+          "name": "<isSaveList>k__BackingField",
+          "type": "System.Boolean",
+          "flags": "0x1"
+        },
+        {
+          "name": "<result>k__BackingField",
+          "type": "app.GUISaveLoad.Result",
+          "flags": "0x1"
+        }
+      ],
+      "base_types": [
+        "app.GUIRequest.Parameter",
+        "app.ObjectApp",
+        "System.Object"
+      ]
+    }
+  ]
+}
