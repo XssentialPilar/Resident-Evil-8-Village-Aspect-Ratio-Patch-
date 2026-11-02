@@ -28,3 +28,11 @@ No managed invocation exception from this plugin was found in the inspected sess
 The Windows input controller repeatedly rejected automated actions because it detected user activity. Visible menus and the runtime traces above were observed, but full automated interaction, private-menu rebinding and every rendered submenu alignment were not completed. Ultrawide, portrait, DPI variants, long play sessions, all third-party mods and a full visual pass at every listed resolution remain unverified. The source accepts dimensions without a 16:9/16:10 allowlist; mathematical generality is not presented as exhaustive hardware validation.
 
 The public ZIP contains only RE8Display.dll, RE8Display.ini and combined license notices. The host loader, other plugins/scripts and shared settings are not bundled or overwritten. Overlapping camera/UI/cursor mods require an ownership choice. Recovery copies and build/runtime evidence remain local in .recovery/ and artifacts/; no game save data was modified by the tooling.
+
+## Final packaging review
+
+The final private ImGui window is bounded to the active output, wraps explanatory text, and uses vertical scrolling instead of AlwaysAutoResize. The bounds are covered by the existing 100,000-dimension suite. The required C ImGui exports for constraints and wrapping were verified in the unmodified host binary.
+
+The /MT build retains DLL thread notifications, as required for the static CRT by [Microsoft's DisableThreadLibraryCalls contract](https://learn.microsoft.com/en-us/windows/win32/api/libloaderapi/nf-libloaderapi-disablethreadlibrarycalls). The built plugin imports only USER32.dll and KERNEL32.dll; it has no extra runtime DLL to distribute.
+
+These final GUI/runtime-initialization changes compiled and passed the five suites, 24 installation tests and 17 actual-package checks. They were made after the observed runtime session described above and have not received a fresh complete in-game visual retest. Their source changes are local for the user's separate publication workflow; no release or tag was created for this final cleanup by the patch-preparation step.

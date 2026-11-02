@@ -16,6 +16,9 @@ int main() {
         random = random * 1664525u + 1013904223u;
         const float height = 1.0f + (random % 32768u);
         const auto canvas = safe_area(width, height);
+        const auto panel = config_window_bounds(width, height);
+        assert(panel.max_width > 0 && panel.max_height > 0);
+        assert(panel.max_width <= width && panel.max_height <= height);
         assert(canvas.x >= -0.01f && canvas.y >= -0.01f);
         assert(canvas.width > 0 && canvas.height > 0);
         assert(canvas.x + canvas.width <= width + 0.01f);

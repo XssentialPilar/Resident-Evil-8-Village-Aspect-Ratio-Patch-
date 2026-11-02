@@ -24,6 +24,9 @@ public:
         begin = resolve<Begin>(host, "igBegin");
         end = resolve<Void>(host, "igEnd");
         set_size = resolve<SetSize>(host, "igSetNextWindowSize");
+        size_constraints = resolve<SizeConstraints>(host, "igSetNextWindowSizeConstraints");
+        push_wrap = resolve<PushWrap>(host, "igPushTextWrapPos");
+        pop_wrap = resolve<Void>(host, "igPopTextWrapPos");
         return available = tree && tree_pop && text && checkbox && slider && separator && button && begin && end;
     }
     void draw() const {
@@ -32,14 +35,20 @@ public:
         say("RE8Display 2.1.0");
         const auto shortcut = "Open menu: " + Context::get().menu_key_name();
         say(shortcut.c_str());
-        if (button("Open independent FOV / display settings")) Context::get().set_own_ui_open(true);
+        if (button("Open display settings")) Context::get().set_own_ui_open(true);
     }
     void draw_window() const {
         auto& context = Context::get();
         if (!available || !context.own_ui_open()) return;
         bool open = true;
-        if (set_size) set_size({440, 0}, 4); // FirstUseEver, auto height; no fixed monitor resolution.
-        if (begin("Aspect Ratio Config Menu - RE8Display 2.1.0", &open, 64)) draw_controls();
+        const auto dimensions = context.output_dimensions().value_or(std::array<float, 2>{640, 480});
+        const auto bounds = re8_patch::display::config_window_bounds(dimensions[0], dimensions[1]);
+        if (size_constraints) size_constraints({std::min(300.0f, bounds.max_width), std::min(160.0f, bounds.max_height)},
+            {bounds.max_width, bounds.max_height}, nullptr, nullptr);
+        if (set_size) set_size({std::min(480.0f, bounds.max_width), std::min(460.0f, bounds.max_height)}, 4);
+        // A bounded, scrollable window; AlwaysAutoResize allowed long labels to
+        // push the old panel outside small outputs and clip its bottom controls.
+        if (begin("Aspect Ratio Config Menu - RE8Display 2.1.0", &open, 0)) draw_controls();
         end();
         context.set_own_ui_open(open);
     }
@@ -53,19 +62,22 @@ public:
         else if (button("Change menu key")) context.capture_key();
         if (button("Reset menu key to ;")) { value.menu_key = 0; context.set_config(value); }
         bool changed = checkbox("Enable RE8Display", &value.enabled);
-        changed = checkbox("Native Windows cursor in authorized menus", &value.cursor_enabled) || changed;
+        changed = checkbox("Native cursor in game menus", &value.cursor_enabled) || changed;
         changed = checkbox("Enable display correction", &value.display_enabled) || changed;
         if (value.display_enabled) {
             separator();
             changed = checkbox("Override FOV", &value.fov_override) || changed;
-            if (value.fov_override) changed = slider("Horizontal FOV (degrees)", &value.fov_degrees, 40.0f, 120.0f, "%.1f", 0) || changed;
+            if (value.fov_override) {
+                say("Horizontal FOV (degrees)");
+                changed = slider("##RE8DisplayFOVDegrees", &value.fov_degrees, 40.0f, 120.0f, "%.1f", 0) || changed;
+            }
             else say("Automatic FOV: preserves the game's camera and aiming changes.");
             changed = checkbox("Use vertical FOV", &value.vertical_fov) || changed;
-            changed = checkbox("Preserve proportional GUI canvas", &value.uniform_ui) || changed;
+            changed = checkbox("Proportional game interface", &value.uniform_ui) || changed;
         }
         separator();
         say("Map input: original game controls.");
-        changed = checkbox("Cursor diagnostics in REFramework log", &value.diagnostics) || changed;
+        changed = checkbox("Cursor diagnostics", &value.diagnostics) || changed;
         if (const auto dimensions = context.output_dimensions()) {
             char message[128]{};
             std::snprintf(message, sizeof(message), "Render output: %.0f x %.0f (%.4f:1)",
@@ -74,7 +86,7 @@ public:
         } else say("Render output temporarily unavailable.");
         say("Other FOV/aspect mods must not override the same camera concurrently.");
         if (changed) context.set_config(value);
-        if (button("Reload settings from RE8Display.ini")) context.load_config();
+        if (button("Reload saved settings")) context.load_config();
     }
 private:
     using Tree = bool (*)(const char*);
@@ -86,13 +98,21 @@ private:
     using Begin = bool (*)(const char*, bool*, int);
     struct Vec2 { float x, y; };
     using SetSize = void (*)(Vec2, int);
+    using SizeConstraints = void (*)(Vec2, Vec2, void*, void*);
+    using PushWrap = void (*)(float);
     Tree tree{}; Void tree_pop{}; Text text{}; Checkbox checkbox{};
     Slider slider{}; Void separator{}; Button button{}; bool available{};
     Begin begin{}; Void end{}; SetSize set_size{};
+    SizeConstraints size_constraints{}; PushWrap push_wrap{}; Void pop_wrap{};
     template<typename Function> static Function resolve(HMODULE module, const char* name) {
         return reinterpret_cast<Function>(GetProcAddress(module, name));
     }
-    void say(const char* message) const { text(message, nullptr); }
+    void say(const char* message) const {
+        const bool wrap = push_wrap != nullptr && pop_wrap != nullptr;
+        if (wrap) push_wrap(0.0f);
+        text(message, nullptr);
+        if (wrap) pop_wrap();
+    }
 };
 ConfigPanel panel;
 
@@ -214,7 +234,7 @@ extern "C" __declspec(dllexport) bool reframework_plugin_initialize(const REFram
 BOOL APIENTRY DllMain(HMODULE module, DWORD reason, LPVOID) {
     if (reason == DLL_PROCESS_ATTACH) {
         re8_plugin::plugin_module = module;
-        DisableThreadLibraryCalls(module);
+        // Built with /MT: the static CRT requires thread attach/detach calls.
     }
     return TRUE;
 }

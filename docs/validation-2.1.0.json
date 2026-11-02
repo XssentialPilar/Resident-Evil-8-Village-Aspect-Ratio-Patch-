@@ -1,7 +1,7 @@
 {
   "version": "2.1.0",
-  "binarySha256": "6994CB74371DC677D55A731E302A98BB79FC58E19096938579088FDAE65E6AC0",
-  "sourceFingerprint": "F46C0A20DDEF9F687E7E930810A7A099F33773975D8C7C9C77179DBAB7921B8A",
+  "binarySha256": "2987309838A90739E4E693FFA0D450133F0CDA8328A8313892F3C4C7F74808FD",
+  "sourceFingerprint": "3376F52AEB8753D136B1652C25B063A54C6A0B4BFBB621DCA505D7CDC8ABC858",
   "nativeSuitesPassed": 5,
   "installationChecksPassed": 24,
   "packageChecksPassed": 17,
@@ -28,5 +28,9 @@
   "allVisualLayoutsVerified": false,
   "allModsVerified": false,
   "mapInput": "native; extra dragging deferred",
-  "notes": "See release-2.1.0.md for actual observations and incomplete visual checks"
+  "notes": "See release-2.1.0.md for actual observations and incomplete visual checks",
+  "finalGuiWindowBoundsTested": true,
+  "finalRuntimeThreadNotificationsPreserved": true,
+  "runtimeObservedBinaryBeforeFinalGuiCleanup": "6994CB74371DC677D55A731E302A98BB79FC58E19096938579088FDAE65E6AC0",
+  "finalCleanupFreshGameRetest": false
 }
