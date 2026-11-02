@@ -26,7 +26,7 @@ The later log `artifacts/runtime/2.5.0/reset-loop-fixed-observation.log` records
 
 ## Remaining runtime validation
 
-A fresh complete in-game visual pass of the latest viewport fix remains pending. The final candidate has not been verified across every aim/zoom transition, menu, resolution, ultrawide/portrait monitor, DPI variant, extended play session or third-party mod. No claim is made that every black screen, flicker or compatibility problem is resolved. The source accepts dimensions without a resolution allowlist; this is not exhaustive hardware validation. The earlier [2.1.0 report](release-2.1.0.md) remains historical evidence.
+A fresh complete in-game visual pass of the latest viewport fix remains pending. The final candidate has not been verified across every aim/zoom transition, menu, resolution, ultrawide/portrait monitor, DPI variant, extended play session or third-party mod. No claim is made that every black screen, flicker or compatibility problem is resolved. The source accepts dimensions without a resolution allowlist; this is not exhaustive hardware validation. The earlier 2.1.0 release reports remain historical evidence.
 
 ## Package and ownership
 

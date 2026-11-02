@@ -1,4 +1,4 @@
-# External checkout and its working build. Reproducible changes live in patches/.
+# Dependencies and working builds
 /reframework_src/
 /Installed from GitHub*/
 /.recovery/
