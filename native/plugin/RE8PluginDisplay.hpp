@@ -239,10 +239,8 @@ private:
             if (!same_size(state->custom, m_view_applied.custom)) m_view_original.custom = state->custom;
             if (state->display != m_view_applied.display) m_view_original.display = state->display;
         }
-        const auto ratio = (*dimensions)[0] / (*dimensions)[1];
-        const bool letterbox = config.letterbox_16x10 && std::abs(ratio - 1.6f) < 0.01f;
         const Size output{(*dimensions)[0], (*dimensions)[1]};
-        ViewState desired{output, output, letterbox ? m_letterbox : m_fit};
+        ViewState desired{output, output, m_fit};
         write_view(view, desired);
         if (const auto actual = read_view(view)) m_view_applied = *actual;
         else m_view_applied = desired;
@@ -264,7 +262,6 @@ private:
         const auto dimensions = Context::get().output_dimensions();
         if (!config.enabled || !config.display_enabled || !dimensions || m_view == nullptr) return;
         const float ratio = (*dimensions)[0] / (*dimensions)[1];
-        if (config.letterbox_16x10 && std::abs(ratio - 1.6f) < 0.01f) return;
         const auto result = invoke(m_primary_camera, m_view);
         auto camera = result ? static_cast<Object*>(result->ptr) : nullptr;
         if (camera == nullptr) return;
@@ -272,11 +269,13 @@ private:
         if (!type || static_cast<int32_t>(type->dword) != m_perspective) return; // Map/orthographic cameras remain native.
         const auto observed = read_camera(camera);
         if (!observed) return;
-        const bool manual = config.manual_fov && !Cursor::get().game_menu_visible();
-        if (manual && (!std::isfinite(config.manual_multiplier) || config.manual_multiplier <= 0)) return;
         auto [entry, inserted] = m_cameras.try_emplace(camera);
         if (inserted) camera->add_ref();
-        const auto corrected = entry->second.apply(*observed, ratio, config.vertical_fov, manual, config.manual_multiplier);
+        auto corrected = entry->second.apply(*observed, ratio, config.vertical_fov, false, 1.0f);
+        if (config.fov_override && !Cursor::get().game_menu_visible()) {
+            corrected.fov = re8_patch::display::expanded_fov(config.fov_degrees,
+                re8_patch::display::reference_aspect, ratio, false, config.vertical_fov);
+        }
         write_camera(camera, corrected);
         if (const auto actual = read_camera(camera)) entry->second.confirm_applied(*actual);
     }

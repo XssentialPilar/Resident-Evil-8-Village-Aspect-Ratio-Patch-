@@ -32,6 +32,16 @@ constexpr bool is_authorized_cursor_menu(std::string_view name) {
     }
     return false;
 }
+// These reused GUI drivers execute custom open orders rather than a menu-stack
+// entry. Their typed draw state covers Duke children and typewriter slots.
+inline constexpr auto authorized_cursor_drivers = std::to_array<std::string_view>({
+    "app.GUIShop", "app.GUIShopMenu", "app.GUIShopBuy", "app.GUIShopSell",
+    "app.GUIShopCustomize", "app.GUIShopRecipe", "app.GUISaveLoad", "app.GUISaveDataTransition"
+});
+constexpr bool is_authorized_cursor_driver(std::string_view name) {
+    for (auto allowed : authorized_cursor_drivers) if (name == allowed) return true;
+    return false;
+}
 constexpr bool should_show_native_cursor(bool known_menu_visible, bool patch_config_open,
                                          bool focused_client) {
     return focused_client && (known_menu_visible || patch_config_open);

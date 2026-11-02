@@ -10,6 +10,7 @@
 #include <string_view>
 #include <utility>
 #include <vector>
+#include <unordered_set>
 #include <Windows.h>
 #include <reframework/API.hpp>
 #include <hde64.h>
@@ -119,6 +120,8 @@ private:
     std::vector<MenuState> m_menus;
     std::vector<void*> m_hook_entries;
     std::vector<std::pair<Method*, unsigned int>> m_hooks;
+    std::unordered_set<Object*> m_open_drivers;
+    Method* m_driver_draw{};
     std::array<HookSlot, hook_capacity> m_slots{};
     size_t m_slot_count{};
     Method* m_query{};
@@ -321,6 +324,8 @@ private:
         m_driver_type = tdb->find_type("app.GUIDriver");
         if (m_driver_type != nullptr) {
             m_driver_status = m_driver_type->find_field("guiStatus");
+            m_driver_draw = m_driver_type->find_method("get_isDrawSelf");
+            if (m_driver_draw != nullptr && (m_driver_draw->get_num_params() != 0 || !returns(m_driver_draw, "System.Boolean"))) m_driver_draw = nullptr;
             for (auto name : {"show", "hide", "suicide"}) {
                 auto method = m_driver_type->find_method(name);
                 if (!request_method(method)) continue;
@@ -330,14 +335,22 @@ private:
                 }, [this, name] { update(std::string{"driver."} + name + ".post"); });
             }
         }
-        for (auto type_name : {"app.GUISaveLoad", "app.GUISaveDataTransition"}) {
+        for (auto type_name : re8_patch::authorized_cursor_drivers) {
             const auto type = tdb->find_type(type_name);
-            auto method = type != nullptr ? type->find_method("openList") : nullptr;
+            const char* command = (type_name == "app.GUISaveLoad" || type_name == "app.GUISaveDataTransition") ? "openList" :
+                type_name == "app.GUIShopBuy" ? "openShopBuy" : type_name == "app.GUIShopSell" ? "openShopSell" :
+                type_name == "app.GUIShopCustomize" ? "openShopCustomize" : type_name == "app.GUIShopRecipe" ? "openShopRecipe" : "openShop";
+            auto method = type != nullptr ? type->find_method(command) : nullptr;
             if (!request_method(method)) continue;
             add_hook(method, [this, type, type_name](int count, void** args) {
-                if (count > 1 && is_type(static_cast<Object*>(args[1]), type))
-                    driver_transition(static_cast<Object*>(args[1]), false, std::string{type_name} + ".openList");
-            }, [this, type_name] { update(std::string{type_name} + ".openList.post"); });
+                if (count > 1 && is_type(static_cast<Object*>(args[1]), type)) {
+                    auto driver = static_cast<Object*>(args[1]);
+                    std::scoped_lock lock{m_state_mutex};
+                    if (m_open_drivers.insert(driver).second) driver->add_ref();
+                    if (m_diagnostics.load()) api().log_info("[RE8Display.Cursor] typed-open %s", type_name.data());
+                    driver_transition(driver, false, std::string{type_name} + ".open");
+                }
+            }, [this, type_name] { update(std::string{type_name} + ".open.post"); });
         }
         const auto navigation = tdb->find_type("app.MenuManager");
         if (navigation != nullptr) for (auto name : {"pushMenu", "popMenu", "clear"}) {
@@ -395,10 +408,20 @@ private:
             menu.last_showing = showing; menu.last_effective = effective;
             visible = visible || effective;
         }
+        // MenuDefine hashes do not cover every reused child driver. Query only
+        // the eight exact shop/save types opened by a verified custom command.
+        if (m_driver_draw != nullptr) for (auto driver : m_open_drivers) {
+            const auto draw = m_driver_draw->invoke(driver, std::vector<void*>{});
+            visible = visible || (!draw.exception_thrown && draw.byte != 0);
+        }
         publish(visible, reason);
     }
     void driver_transition(Object* driver, bool closing, std::string_view reason) {
         if (m_driver_status == nullptr || !is_type(driver, m_driver_type)) return;
+        if (closing) {
+            std::scoped_lock lock{m_state_mutex};
+            if (m_open_drivers.erase(driver) != 0) { driver->release(); update("typed-driver-close"); }
+        }
         const auto data = m_driver_status->get_data_raw(driver);
         const auto status = data != nullptr ? *static_cast<Object**>(data) : nullptr;
         if (!valid(status) || status->get_type_definition() == nullptr) return;

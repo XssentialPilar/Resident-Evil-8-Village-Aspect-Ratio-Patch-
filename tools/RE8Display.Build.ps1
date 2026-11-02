@@ -1,10 +1,10 @@
 [CmdletBinding()]
-param([string]$ProjectRoot, [ValidateSet('Release','RelWithDebInfo')][string]$Configuration = 'Release')
+param([string]$ProjectRoot, [ValidateSet('Release','RelWithDebInfo')][string]$Configuration = 'Release', [string]$Generator = 'Visual Studio 18 2026')
 if (-not $ProjectRoot) { $ProjectRoot = Split-Path -Parent $PSScriptRoot }
 . (Join-Path $PSScriptRoot 'RE8Display.Common.ps1')
 $ProjectRoot = [IO.Path]::GetFullPath($ProjectRoot)
 $build = Join-Path $ProjectRoot 'artifacts\native'
-& cmake -S (Join-Path $ProjectRoot 'native') -B $build -G 'Visual Studio 18 2026' -A x64
+& cmake -S (Join-Path $ProjectRoot 'native') -B $build -G $Generator -A x64
 if ($LASTEXITCODE -ne 0) { throw 'Standalone plugin CMake configuration failed.' }
 $fingerprint = Get-RE8DisplayFingerprint $ProjectRoot
 $started = [DateTime]::UtcNow

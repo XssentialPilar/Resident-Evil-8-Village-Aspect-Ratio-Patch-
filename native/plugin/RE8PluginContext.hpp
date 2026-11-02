@@ -23,10 +23,9 @@ struct Config {
     bool enabled{true};
     bool cursor_enabled{true};
     bool display_enabled{true};
-    bool manual_fov{false};
-    float manual_multiplier{1.715f};
+    bool fov_override{false};
+    float fov_degrees{81.0f};
     bool vertical_fov{false};
-    bool letterbox_16x10{false};
     bool uniform_ui{true};
     bool diagnostics{false};
     int map_drag_button{0}; // Native controls; no speculative remapping.
@@ -54,8 +53,8 @@ public:
 
     Config config() const { std::scoped_lock lock{m_config_mutex}; return m_config; }
     void set_config(Config value, bool persist = true) {
-        if (!std::isfinite(value.manual_multiplier)) value.manual_multiplier = 1.715f;
-        value.manual_multiplier = std::clamp(value.manual_multiplier, 0.25f, 4.0f);
+        if (!std::isfinite(value.fov_degrees)) value.fov_degrees = 81.0f;
+        value.fov_degrees = std::clamp(value.fov_degrees, 40.0f, 120.0f);
         value.map_drag_button = std::clamp(value.map_drag_button, 0, 5);
         value.menu_key = std::clamp(value.menu_key, 0, 255);
         { std::scoped_lock lock{m_config_mutex}; m_config = value; }
@@ -71,18 +70,17 @@ public:
         value.enabled = boolean(L"Enabled", value.enabled);
         value.cursor_enabled = boolean(L"NativeCursor", value.cursor_enabled);
         value.display_enabled = boolean(L"DisplayEnabled", value.display_enabled);
-        value.manual_fov = boolean(L"ManualFOV", value.manual_fov);
+        value.fov_override = boolean(L"OverrideFOV", value.fov_override);
         value.vertical_fov = boolean(L"VerticalFOV", value.vertical_fov);
-        value.letterbox_16x10 = boolean(L"BlackBars16x10", value.letterbox_16x10);
         value.uniform_ui = boolean(L"UniformUI", value.uniform_ui);
         value.diagnostics = boolean(L"Diagnostics", value.diagnostics);
         value.map_drag_button = GetPrivateProfileIntW(L"RE8Display", L"MapDragButton", 0, m_config_path.c_str());
         value.menu_key = GetPrivateProfileIntW(L"RE8Display", L"MenuKey", 0, m_config_path.c_str());
         wchar_t multiplier[64]{};
-        GetPrivateProfileStringW(L"RE8Display", L"FOVMultiplier", L"1.715", multiplier, 64, m_config_path.c_str());
+        GetPrivateProfileStringW(L"RE8Display", L"FOVDegrees", L"81.0", multiplier, 64, m_config_path.c_str());
         wchar_t* end{};
         const float parsed = std::wcstof(multiplier, &end);
-        if (end != multiplier && *end == L'\0') value.manual_multiplier = parsed;
+        if (end != multiplier && *end == L'\0') value.fov_degrees = parsed;
         set_config(value, false);
     }
 
@@ -184,13 +182,12 @@ private:
         boolean(L"Enabled", value.enabled);
         boolean(L"NativeCursor", value.cursor_enabled);
         boolean(L"DisplayEnabled", value.display_enabled);
-        boolean(L"ManualFOV", value.manual_fov);
+        boolean(L"OverrideFOV", value.fov_override);
         boolean(L"VerticalFOV", value.vertical_fov);
-        boolean(L"BlackBars16x10", value.letterbox_16x10);
         boolean(L"UniformUI", value.uniform_ui);
         boolean(L"Diagnostics", value.diagnostics);
         wchar_t number[64]{};
-        swprintf_s(number, L"%.6f", value.manual_multiplier); write(L"FOVMultiplier", number);
+        swprintf_s(number, L"%.6f", value.fov_degrees); write(L"FOVDegrees", number);
         swprintf_s(number, L"%d", value.map_drag_button); write(L"MapDragButton", number);
         swprintf_s(number, L"%d", value.menu_key); write(L"MenuKey", number);
         if (!saved) api().log_error("[RE8Display] Failed to save own INI settings (Win32=%lu)", GetLastError());

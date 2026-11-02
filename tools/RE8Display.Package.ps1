@@ -36,6 +36,22 @@ Copy-Item -LiteralPath (Join-Path $ProjectRoot 'licenses\REFramework-MIT.txt') -
 Copy-Item -LiteralPath (Join-Path $ProjectRoot 'external\minhook\LICENSE.txt') -Destination (Join-Path $output 'licenses\MinHook.txt')
 Write-RE8Json (Join-Path $output 'runtime-files.json') ([ordered]@{schema=2;version='2.1.0';format='reframework-plugin';builtUtc=$receipt.builtUtc;sourceFingerprint=$receipt.sourceFingerprint;files=@($files)})
 $zip = $output + '.zip'
-Compress-Archive -LiteralPath @(Get-ChildItem -LiteralPath $output | ForEach-Object FullName) -DestinationPath $zip
+$licenseRelative = 'reframework\plugins\RE8Display.LICENSE.txt'
+$licenseTarget = Get-RE8ContainedPath $output $licenseRelative
+$notices = foreach ($relative in @('LICENSE','licenses\REFramework-MIT.txt','external\minhook\LICENSE.txt')) {
+    "===== $relative =====`r`n" + (Get-Content -LiteralPath (Join-Path $ProjectRoot $relative) -Raw)
+}
+[IO.File]::WriteAllText($licenseTarget,($notices -join "`r`n`r`n"),(New-Object Text.UTF8Encoding($false)))
+# The public drag-and-drop ZIP contains only the plugin, private config and the
+# required license notices. Installer receipts/tools/reports remain outside it.
+Add-Type -AssemblyName System.IO.Compression
+Add-Type -AssemblyName System.IO.Compression.FileSystem
+$archive=[IO.Compression.ZipFile]::Open($zip,[IO.Compression.ZipArchiveMode]::Create)
+try {
+    foreach ($relative in (@($map | ForEach-Object destination) + @($licenseRelative))) {
+        [IO.Compression.ZipFileExtensions]::CreateEntryFromFile($archive,(Join-Path $output $relative),$relative.Replace('\','/'),[IO.Compression.CompressionLevel]::Optimal) | Out-Null
+    }
+} finally { $archive.Dispose() }
+Write-RE8Json (Join-Path $ProjectRoot 'artifacts\build\RE8Display-package.json') ([ordered]@{version='2.1.0';directory=$output;archive=$zip;archiveSha256=Get-RE8Hash $zip;binarySha256=$receipt.binarySha256;sourceFingerprint=$receipt.sourceFingerprint;archiveFiles=@($map.destination)+@($licenseRelative)})
 Write-Output "Standalone candidate folder: $output"
 Write-Output "Standalone candidate archive: $zip"

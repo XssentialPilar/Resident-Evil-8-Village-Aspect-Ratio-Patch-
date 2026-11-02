@@ -1,34 +1,30 @@
 # RE8Display 2.1.0 — verification report
 
-Status: development candidate; runtime validation in progress. No new release has yet been published by this work.
+The distributed runtime is an independent public-API plugin. The older bundled DLL implementation and its failed visual feedback remain in Git history and the historical reports; they are not the current runtime.
 
-The user reported distorted FOV and incorrect Duke interface proportions on the prior bundled candidate, at 1920×1200. The supplied screenshots are `re8_2026_11_01_23_49_22_247.png` and `re8_2026_11_01_23_58_56_991.png`. They show the older installed DLL, not the subsequently compiled source. The active shared configuration retained manual FOV `1.715` and had proportional UI disabled.
+## Current corrections
 
-## Changes
+- Automatic projection updates actual camera aspect and FOV as one coherent override, avoiding repeated multiplication and preserving engine aiming/scene changes.
+- Screen-space GUI roots use the engine's uniform fit adjustment. Child positions, sizes and authored anchors are preserved; native hit testing and coordinate conversions run normally.
+- The manual multiplier and 16:10 bars settings were removed. Optional FOV override now uses horizontal degrees at a 16:9 reference, converted to the current output.
+- The private ImGui window opens with the semicolon character and supports key rebinding without changing the host shortcut.
+- Logs from the earlier standalone build showed that the root Duke menu closed while its custom child driver remained open, without an authorized MenuDefine visibility result. The policy now tracks only eight exact shop/save driver types opened through their verified custom commands, queries GUIDriver.get_isDrawSelf, and clears authorization on close. No HUD or autosave heuristic was added.
+- The software-cursor main visual panel is hidden, including its glow children, while the original GUI processing continues. Added map input translation is excluded.
 
-2.1.0 separates the implementation into a REFramework plugin and a private INI. It no longer distributes a modified framework loader. REFramework's mod loader, script runner, configuration and existing files remain available to other mods.
+## Executed checks
 
-The display path uses actual output aspect, a coherent camera projection snapshot, and automatic FOV by default. Legacy manual calibration is not silently imported. Proportional adjustment is enabled on screen-space GUI roots rather than applying scale/position changes to individual child controls. The native engine retains hit testing and cursor coordinate conversions.
+Windows x64 Release DLL builds with MSVC 19.51. Five native/ABI suites pass: geometry, coherent camera overrides, exact cursor policy, uniform GUI ownership, and loading the actual DLL to verify its exports and rejection of older APIs/wrong games. The GUI invariant is checked on 100,000 arbitrary dimensions; repeated camera/policy cycles and external changes are covered separately.
 
-Cursor behavior retains the exact-menu authorization policy, with explicit save-list reopen hooks and exact save transition identifiers. Map remapping is excluded from this version.
+24 filesystem installation/rollback/removal checks pass with fake fixture DLLs. 17 actual-package checks confirm hashes, version 2.1.0, attribution and the three-entry drag-and-drop archive. Fixture checks do not prove game compatibility.
 
-## Validation ledger
+The latest installed native binary loaded with official REFramework nightly API 1.15, initialized 73 menu IDs and 18 lifecycle hooks, and reached visible game menus. Runtime logs from 2 November 2026 (America/Santo_Domingo) record buffers at 1280x800, 1280x960, 1280x1024, 1360x768, 1366x768, 1400x1050, 1440x1080, 1600x1024, 1600x1200, 1920x1080 and 1920x1200. These entries establish output reconfiguration, not a complete visual test of every menu at each size.
 
-- Standalone filesystem installation/rollback/removal fixtures: **24 passed**. These fixtures contain fake DLLs and do not prove runtime behavior.
-- Standalone native Windows x64 Release DLL build: **passed**.
-- Five standalone suites: **passed** (camera projection, geometry, cursor policy, 100,000 arbitrary GUI canvas sizes, and actual DLL export/API-version refusal checks).
-- Plugin loading and arrival in gameplay with unmodified REFramework API 1.15 at 1920×1200: **observed**. Full menu alignment, gameplay FOV, and save cursor checks remain pending.
-- Multiple rendered aspect ratios and resize transitions: pending.
-- Coexistence with another script/plugin: pending.
+At 01:07:11 the actual GUISaveLoad.openList path authorized visibility and the owning window applied the native cursor request; closure removed it. At 01:07:19–23 the GUIShop, GUIShopMenu and GUIShopBuy custom commands were observed, with visibility retained through the child transition. Typical policy-to-window samples in that sequence were about 0.3–0.5 ms; these exclude presentation latency and are not a zero-latency guarantee.
 
-The uniform-scale algorithm is dimension-driven; it has no special restriction to 16:9 or 16:10. Actual rendered results must still be recorded separately. Other mods that change the same camera, GUI scaling or native cursor are not automatically conflict-free. The plugin restores only its own field values and offers separate display/cursor switches so ownership can be selected explicitly.
+No managed invocation exception from this plugin was found in the inspected session. A previous framework message `Present failed: 87a0001` is DXGI_STATUS_OCCLUDED (0x087A0001), a minimized/occluded-window status; it is not the DXGI_ERROR_INVALID_CALL value. This does not prove that no black screen can ever occur.
 
-No map-input fix, zero-latency claim, universal mod-compatibility claim or unperformed gameplay test is included in this report.
+## Limits
 
-## Latest feedback and correction
+The Windows input controller repeatedly rejected automated actions because it detected user activity. Visible menus and the runtime traces above were observed, but full automated interaction, private-menu rebinding and every rendered submenu alignment were not completed. Ultrawide, portrait, DPI variants, long play sessions, all third-party mods and a full visual pass at every listed resolution remain unverified. The source accepts dimensions without a 16:9/16:10 allowlist; mathematical generality is not presented as exhaustive hardware validation.
 
-The first standalone candidate still showed a faint yellow software-cursor glow in the inventory. The screenshot also shows the separate host Graphics ultrawide correction enabled with a manual multiplier of 1.949; running both controllers is not a valid comparison of this plugin alone.
-
-The latest build hides the typed GUIMouseCursor main visual panel, including its cursor/glow children, while retaining the original GUI draw and input bookkeeping. It adds a private ImGui window opened with the semicolon character by default, a key capture/remapping control, and visible manual FOV/multiplier settings. This shortcut leaves the host Insert binding untouched. Game mouse warping is suppressed only while this private menu is open and the game owns focus.
-
-The latest build was compiled, passed automated checks and installed after the game closed. Computer Use was then stopped by the user's physical Escape key before a fresh visual retest. The glow and shortcut corrections are therefore **implemented but not visually confirmed**. No successful universal gameplay validation is claimed.
+The public ZIP contains only RE8Display.dll, RE8Display.ini and combined license notices. The host loader, other plugins/scripts and shared settings are not bundled or overwritten. Overlapping camera/UI/cursor mods require an ownership choice. Recovery copies and build/runtime evidence remain local in .recovery/ and artifacts/; no game save data was modified by the tooling.

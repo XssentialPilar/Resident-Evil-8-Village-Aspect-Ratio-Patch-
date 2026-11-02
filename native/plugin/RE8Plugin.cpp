@@ -46,7 +46,7 @@ public:
     void draw_controls() const {
         auto& context = Context::get();
         auto value = context.config();
-        say("RE8Display 2.1.0 - development candidate");
+        say("RE8Display 2.1.0");
         const auto shortcut = "Menu key: " + context.menu_key_name();
         say(shortcut.c_str());
         if (context.capturing_key()) say("Press a key to assign it. Escape cancels.");
@@ -57,11 +57,10 @@ public:
         changed = checkbox("Enable display correction", &value.display_enabled) || changed;
         if (value.display_enabled) {
             separator();
-            changed = checkbox("Manual FOV multiplier", &value.manual_fov) || changed;
-            changed = slider("FOV multiplier", &value.manual_multiplier, 0.25f, 4.0f, "%.3f", 0) || changed;
-            if (!value.manual_fov) say("Automatic projection active; multiplier applies only with Manual FOV enabled.");
+            changed = checkbox("Override FOV", &value.fov_override) || changed;
+            if (value.fov_override) changed = slider("Horizontal FOV (degrees)", &value.fov_degrees, 40.0f, 120.0f, "%.1f", 0) || changed;
+            else say("Automatic FOV: preserves the game's camera and aiming changes.");
             changed = checkbox("Use vertical FOV", &value.vertical_fov) || changed;
-            changed = checkbox("Keep black bars in 16:10", &value.letterbox_16x10) || changed;
             changed = checkbox("Preserve proportional GUI canvas", &value.uniform_ui) || changed;
         }
         separator();

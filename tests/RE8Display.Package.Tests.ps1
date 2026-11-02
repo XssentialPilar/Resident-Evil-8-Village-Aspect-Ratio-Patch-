@@ -26,8 +26,9 @@ Add-Type -AssemblyName System.IO.Compression.FileSystem
 $archive=[IO.Compression.ZipFile]::OpenRead($PackageRoot + '.zip')
 try {
     $entries=@($archive.Entries | Where-Object { $_.Name.Length -gt 0 })
-    Assert ($entries.Count -eq @(Get-ChildItem -LiteralPath $PackageRoot -Recurse -File).Count) 'Archive contains every package file'
+    Assert ($entries.Count -eq 3) 'Public archive contains only plugin, own config and license notices'
     Assert (@($entries | Where-Object { $_.FullName.Replace('\','/') -eq 'reframework/plugins/RE8Display.dll' }).Count -eq 1) 'Archive extracts directly to the documented root'
+    Assert (@($entries | Where-Object { $_.FullName.Replace('\','/') -notin @('reframework/plugins/RE8Display.dll','reframework/data/RE8Display.ini','reframework/plugins/RE8Display.LICENSE.txt') }).Count -eq 0) 'No installer, manifest, docs or shared files in public ZIP'
 } finally { $archive.Dispose() }
 $result=[ordered]@{status='passed';checks=$script:checks;scope='Actual package structure, hashes, version resource and archive';package=$PackageRoot;pluginSha256=Get-RE8Hash $dlls[0].FullName}
 Write-RE8Json (Join-Path $ProjectRoot 'artifacts\tests\RE8Display-package-tests.json') $result

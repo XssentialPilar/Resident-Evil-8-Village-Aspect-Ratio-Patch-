@@ -6,6 +6,12 @@ void require(bool condition, const char* message) {
     if (!condition) { std::cerr << message << '\n'; std::exit(1); }
 }
 int main() {
+    static_assert(re8_patch::is_authorized_cursor_driver("app.GUIShopBuy"));
+    static_assert(re8_patch::is_authorized_cursor_driver("app.GUIShopSell"));
+    static_assert(re8_patch::is_authorized_cursor_driver("app.GUIShopCustomize"));
+    static_assert(re8_patch::is_authorized_cursor_driver("app.GUISaveLoad"));
+    static_assert(!re8_patch::is_authorized_cursor_driver("app.GUISaveIcon"));
+    static_assert(!re8_patch::is_authorized_cursor_driver("app.GUIHud"));
     using namespace re8_patch;
     for (auto allowed : authorized_cursor_menus)
         require(is_authorized_cursor_menu(allowed), "Missing declared menu authorization");

@@ -1,23 +1,32 @@
 {
   "version": "2.1.0",
-  "format": "independent-reframework-plugin",
-  "state": "latest-visual-retest-interrupted",
-  "binarySha256": "FD960B33E7EA8DB532F0CB1CF48C60DF3EE1566AD166B0E9B785594885EC95DE",
-  "sourceFingerprint": "3E026DBFD421873F4E3D0C47D60020597889DB1E10C85106C506503BCF42227C",
-  "builtUtc": "2026-11-02T04:31:35.220071Z",
+  "binarySha256": "6994CB74371DC677D55A731E302A98BB79FC58E19096938579088FDAE65E6AC0",
+  "sourceFingerprint": "F46C0A20DDEF9F687E7E930810A7A099F33773975D8C7C9C77179DBAB7921B8A",
   "nativeSuitesPassed": 5,
   "installationChecksPassed": 24,
+  "packageChecksPassed": 17,
   "arbitraryCanvasSizes": 100000,
-  "previousStandaloneBootObserved": "1920x1200 DX12 with official REFramework API 1.15",
-  "latestCandidateInstalled": true,
-  "latestVisualRetest": false,
-  "mapInput": "deferred; native controls",
-  "releasePublished": false,
-  "remaining": [
-    "Private semicolon menu and remapping in game",
-    "Software cursor yellow glow removal in inventory",
-    "Save/typewriter cursor",
-    "Duke and other GUI alignment across rendered aspect ratios",
-    "Real gameplay FOV and third-party display/cursor ownership"
-  ]
+  "observedOutputDimensions": [
+    "1280x800",
+    "1280x960",
+    "1280x1024",
+    "1360x768",
+    "1366x768",
+    "1400x1050",
+    "1440x1080",
+    "1600x1024",
+    "1600x1200",
+    "1920x1080",
+    "1920x1200"
+  ],
+  "typedRuntimePathsObserved": [
+    "app.GUISaveLoad",
+    "app.GUIShop",
+    "app.GUIShopMenu",
+    "app.GUIShopBuy"
+  ],
+  "allVisualLayoutsVerified": false,
+  "allModsVerified": false,
+  "mapInput": "native; extra dragging deferred",
+  "notes": "See release-2.1.0.md for actual observations and incomplete visual checks"
 }

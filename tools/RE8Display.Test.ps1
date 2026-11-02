@@ -1,9 +1,9 @@
 [CmdletBinding()]
-param()
+param([string]$Generator = 'Visual Studio 18 2026')
 $ErrorActionPreference = 'Stop'
 $projectRoot = Split-Path -Parent $PSScriptRoot
 $build = Join-Path $projectRoot 'artifacts\tests\standalone'
-& cmake -S (Join-Path $projectRoot 'tests\standalone') -B $build -G 'Visual Studio 18 2026' -A x64
+& cmake -S (Join-Path $projectRoot 'tests\standalone') -B $build -G $Generator -A x64
 if ($LASTEXITCODE -ne 0) { throw 'Standalone tests configuration failed.' }
 & cmake --build $build --config Release --parallel 4
 if ($LASTEXITCODE -ne 0) { throw 'Standalone tests build failed.' }
