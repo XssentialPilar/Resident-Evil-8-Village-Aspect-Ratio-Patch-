@@ -38,7 +38,6 @@ Resolution, window, display, device-reset, and DPI changes trigger a refresh. Du
 
 <img width="2400" height="1800" alt="RE8Display-2 7 0-overview" src="https://github.com/user-attachments/assets/039c3cc9-1b12-444b-b03a-2f5cf54cd3b8" />
 
-
 *Original gameplay screenshots arranged into a release overview. The captions highlight this version's main changes.*
 
 ## Core Features
@@ -57,30 +56,32 @@ Resolution, window, display, device-reset, and DPI changes trigger a refresh. Du
 | --- | --- |
 | Game | Resident Evil Village for Windows |
 | Architecture | Windows x64 |
-| Framework | An unmodified REFramework host exposing **plugin API 1.15 or newer** |
+| Framework | A compatible, unmodified REFramework host with **plugin API 1.15 or newer**, included in the main ZIP |
 | Main package | `RE8Display-2.7.0.zip` |
 
-Please verify the host's plugin API compatibility before installing. The official [REFramework nightly releases](https://github.com/praydog/REFramework-nightly/releases) are a source for newer builds.
+The main download includes the compatible REFramework build used during this version's gameplay tests. Its source revision is `1813bf34f720cfed51c0e8f40fc90ed1459a3c6b`. You can find framework updates in the official [REFramework nightly releases](https://github.com/praydog/REFramework-nightly/releases); if you replace the included host, please verify plugin API compatibility.
 
 ## Installation and Upgrading
 
-1. **Close the game normally.** Back up your existing RE8Display files and private configuration before upgrading.
-2. Install or verify a compatible REFramework host.
+1. **Close the game normally.** If upgrading, back up your existing `dinput8.dll`, RE8Display plugin, and private configuration.
+2. Download the main **`RE8Display-2.7.0.zip`** package. It includes the required compatible REFramework host.
 3. Extract **`RE8Display-2.7.0.zip`** into the game directory containing `re8.exe`. Allow the `reframework` folders to merge.
 4. Launch the game and press **`;`** to open **RE8Display Settings**.
 
-The main archive contains exactly three files:
+The main archive includes the REFramework loader and the patch files:
 
 ```text
-reframework/
-├── plugins/
-│   ├── RE8Display.dll
-│   └── RE8Display.LICENSE.txt
-└── data/
-    └── RE8Display.ini
+Game directory/
+├── dinput8.dll
+└── reframework/
+    ├── plugins/
+    │   ├── RE8Display.dll
+    │   └── RE8Display.LICENSE.txt
+    └── data/
+        └── RE8Display.ini
 ```
 
-The compatible REFramework loader, `dinput8.dll`, is installed separately. The main archive supplies the plugin, default settings, and license notices; shared framework settings and game saves are outside its installation scope.
+**A separate REFramework download is not required for this bundle.** Place `dinput8.dll` beside `re8.exe` and merge the `reframework` folder with the existing one. If Windows asks to replace an existing loader, preserve your backup before proceeding. The archive does not supply shared framework settings or game saves.
 
 When preserving personal settings, keep your existing `RE8Display.ini` instead of replacing it with the packaged defaults. New options use their built-in defaults when absent from an older configuration.
 
@@ -130,7 +131,7 @@ See the [seven-point audit](docs/audit-2.7.0.md) and [validation record](docs/va
 | Menu shortcut does not respond | Check the active keyboard layout or your saved custom binding. |
 | Settings changed after an upgrade | Restore your backed-up private INI or use Restore All Defaults. |
 
-To remove the display patch, close RE8 and remove `RE8Display.dll` and `RE8Display.LICENSE.txt` from `reframework/plugins/`. Remove `reframework/data/RE8Display.ini` only if you also want to discard your settings. Keep the framework loader, unrelated mods, and game saves. Optional modules have their own uninstallers.
+To remove the display patch, close RE8 and remove `RE8Display.dll` and `RE8Display.LICENSE.txt` from `reframework/plugins/`. Remove `reframework/data/RE8Display.ini` only if you also want to discard your settings. Keep `dinput8.dll` if you use REFramework for other mods. If replacing the bundled host causes a compatibility problem, restore your previous loader from its backup. Optional modules have their own uninstallers; unrelated mods and game saves should remain in place.
 
 ## Building from Source
 
@@ -143,6 +144,8 @@ Use Windows x64, CMake, and Visual Studio 2022 or 2026 C++ Build Tools:
 .\tools\RE8Display.Test.ps1
 .\tools\RE8Display.Package.ps1
 ```
+
+The source packaging script produces the plugin-only archive. The current distributed bundle additionally includes the compatible REFramework loader described above.
 
 For Visual Studio 2022, pass `-Generator 'Visual Studio 17 2022'` to the build and test scripts. Package integrity can then be checked using `tests/RE8Display.Package.Tests.ps1` and the generated package directory.
 
@@ -173,7 +176,7 @@ These are **separate, optional downloads**. The main display patch works without
 
 ### DirectX 12 Agility SDK 722
 
-**Package:** `RE8Agility-722-Game-2.7.0.zip`
+**Package:** `RE8Agility-722-Game-2.7.0 (Optional).zip`
 
 This startup bridge selects a private Agility SDK 722 runtime before RE8 creates its graphics device. It records the actual device SDK, highest supported shader model, and DXR tier, making activation and hardware capabilities easier to verify. The new bridge confirmed **SDK 722 on the real game device** during the combined gameplay test.
 
@@ -181,7 +184,7 @@ The module installs its proxy beside `re8.exe` and keeps the private runtime in 
 
 ### DirectStorage 1.4
 
-**Package:** `RE8DirectStorage-1.4-Game-2.7.0.zip`
+**Package:** `RE8DirectStorage-1.4-Game-2.7.0 (Optional).zip`
 
 This bridge sends eligible synchronous, read-only PAK requests through a DirectStorage queue into **CPU memory**. RE8 retains its original decompression and GPU-upload stages. Native fallback, bounded requests, and startup comparisons protect the existing file-I/O behavior.
 
