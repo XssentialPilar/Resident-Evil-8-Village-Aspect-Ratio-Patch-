@@ -78,5 +78,15 @@ finally { Remove-Item Function:\Copy-Item; Remove-Variable RE8DisplayFailConfig 
 Assert ((Read 'reframework\plugins\RE8Display.dll') -eq 'previous own plugin') 'Rollback restores original own DLL'
 Assert ((Read 'dinput8.dll') -eq 'existing framework loader') 'Rollback leaves host untouched'
 & $uninstall -GamePath $game | Out-Null
+Payload
+$currentPayload=Get-Content -LiteralPath (Join-Path $package 'runtime-files.json') -Raw|ConvertFrom-Json
+$currentPayload.version='2.7.0'
+Write-RE8Json (Join-Path $package 'runtime-files.json') $currentPayload
+& $install -GamePath $game -PackageRoot $package | Out-Null
+$currentInstall=Get-Content -LiteralPath (Join-Path $game '.RE8Display\install-manifest.json') -Raw|ConvertFrom-Json
+Assert ($currentInstall.version -eq '2.7.0') 'Current version installation records 2.7.0'
+Assert ((Read 'reframework\plugins\RE8Display.dll') -eq 'new own plugin fixture') 'Current version exact payload installed'
+& $uninstall -GamePath $game | Out-Null
+Assert ((Read 'reframework\plugins\RE8Display.dll') -eq 'previous own plugin') 'Current version removal restores previous DLL'
 Write-RE8Json (Join-Path $fixture 'result.json') ([ordered]@{status='passed';checks=$script:checks;scope='Filesystem fixtures with fake DLLs; no game compatibility claim'})
 Write-Output "PASS: $($script:checks) standalone installation checks. Fixture: $fixture"

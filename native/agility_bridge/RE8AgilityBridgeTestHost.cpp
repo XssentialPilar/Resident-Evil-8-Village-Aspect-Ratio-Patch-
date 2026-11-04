@@ -69,6 +69,11 @@ int wmain(int argc, wchar_t** argv) {
         }
     }
     std::wcout << L"PASS: all " << std::size(bridge_exports) << L" system exports/ordinals present.\n";
+    using GetStatus = bool (*)(UINT*, UINT);
+    const auto get_status = reinterpret_cast<GetStatus>(GetProcAddress(proxy, "RE8Agility_GetStatus"));
+    UINT fields[5]{};
+    if (!get_status || get_status(nullptr, 5) || get_status(fields, 4) || !get_status(fields, 5) || fields[0] != 1) return 14;
+    std::wcout << L"PASS: read-only status ABI and invalid-size rejection.\n";
     if (selftest) return 0;
     using GetInterface = HRESULT(WINAPI*)(REFCLSID, REFIID, void**);
     const auto get_interface = reinterpret_cast<GetInterface>(GetProcAddress(proxy, "D3D12GetInterface"));

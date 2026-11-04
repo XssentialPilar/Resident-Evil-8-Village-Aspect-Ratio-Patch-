@@ -1,9 +1,14 @@
 #pragma once
 #include <Windows.h>
 #include <dxgi.h>
+#include <d3d11.h>
+#include <d3d12.h>
+#include <wrl/client.h>
 #include <algorithm>
 #include <array>
 #include <atomic>
+#include <chrono>
+#include <condition_variable>
 #include <cmath>
 #include <cstdio>
 #include <cstdlib>
@@ -14,14 +19,16 @@
 #include <stdexcept>
 #include <string>
 #include <string_view>
+#include <thread>
 #include <reframework/API.hpp>
 
 namespace re8_plugin {
-inline constexpr char version[] = "2.5.0";
+inline constexpr char version[] = "2.7.0";
 
 struct Config {
     bool enabled{true};
     bool cursor_enabled{true};
+    bool game_cursor{true};
     bool display_enabled{true};
     bool fov_override{false};
     float fov_degrees{81.0f};
@@ -35,7 +42,9 @@ struct Config {
 // Own state only. No private REFramework object, global config or renderer hook.
 class Context {
 public:
-    static Context& get() { static Context instance; return instance; }
+    // Callbacks and the config worker have process lifetime; there is no host
+    // unregister API. No thread join/destruction is performed under loader lock.
+    static Context& get() { static auto* instance = new Context; return *instance; }
     reframework::API& api() const { return *reframework::API::get(); }
     const REFrameworkPluginFunctions& functions() const { return *m_param->functions; }
     const REFrameworkPluginInitializeParam& parameters() const { return *m_param; }
@@ -49,6 +58,10 @@ public:
         m_config_path = std::filesystem::path{path.data()}.parent_path().parent_path() / L"data" / L"RE8Display.ini";
         load_config();
         refresh_renderer();
+        HMODULE pinned{};
+        if (!GetModuleHandleExW(GET_MODULE_HANDLE_EX_FLAG_FROM_ADDRESS | GET_MODULE_HANDLE_EX_FLAG_PIN,
+            reinterpret_cast<LPCWSTR>(module), &pinned)) throw std::runtime_error("Cannot retain configuration worker module");
+        std::thread([this] { config_worker(); }).detach();
     }
 
     Config config() const { std::scoped_lock lock{m_config_mutex}; return m_config; }
@@ -58,7 +71,10 @@ public:
         value.map_drag_button = std::clamp(value.map_drag_button, 0, 5);
         value.menu_key = std::clamp(value.menu_key, 0, 255);
         { std::scoped_lock lock{m_config_mutex}; m_config = value; }
-        if (persist) save_config(value);
+        if (persist) {
+            { std::scoped_lock lock{m_save_mutex}; m_pending_config = value; ++m_save_generation; }
+            m_save_ready.notify_one();
+        }
     }
     const std::filesystem::path& config_path() const { return m_config_path; }
 
@@ -69,6 +85,7 @@ public:
         };
         value.enabled = boolean(L"Enabled", value.enabled);
         value.cursor_enabled = boolean(L"NativeCursor", value.cursor_enabled);
+        value.game_cursor = boolean(L"GameCursor", value.game_cursor);
         value.display_enabled = boolean(L"DisplayEnabled", value.display_enabled);
         value.fov_override = boolean(L"OverrideFOV", value.fov_override);
         value.vertical_fov = boolean(L"VerticalFOV", value.vertical_fov);
@@ -142,10 +159,16 @@ public:
         return m_output_dimensions;
     }
     void invalidate_renderer() {
+        m_renderer_dirty.store(true);
         std::scoped_lock lock{m_output_mutex};
         m_output_dimensions.reset();
     }
     void refresh_renderer() {
+        const auto now = GetTickCount64();
+        // Resets/window events invalidate immediately; otherwise poll modestly
+        // to accommodate hosts which omit a mode-change callback.
+        if (!m_renderer_dirty.exchange(false) && now - m_last_renderer_poll < 250) return;
+        m_last_renderer_poll = now;
         if (m_param == nullptr || m_param->renderer_data == nullptr || m_param->renderer_data->swapchain == nullptr) {
             invalidate_renderer(); return;
         }
@@ -156,8 +179,30 @@ public:
             invalidate_renderer(); return;
         }
         observe_window(desc.OutputWindow);
+        UINT width = desc.BufferDesc.Width, height = desc.BufferDesc.Height;
+        // BufferDesc can describe a requested mode. The actual backbuffer is
+        // authoritative for rendering, including exclusive mode and scaling.
+        Microsoft::WRL::ComPtr<ID3D11Texture2D> texture;
+        Microsoft::WRL::ComPtr<ID3D12Resource> resource;
+        if (SUCCEEDED(swapchain->GetBuffer(0, IID_PPV_ARGS(&texture)))) {
+            D3D11_TEXTURE2D_DESC actual{}; texture->GetDesc(&actual); width = actual.Width; height = actual.Height;
+        } else if (SUCCEEDED(swapchain->GetBuffer(0, IID_PPV_ARGS(&resource)))) {
+            const auto actual = resource->GetDesc();
+            if (actual.Dimension == D3D12_RESOURCE_DIMENSION_TEXTURE2D && actual.Width <= UINT_MAX) {
+                width = static_cast<UINT>(actual.Width); height = actual.Height;
+            }
+        }
+        MONITORINFO info{sizeof(info)};
+        const auto monitor = MonitorFromWindow(desc.OutputWindow, MONITOR_DEFAULTTONEAREST);
+        GetMonitorInfoW(monitor, &info);
         std::scoped_lock lock{m_output_mutex};
-        m_output_dimensions = std::array<float, 2>{static_cast<float>(desc.BufferDesc.Width), static_cast<float>(desc.BufferDesc.Height)};
+        if (width && height) m_output_dimensions = std::array<float, 2>{static_cast<float>(width), static_cast<float>(height)};
+        m_monitor_size = {static_cast<float>(info.rcMonitor.right - info.rcMonitor.left), static_cast<float>(info.rcMonitor.bottom - info.rcMonitor.top)};
+        m_exclusive = !desc.Windowed;
+    }
+    void renderer_changed() { m_renderer_dirty.store(true); }
+    std::pair<std::array<float, 2>, bool> monitor_status() const {
+        std::scoped_lock lock{m_output_mutex}; return {m_monitor_size, m_exclusive};
     }
 
 private:
@@ -168,7 +213,31 @@ private:
     std::atomic<HWND> m_window{};
     mutable std::mutex m_output_mutex;
     std::optional<std::array<float, 2>> m_output_dimensions;
+    std::array<float, 2> m_monitor_size{};
+    bool m_exclusive{};
+    std::atomic<bool> m_renderer_dirty{true};
+    ULONGLONG m_last_renderer_poll{}; // Present thread only.
     std::atomic<bool> m_own_ui_open{}, m_capture_key{};
+    std::mutex m_save_mutex;
+    std::condition_variable m_save_ready;
+    std::optional<Config> m_pending_config;
+    uint64_t m_save_generation{};
+
+    void config_worker() noexcept {
+        for (;;) {
+            Config snapshot;
+            {
+                std::unique_lock lock{m_save_mutex};
+                m_save_ready.wait(lock, [this] { return m_pending_config.has_value(); });
+                auto generation = m_save_generation;
+                while (m_save_ready.wait_for(lock, std::chrono::milliseconds{250},
+                    [this, generation] { return m_save_generation != generation; })) generation = m_save_generation;
+                snapshot = *m_pending_config; m_pending_config.reset();
+            }
+            try { save_config(snapshot); }
+            catch (...) { api().log_error("[RE8Display] Background configuration save failed"); }
+        }
+    }
 
     void save_config(const Config& value) {
         std::error_code error;
@@ -181,6 +250,7 @@ private:
         auto boolean = [&](const wchar_t* key, bool flag) { write(key, flag ? L"1" : L"0"); };
         boolean(L"Enabled", value.enabled);
         boolean(L"NativeCursor", value.cursor_enabled);
+        boolean(L"GameCursor", value.game_cursor);
         boolean(L"DisplayEnabled", value.display_enabled);
         boolean(L"OverrideFOV", value.fov_override);
         boolean(L"VerticalFOV", value.vertical_fov);

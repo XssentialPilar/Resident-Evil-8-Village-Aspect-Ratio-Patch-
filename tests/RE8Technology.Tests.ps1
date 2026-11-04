@@ -34,14 +34,14 @@ function Exercise-Technology([string]$Package,[string]$Technology,[string]$NuGet
     Remove-Item Function:\Get-Process
     Assert-Test (-not (Test-Path $manifest)) 'No transaction while running'
 }
-$agilityNuGet=Join-Path $project 'microsoft.direct3d.d3d12.1.722.0-preview.nupkg'
+$agilityNuGet=Join-Path $project 'external/packages/microsoft.direct3d.d3d12.1.722.0-preview.nupkg'
 Exercise-Technology $AgilityPackageRoot 'Agility' $agilityNuGet
 $foreign=New-Game 'foreign-proxy';[IO.File]::WriteAllText((Join-Path $foreign 'd3d12.dll'),'other mod')
 Expect-Refusal {& (Join-Path $AgilityPackageRoot 'install.ps1') -GamePath $foreign -PackagePath $agilityNuGet -AcceptPreviewLicense} 'Foreign proxy refused'
 Assert-Test ([IO.File]::ReadAllText((Join-Path $foreign 'd3d12.dll')) -eq 'other mod') 'Foreign proxy untouched'
 Assert-Test (-not (Test-Path (Join-Path $foreign 'RE8Agility\D3D12\D3D12Core.dll'))) 'No partial runtime on refusal'
 if($DirectStoragePackageRoot){
-    $dsNuGet=Join-Path $project 'microsoft.direct3d.directstorage.1.4.0-preview1-2603.504.nupkg'
+    $dsNuGet=Join-Path $project 'external/packages/microsoft.direct3d.directstorage.1.4.0-preview1-2603.504.nupkg'
     Exercise-Technology $DirectStoragePackageRoot 'DirectStorage' $dsNuGet
     $rollback=New-Game 'rollback';[IO.Directory]::CreateDirectory((Join-Path $rollback 'reframework'))|Out-Null
     [IO.File]::WriteAllText((Join-Path $rollback 'reframework\plugins'),'foreign obstruction')

@@ -1,5 +1,5 @@
 [CmdletBinding()]
-param([Parameter(Mandatory=$true)][ValidateSet('Agility','DirectStorage')][string]$Technology,[string]$ProjectRoot,[switch]$ValidateOnly)
+param([Parameter(Mandatory=$true)][ValidateSet('Agility','DirectStorage')][string]$Technology,[string]$ProjectRoot,[switch]$ValidateOnly,[switch]$Candidate,[ValidateSet('1.0.0','2.7.0')][string]$PackageVersion='1.0.0')
 if (-not $ProjectRoot) { $ProjectRoot=Split-Path -Parent $PSScriptRoot }
 . (Join-Path $PSScriptRoot 'RE8Technology.Common.ps1')
 $ProjectRoot=[IO.Path]::GetFullPath($ProjectRoot)
@@ -10,7 +10,34 @@ $receipt=Get-Content -LiteralPath (Get-TechPath $ProjectRoot ('artifacts\build\'
 $expectedBinary=Get-TechPath $ProjectRoot ('artifacts\'+$stem+'-bridge\Release\'+$definition.Binary)
 if ($receipt.schema -ne 1 -or $receipt.technology -ne $Technology -or $receipt.buildConfiguration -ne 'Release' -or [IO.Path]::GetFullPath($receipt.binary) -ne $expectedBinary -or (Get-TechHash $expectedBinary) -ne $receipt.binarySha256) { throw 'Stale or invalid bridge build receipt.' }
 $gameVerified=$false
-if($Technology -eq 'DirectStorage') {
+if($Technology -eq 'Agility' -and -not $Candidate) {
+    $proof=Get-Content -LiteralPath (Get-TechPath $ProjectRoot 'artifacts/build/RE8AgilityBridge-game-test.json') -Raw|ConvertFrom-Json
+    if($proof.schema -ne 1 -or $proof.technology -ne 'Agility' -or $proof.binarySha256 -ne $receipt.binarySha256 -or
+        $proof.actualGameActivationVerified -isnot [bool] -or -not $proof.actualGameActivationVerified -or
+        $proof.gameplayConfirmed -isnot [bool] -or -not $proof.gameplayConfirmed -or $proof.deviceSdkVersion -ne 722 -or
+        $proof.gameExeSha256 -ne 'B489826FD3E8AEEA0DD0B1C4ADCF35D5C98D1B599EED022623AA73241FE21E3B') {
+        throw 'Final Agility packaging requires SDK confirmation and user gameplay confirmation for this exact DLL.'
+    }
+    $evidenceBase=Get-TechPath $ProjectRoot 'artifacts/runtime/agility-game'
+    $evidence=[IO.Path]::GetFullPath($proof.evidenceDirectory).TrimEnd('\','/')
+    if(-not $evidence.StartsWith($evidenceBase+[IO.Path]::DirectorySeparatorChar,[StringComparison]::OrdinalIgnoreCase)){throw 'Agility evidence is outside this project archive.'}
+    $evidence=Get-TechPath $ProjectRoot $evidence.Substring($ProjectRoot.TrimEnd('\','/').Length+1)
+    $log=Get-TechPath $evidence 'bridge.log'; $manifest=Get-TechPath $evidence 'install-manifest.json'
+    if((Get-TechHash $log) -ne $proof.evidenceLogSha256 -or (Get-TechHash $manifest) -ne $proof.evidenceManifestSha256 -or
+        (Get-TechHash (Get-TechPath $ProjectRoot 'artifacts/build/RE8AgilityBridge-build.json')) -ne $proof.buildReceiptSha256){throw 'Agility evidence/build checksum mismatch.'}
+    $lines=[IO.File]::ReadAllLines($log)
+    if($proof.successfulDeviceLine -notin $lines -or $proof.activationLine -notin $lines -or $proof.capabilityLine -notin $lines -or
+        $proof.successfulDeviceLine -notmatch 'FIRST_DEVICE HRESULT=0x00000000 active=1 device_sdk=722 .*observed_core_sdk=722') {throw 'Agility device evidence mismatch.'}
+    $installed=Get-Content -LiteralPath $manifest -Raw|ConvertFrom-Json
+    foreach($path in @($definition.Target)+@($definition.Runtime|ForEach-Object Target)) {
+        $entry=@($installed.files|Where-Object relative -eq $path)
+        $hash=if($path -eq $definition.Target){$receipt.binarySha256}else{($definition.Runtime|Where-Object Target -eq $path).Hash}
+        if($entry.Count -ne 1 -or $entry[0].applied -isnot [bool] -or -not $entry[0].applied -or $entry[0].sha256 -ne $hash){throw 'Agility archived installation identity mismatch.'}
+    }
+    $gameVerified=$true
+}
+if($Candidate -and $Technology -eq 'DirectStorage' -and -not $receipt.harnessVerified) { throw 'Candidate packaging still requires isolated harness verification.' }
+if($Technology -eq 'DirectStorage' -and -not $Candidate) {
     # Integrity checks against accidental stale/edited receipts. These local
     # artifacts are not a cryptographic attestation against a fabricated set.
     function Read-ValidationUInt($Object,[string]$Name) {
@@ -94,11 +121,16 @@ Copy-Item -LiteralPath (Join-Path $PSScriptRoot 'RE8Technology.Install.ps1') -De
 Copy-Item -LiteralPath (Join-Path $PSScriptRoot 'RE8Technology.Uninstall.ps1') -Destination (Join-Path $stage 'uninstall.ps1')
 Copy-Item -LiteralPath (Join-Path $ProjectRoot 'LICENSE') -Destination (Join-Path $stage 'LICENSE.txt')
 Copy-Item -LiteralPath (Join-Path $ProjectRoot ('docs\'+$Technology+'Bridge-README.md')) -Destination (Join-Path $stage 'README.md')
+if($Candidate -or $PackageVersion -eq '2.7.0') {
+    Copy-Item -LiteralPath (Join-Path $ProjectRoot ('docs\'+$Technology+'Bridge-2.7.0.md')) -Destination (Join-Path $stage 'README.md') -Force
+}
 if($Technology -eq 'DirectStorage') {
     Copy-Item -LiteralPath (Join-Path $ProjectRoot 'artifacts\dependencies\directstorage-1.4-preview-inventory\LICENSE-CODE.txt') -Destination (Join-Path $stage 'MICROSOFT-HEADERS-MIT.txt')
 }
-Write-TechJson (Join-Path $stage 'package.json') ([ordered]@{schema=1;technology=$Technology;version='1.0.0';binary=('payload/'+$definition.Binary);binarySha256=$receipt.binarySha256;privatePreviewTesting=$true;runtimeRedistributed=$false})
+Write-TechJson (Join-Path $stage 'package.json') ([ordered]@{schema=1;technology=$Technology;version=$(if($Candidate){'2.7.0-candidate'}else{$PackageVersion});binary=('payload/'+$definition.Binary);binarySha256=$receipt.binarySha256;privatePreviewTesting=$true;runtimeRedistributed=$false;actualGameActivationVerified=$gameVerified})
 $zipName=if($Technology -eq 'Agility'){'RE8Agility-722-Game.zip'}else{'RE8DirectStorage-1.4-Game.zip'}
+if($Candidate) { $zipName=if($Technology -eq 'Agility'){'RE8Agility-722-Game-2.7.0-candidate.zip'}else{'RE8DirectStorage-1.4-Game-2.7.0-candidate.zip'} }
+elseif($PackageVersion -eq '2.7.0') { $zipName=if($Technology -eq 'Agility'){'RE8Agility-722-Game-2.7.0.zip'}else{'RE8DirectStorage-1.4-Game-2.7.0.zip'} }
 $zip=Get-TechPath $ProjectRoot ('dist\'+$zipName)
 [IO.Directory]::CreateDirectory([IO.Path]::GetDirectoryName($zip)) | Out-Null
 $temporary=$zip+'.pending'

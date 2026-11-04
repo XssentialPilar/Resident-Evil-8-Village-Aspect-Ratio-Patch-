@@ -6,7 +6,7 @@ Assert-RE8GameStopped $GamePath
 $manifest = Get-RE8ContainedPath $GamePath '.RE8Display\install-manifest.json'
 if (-not (Test-Path -LiteralPath $manifest -PathType Leaf)) { throw 'No RE8Display installation manifest; ownership will not be guessed.' }
 $state = Get-Content -LiteralPath $manifest -Raw | ConvertFrom-Json
-if ($state.schema -ne 2 -or $state.version -notin @('2.1.0','2.5.0') -or $state.transaction -notmatch '^[a-f0-9]{32}$' -or $state.status -notin @('installed','prepared','rolled-back')) { throw 'Invalid RE8Display recovery manifest.' }
+if ($state.schema -ne 2 -or $state.version -notin @('2.1.0','2.5.0','2.7.0') -or $state.transaction -notmatch '^[a-f0-9]{32}$' -or $state.status -notin @('installed','prepared','rolled-back')) { throw 'Invalid RE8Display recovery manifest.' }
 $owned = @('reframework\plugins\RE8Display.dll','reframework\data\RE8Display.ini')
 $retired = @('reframework\autorun\re8_aspect_ratio_fix.lua','reframework\autorun\re8_display.lua')
 $seen = @{}

@@ -19,7 +19,8 @@ thread_local bool initializing{};
 std::atomic<bool> native_device_call_seen{};
 std::atomic<bool> first_device_logged{};
 std::atomic<bool> first_successful_device_logged{};
-bool active{};
+std::atomic<bool> active{};
+std::atomic<UINT> confirmed_sdk{}, shader_model{}, raytracing_tier{};
 
 std::filesystem::path module_path(HMODULE module) {
     std::wstring value(32768, L'\0');
@@ -147,13 +148,38 @@ void log_created_device(HRESULT status, void* returned) noexcept {
             ComPtr<ID3D12DeviceConfiguration> device_configuration;
             if (SUCCEEDED(static_cast<IUnknown*>(returned)->QueryInterface(IID_PPV_ARGS(&device_configuration))))
                 device_sdk = device_configuration->GetDesc().SDKVersion;
+            confirmed_sdk.store(device_sdk);
+            ComPtr<ID3D12Device> device;
+            if (SUCCEEDED(static_cast<IUnknown*>(returned)->QueryInterface(IID_PPV_ARGS(&device)))) {
+                D3D12_FEATURE_DATA_D3D12_OPTIONS5 options{};
+                if (SUCCEEDED(device->CheckFeatureSupport(D3D12_FEATURE_D3D12_OPTIONS5, &options, sizeof(options))))
+                    raytracing_tier.store(static_cast<UINT>(options.RaytracingTier));
+                for (UINT candidate = 0x6a; candidate >= 0x60; --candidate) {
+                    D3D12_FEATURE_DATA_SHADER_MODEL model{static_cast<D3D_SHADER_MODEL>(candidate)};
+                    if (SUCCEEDED(device->CheckFeatureSupport(D3D12_FEATURE_SHADER_MODEL, &model, sizeof(model)))) {
+                        shader_model.store(static_cast<UINT>(model.HighestShaderModel)); break;
+                    }
+                }
+            }
         }
         log(L"FIRST_DEVICE HRESULT=0x%08lX active=%u device_sdk=%u observed_core=%s observed_core_sdk=%u",
             status, active ? 1u : 0u, device_sdk, core ? module_path(core).c_str() : L"none", version ? *version : 0u);
         if (active && (FAILED(status) || (returned && device_sdk != 722)))
             log(L"ACTIVATION_NOT_VERIFIED: first device did not confirm SDK 722; no late reconfiguration attempted.");
+        if (SUCCEEDED(status) && returned)
+            log(L"CAPABILITIES shader_model=0x%X raytracing_tier=%u; capability support does not prove engine adoption of new DXR features",
+                shader_model.load(), raytracing_tier.load());
     } catch (...) { log(L"FIRST_DEVICE diagnostic failure; no late SDK change attempted."); }
 }
+}
+
+// Read-only status from the actual forwarded game device. No device creation,
+// experimental enablement, global SDK changes or feature claims from this API.
+extern "C" __declspec(dllexport) bool RE8Agility_GetStatus(UINT* fields, UINT count) noexcept {
+    if (!fields || count != 5) return false;
+    fields[0] = 1; fields[1] = active.load() ? 722u : 0u;
+    fields[2] = confirmed_sdk.load(); fields[3] = shader_model.load(); fields[4] = raytracing_tier.load();
+    return true;
 }
 
 extern "C" void* AgilityResolveExport(unsigned ordinal) noexcept {

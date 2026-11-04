@@ -11,7 +11,7 @@ if (Test-Path -LiteralPath $legacyManifest) { throw 'Remove the older bundled pa
 $manifest = Get-RE8ContainedPath $GamePath '.RE8Display\install-manifest.json'
 if (Test-Path -LiteralPath $manifest) { throw 'An installation or recovery transaction exists. Uninstall RE8Display first.' }
 $payload = Get-Content -LiteralPath (Join-Path $PackageRoot 'runtime-files.json') -Raw | ConvertFrom-Json
-if ($payload.schema -ne 2 -or $payload.version -ne '2.5.0' -or $payload.format -ne 'reframework-plugin') { throw 'Unsupported plugin package manifest.' }
+if ($payload.schema -ne 2 -or $payload.version -notin @('2.5.0','2.7.0') -or $payload.format -ne 'reframework-plugin') { throw 'Unsupported plugin package manifest.' }
 $allowed = @('reframework\plugins\RE8Display.dll', 'reframework\data\RE8Display.ini')
 $files = @($payload.files)
 if ($files.Count -ne $allowed.Count) { throw 'Unexpected plugin payload size.' }
@@ -47,7 +47,7 @@ foreach ($action in $actions) {
         if ((Get-RE8Hash $backup) -ne $action.previousHash) { throw 'Backup verification failed.' }
     }
 }
-$state = [pscustomobject]@{schema=2;version='2.5.0';status='prepared';transaction=$transaction;actions=$actions}
+$state = [pscustomobject]@{schema=2;version=$payload.version;status='prepared';transaction=$transaction;actions=$actions}
 Write-RE8Json $manifest $state
 try {
     foreach ($action in $actions) {
@@ -63,7 +63,7 @@ try {
     }
     $state.status = 'installed'
     Write-RE8Json $manifest $state
-    Write-Output 'RE8Display 2.5.0 installed. REFramework loader, shared settings, and other mods were preserved.'
+    Write-Output "RE8Display $($payload.version) installed. REFramework loader, shared settings, and other mods were preserved."
 } catch {
     $failure = $_
     foreach ($action in @($actions | Where-Object applied)) {

@@ -163,6 +163,7 @@ public:
             if (m_jobs.size() >= 8 || !enabled.load()) { fallback(Fallback::queue_full); return {}; }
             job->tag = ++m_next_tag;
             m_jobs.push_back(job);
+            m_pending.store(m_jobs.size());
             DSTORAGE_REQUEST request{};
             request.Options.CompressionFormat = DSTORAGE_COMPRESSION_FORMAT_NONE;
             request.Options.SourceType = DSTORAGE_REQUEST_SOURCE_FILE;
@@ -206,12 +207,15 @@ public:
         {
             std::scoped_lock lock{m_mutex};
             std::erase(m_jobs, job);
+            m_pending.store(m_jobs.size());
         }
         if (FAILED(result)) { fallback(Fallback::runtime_error); return {}; }
         return job;
     }
     bool verify(const std::shared_ptr<Job>& job, const BY_HANDLE_FILE_INFORMATION& game_identity, uint64_t offset) noexcept {
         try {
+            if (!enabled.load()) return false;
+            if (verified_reads.load() >= 64) return true;
             std::scoped_lock lock{m_verify_mutex};
             if (!enabled.load()) return false;
             if (verified_reads.load() >= 64) return true;
@@ -244,16 +248,21 @@ public:
             return true;
         } catch (...) { enabled.store(false); ++verification_errors; fallback(Fallback::verification); return false; }
     }
-    size_t pending_count() { std::scoped_lock lock{m_mutex}; return m_jobs.size(); }
+    size_t pending_count() const { return m_pending.load(); }
     uint32_t allocated_count() const { return m_allocated.load(); }
     void collect() {
-        std::scoped_lock lock{m_mutex};
+        // Never make Present wait for an I/O worker holding this mutex.
+        std::unique_lock lock{m_mutex, std::try_to_lock};
+        if (!lock.owns_lock()) return;
         std::erase_if(m_jobs, [](const auto& job) {
             // The event is the LAST queued operation. A status entry can
             // complete before that event is signaled; never close its HANDLE
             // while the queue may still signal it.
             return job->submitted.load(std::memory_order_acquire) && WaitForSingleObject(job->complete, 0) == WAIT_OBJECT_0;
         });
+        m_pending.store(m_jobs.size());
+        // Release idle handles promptly: retaining them after the game's close
+        // can preserve a sharing restriction and break later native opens.
         std::erase_if(m_files, [](const auto& entry) {
             if (entry.second.use_count() != 1) return false;
             entry.second->file->Close();
@@ -269,6 +278,7 @@ private:
     std::mutex m_verify_mutex;
     uint64_t m_next_tag{};
     std::atomic<uint32_t> m_allocated{};
+    std::atomic<size_t> m_pending{};
     std::vector<std::shared_ptr<Job>> m_jobs;
     std::unordered_map<std::wstring, std::shared_ptr<StorageFile>> m_files;
     std::unordered_map<std::wstring, std::weak_ptr<std::mutex>> m_groups;

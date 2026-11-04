@@ -4,6 +4,8 @@
 #include <array>
 #include <atomic>
 #include <functional>
+#include <bit>
+#include <cstring>
 #include <mutex>
 #include <span>
 #include <string>
@@ -16,6 +18,7 @@
 #include <hde64.h>
 #include "RE8PluginContext.hpp"
 #include "../common/RE8CursorPolicy.hpp"
+#include "../common/RE8CursorGeometry.hpp"
 #if defined(RE8_PLUGIN_WITH_MINHOOK)
 #include <MinHook.h>
 #endif
@@ -41,24 +44,30 @@ public:
         // state here; managed menu queries and panel writes belong to the
         // engine's behavior/GUI callbacks.
         synchronize_native_state();
+        if (m_internal_visual.load() && GetTickCount64() - m_last_visual_tick.load() > 100) {
+            m_internal_visual.store(false); request_apply(); // Native GUI stopped drawing: keep a usable Windows fallback.
+        }
     }
     void on_behavior_update() {
         if (m_context == nullptr) return;
         synchronize_native_state();
+        if (!m_enabled.load() || !m_game_cursor.load()) restore_cursor_canvas();
         if (!m_enabled.load()) restore_software_panel();
         if (!m_gui_updated.exchange(false)) update("post-UpdateBehavior-fallback");
     }
     void on_gui_update() {
         if (m_context == nullptr) return;
         synchronize_native_state();
+        if (!m_enabled.load() || !m_game_cursor.load()) restore_cursor_canvas();
         if (!m_enabled.load()) restore_software_panel();
         update("post-UpdateGUI");
         m_gui_updated.store(true);
     }
     void set_patch_config_open(bool open) {
+        if (m_patch_config_open.exchange(open) == open) return;
         std::scoped_lock lock{m_state_mutex};
-        m_patch_config_open.store(open);
         publish(m_menu_visible.load(), "patch-config");
+        request_apply();
     }
     bool game_menu_visible() const { return m_menu_visible.load(); }
     bool authorized_menu_visible(std::string_view name) {
@@ -70,6 +79,13 @@ public:
     size_t menu_count() { std::scoped_lock lock{m_state_mutex}; return m_menus.size(); }
     bool authority_ready() const { return m_ready.load(); }
     double last_apply_ms() const { return m_last_apply_us.load() / 1000.0; }
+    bool internal_cursor_active() const {
+        return m_enabled.load() && m_game_cursor.load() && m_internal_visual.load() &&
+            m_menu_visible.load() && !m_patch_config_open.load();
+    }
+    bool owns_cursor_view(Object* view) {
+        std::scoped_lock lock{m_state_mutex}; return view && view == m_cursor_view;
+    }
 
     // The public host callback must continue to return true: the host otherwise
     // calls DefWindowProc, which can replace our cursor. Our own subclass returns
@@ -82,8 +98,8 @@ public:
         return true;
     }
 
-    // Hide only the visual panel. The original GUI draw still runs, including
-    // its layout and input bookkeeping; suppressing the whole GUI broke input.
+    // Keep the game's original GUI, effects, input and animation. Only its
+    // visibility changes when the user selects the Windows-only mode.
     bool on_pre_gui_draw_element(void* element, void*) {
         if (!m_enabled.load() || !m_ready.load() || element == nullptr || m_cursor_type == nullptr) return true;
         std::scoped_lock lock{m_state_mutex};
@@ -91,9 +107,13 @@ public:
         if (!valid(object)) return true;
         Object* cursor = is_type(object, m_cursor_type) ? object : nullptr;
         if (cursor == nullptr && m_component_object != nullptr && m_get_component != nullptr && m_cursor_runtime_type != nullptr) {
-            const auto owner = m_component_object->invoke(object, std::vector<void*>{});
-            if (!owner.exception_thrown && owner.ptr != nullptr) {
-                const auto result = m_get_component->invoke(static_cast<Object*>(owner.ptr), std::vector<void*>{m_cursor_runtime_type});
+            Object* owner = is_type(object, m_game_object_type) ? object : nullptr;
+            if (!owner && is_type(object, m_component_type)) {
+                const auto result = m_component_object->invoke(object, std::vector<void*>{});
+                if (!result.exception_thrown) owner = static_cast<Object*>(result.ptr);
+            }
+            if (owner != nullptr) {
+                const auto result = m_get_component->invoke(owner, std::vector<void*>{m_cursor_runtime_type});
                 if (!result.exception_thrown) cursor = static_cast<Object*>(result.ptr);
             }
         }
@@ -108,7 +128,15 @@ public:
             m_hidden_panel = panel; panel->add_ref();
             m_panel_was_invisible = invisible.byte != 0;
         }
-        m_invisible_set->invoke(panel, std::vector<void*>{reinterpret_cast<void*>(uintptr_t{1})});
+        bool native = m_game_cursor.load() && m_menu_visible.load() && !m_patch_config_open.load();
+        if (native) native = force_cursor_position(cursor);
+        else restore_cursor_canvas();
+        const auto observed = m_invisible_get->invoke(panel, std::vector<void*>{});
+        if (!observed.exception_thrown && bool(observed.byte) != !native)
+            m_invisible_set->invoke(panel, std::vector<void*>{reinterpret_cast<void*>(uintptr_t{native ? 0u : 1u})});
+        m_last_panel_invisible = !native;
+        if (m_internal_visual.exchange(native) != native) request_apply();
+        m_last_visual_tick.store(GetTickCount64());
         return true;
     }
 
@@ -124,6 +152,7 @@ private:
     std::recursive_mutex m_state_mutex;
     std::mutex m_policy_mutex;
     std::vector<MenuState> m_menus;
+    std::optional<size_t> m_visible_hint;
     std::vector<void*> m_hook_entries;
     std::vector<std::pair<Method*, unsigned int>> m_hooks;
     std::unordered_set<Object*> m_open_drivers;
@@ -134,6 +163,8 @@ private:
     Field* m_driver_status{};
     Type* m_driver_type{};
     Type* m_cursor_type{};
+    Type* m_game_object_type{};
+    Type* m_component_type{};
     Object* m_cursor_runtime_type{};
     Method* m_component_object{};
     Method* m_get_component{};
@@ -142,6 +173,24 @@ private:
     Method* m_invisible_set{};
     Object* m_hidden_panel{};
     bool m_panel_was_invisible{};
+    bool m_last_panel_invisible{true};
+    std::atomic<bool> m_game_cursor{true}, m_internal_visual{};
+    std::atomic<ULONGLONG> m_last_visual_tick{};
+    Method *m_layout_panel_get{}, *m_mode_panel_get{}, *m_arrow_panel_get{}, *m_gui_view_get{},
+        *m_screen_get{}, *m_screen_set{}, *m_resolution_get{}, *m_resolution_set{},
+        *m_position_get{}, *m_position_set{}, *m_current_position_set{};
+    Object* m_gui_runtime_type{};
+    Type* m_native_gui_type{};
+    Object* m_cursor_view{};
+    std::array<float, 2> m_original_screen{}, m_applied_screen{};
+    struct CursorPanelState {
+        Object* panel{};
+        bool original_resolution{};
+        std::array<float, 3> original_position{}, applied_position{};
+        bool position_owned{};
+    };
+    std::array<CursorPanelState, 4> m_cursor_panels{};
+    bool m_original_view_resolution{}, m_sync_logged{};
     bool m_initialized{};
     std::atomic<bool> m_ready{}, m_gui_updated{}, m_menu_visible{}, m_patch_config_open{};
     std::atomic<bool> m_desired{}, m_apply_pending{}, m_diagnostics{}, m_subclassed{};
@@ -168,6 +217,7 @@ private:
         const auto config = m_context->config();
         const bool enabled = (config.enabled && config.cursor_enabled) || m_context->own_ui_open();
         if (m_enabled.exchange(enabled) != enabled) request_apply();
+        if (m_game_cursor.exchange(config.game_cursor) != config.game_cursor) request_apply();
         m_diagnostics.store(config.diagnostics || m_environment_diagnostics);
         const auto window = m_context->window();
         if (window != nullptr && m_window.load() == nullptr) m_window.store(window);
@@ -203,12 +253,13 @@ private:
     static HCURSOR WINAPI set_cursor_hook(HCURSOR requested) {
         auto& self = get();
         if (self.m_enabled.load() && focused_client(self.m_window.load()))
-            requested = self.m_desired.load() ? self.m_arrow : nullptr;
+            requested = self.m_desired.load() && !self.internal_cursor_active() ? self.m_arrow : nullptr;
         return self.m_original_set_cursor != nullptr ? self.m_original_set_cursor(requested) : nullptr;
     }
     static BOOL WINAPI set_position_hook(int x, int y) {
         auto& self = get();
-        if (self.m_context != nullptr && self.m_context->own_ui_open() &&
+        if (self.m_context != nullptr && (self.m_patch_config_open.load() ||
+            (self.m_enabled.load() && self.m_menu_visible.load())) &&
             GetForegroundWindow() == self.m_window.load()) return TRUE;
         return self.m_original_set_position != nullptr ? self.m_original_set_position(x, y) : FALSE;
     }
@@ -271,7 +322,9 @@ private:
     }
     template<size_t I> static void post_callback(void**, REFrameworkTypeDefinitionHandle, unsigned long long) {
         auto& self = get();
-        try { if (self.m_ready.load() && self.m_slots[I].post) self.m_slots[I].post(); }
+        try { if (self.m_ready.load()) {
+            if (self.m_slots[I].post) self.m_slots[I].post();
+        } }
         catch (...) { api().log_error("[RE8Display.Cursor] Transition post-callback failed"); }
     }
     template<size_t... I> static constexpr auto pre_callbacks(std::index_sequence<I...>) {
@@ -308,6 +361,139 @@ private:
         const auto id = method->add_hook(pres[m_slot_count], posts[m_slot_count], true);
         if (id != 0) { ++m_slot_count; m_hook_entries.push_back(entry); m_hooks.emplace_back(method, id); }
         else { slot.pre = {}; slot.post = {}; api().log_error("[RE8Display.Cursor] Hook failed for %s", method->get_name()); }
+    }
+
+    static std::optional<reframework::InvokeRet> call(Method* method, Object* object, std::vector<void*> args = {}) {
+        if (!method || !method->get_function_raw()) return std::nullopt;
+        reframework::InvokeRet value{};
+        const auto status = api().sdk()->method->invoke(*method, object, args.empty() ? nullptr : args.data(),
+            static_cast<unsigned>(args.size() * sizeof(void*)), &value, sizeof(value));
+        if (status != REFRAMEWORK_ERROR_NONE || value.exception_thrown) return std::nullopt;
+        return value;
+    }
+    template<size_t N> static std::optional<std::array<float, N>> floats(Method* method, Object* object) {
+        const auto value = call(method, object);
+        if (!value) return std::nullopt;
+        std::array<float, N> result{};
+        std::memcpy(result.data(), value->bytes.data(), sizeof(result));
+        for (auto component : result) if (!std::isfinite(component)) return std::nullopt;
+        return result;
+    }
+    void restore_cursor_canvas() {
+        std::scoped_lock lock{m_state_mutex};
+        for (auto& entry : m_cursor_panels) {
+            if (!entry.panel) continue;
+            const auto resolution = call(m_resolution_get, entry.panel);
+            if (resolution && !resolution->byte)
+                call(m_resolution_set, entry.panel, {reinterpret_cast<void*>(uintptr_t{entry.original_resolution ? 1u : 0u})});
+            if (entry.position_owned) {
+                const auto position = floats<3>(m_position_get, entry.panel);
+                if (position && *position == entry.applied_position) call(m_position_set, entry.panel, {entry.original_position.data()});
+            }
+            entry.panel->release(); entry = {};
+        }
+        if (m_cursor_view) {
+            const auto screen = floats<2>(m_screen_get, m_cursor_view);
+            if (screen && *screen == m_applied_screen) call(m_screen_set, m_cursor_view, {m_original_screen.data()});
+            const auto resolution = call(m_resolution_get, m_cursor_view);
+            if (resolution && !resolution->byte)
+                call(m_resolution_set, m_cursor_view, {reinterpret_cast<void*>(uintptr_t{m_original_view_resolution ? 1u : 0u})});
+            m_cursor_view->release(); m_cursor_view = nullptr;
+        }
+    }
+    bool bind_cursor_canvas(Object* cursor) {
+        if (!m_gui_view_get || !m_gui_runtime_type || !m_layout_panel_get || !m_position_set || !m_screen_set ||
+            !m_resolution_set || !m_current_position_set) return false;
+        const auto owner = call(m_component_object, cursor);
+        if (!owner || !owner->ptr) return false;
+        const auto gui = call(m_get_component, static_cast<Object*>(owner->ptr), {m_gui_runtime_type});
+        if (!gui || !gui->ptr) return false;
+        const auto found = call(m_gui_view_get, static_cast<Object*>(gui->ptr));
+        auto view = found ? static_cast<Object*>(found->ptr) : nullptr;
+        if (!view) return false;
+        if (view == m_cursor_view) return true;
+        restore_cursor_canvas();
+        const auto screen = floats<2>(m_screen_get, view);
+        const auto resolution = call(m_resolution_get, view);
+        if (!screen || (*screen)[0] <= 0 || (*screen)[1] <= 0 || !resolution) return false;
+        m_cursor_view = view; view->add_ref(); m_original_screen = *screen;
+        m_applied_screen = *screen; m_original_view_resolution = resolution->byte != 0;
+        const std::array<Method*, 4> getters{m_cursor_panel_get, m_layout_panel_get, m_mode_panel_get, m_arrow_panel_get};
+        for (size_t index = 0; index < getters.size(); ++index) {
+            const auto panel = call(getters[index], cursor);
+            if (!panel || !panel->ptr) continue;
+            auto object = static_cast<Object*>(panel->ptr);
+            const auto adjust = call(m_resolution_get, object);
+            const auto position = floats<3>(m_position_get, object);
+            if (!adjust || !position) continue;
+            object->add_ref(); m_cursor_panels[index] = {object, adjust->byte != 0, *position, *position, false};
+        }
+        if (!m_cursor_panels[0].panel || !m_cursor_panels[1].panel) { restore_cursor_canvas(); return false; }
+        return true;
+    }
+    bool force_cursor_position(Object* cursor) {
+        if (!focused_client(m_window.load()) || !bind_cursor_canvas(cursor)) return false;
+        const auto dimensions = m_context->output_dimensions();
+        const auto window = m_window.load();
+        POINT windows_point{}; RECT client{};
+        if (!dimensions || !GetCursorPos(&windows_point) || !ScreenToClient(window, &windows_point) || !GetClientRect(window, &client)) return false;
+        const auto pixels = re8_patch::cursor_pixels(static_cast<float>(windows_point.x), static_cast<float>(windows_point.y),
+            static_cast<float>(client.right - client.left), static_cast<float>(client.bottom - client.top), (*dimensions)[0], (*dimensions)[1]);
+        if (!pixels) return false;
+        // A cursor-only, pixel-coordinate canvas bypasses BOTH the virtual mouse
+        // accumulator and nested GUI resolution correction. Other GUI roots and
+        // all authored cursor child scales, rotations and animations are kept.
+        const auto observed_screen = floats<2>(m_screen_get, m_cursor_view);
+        if (!observed_screen) return false;
+        if (*observed_screen != m_applied_screen) m_original_screen = *observed_screen;
+        if (*observed_screen != *dimensions && !call(m_screen_set, m_cursor_view, {const_cast<float*>(dimensions->data())})) return false;
+        m_applied_screen = *dimensions;
+        const auto disable_adjust = [&](Object* panel) {
+            const auto value = call(m_resolution_get, panel);
+            return value && (!value->byte || call(m_resolution_set, panel, {nullptr}).has_value());
+        };
+        if (!disable_adjust(m_cursor_view)) return false;
+        for (size_t index = 0; index < m_cursor_panels.size(); ++index) {
+            auto& entry = m_cursor_panels[index];
+            if (!entry.panel) continue;
+            if (!disable_adjust(entry.panel)) return false;
+            if (index > 1) continue;
+            const auto observed = floats<3>(m_position_get, entry.panel);
+            if (!observed) return false;
+            if (!entry.position_owned || *observed != entry.applied_position) entry.original_position = *observed;
+            auto position = *observed;
+            position[0] = index == 0 ? 0.0f : pixels->x;
+            position[1] = index == 0 ? 0.0f : pixels->y;
+            if (position != *observed && !call(m_position_set, entry.panel, {position.data()})) return false;
+            entry.applied_position = position; entry.position_owned = true;
+        }
+        auto normalized = re8_patch::cursor_normalized(*pixels, (*dimensions)[0], (*dimensions)[1]);
+        if (!call(m_current_position_set, cursor, {&normalized})) return false;
+        if (!m_sync_logged) {
+            api().log_info("[RE8Display.Cursor] ABSOLUTE_SYNC active; Win32 client=%ldx%ld backbuffer=%.0fx%.0f authored_cursor_canvas=%.0fx%.0f; cursor-only pixel canvas; native clicks retained",
+                client.right-client.left, client.bottom-client.top, (*dimensions)[0], (*dimensions)[1], m_original_screen[0], m_original_screen[1]);
+            m_sync_logged = true;
+        }
+        return true;
+    }
+    static auto& update_stack() {
+        struct Stack { std::array<Object*, 8> objects{}; size_t depth{}; };
+        static thread_local Stack stack;
+        return stack;
+    }
+    void bind_cursor_update(Method* method) {
+        if (!method || method->get_num_params() != 0 || method->is_static() || !returns(method, "System.Void")) return;
+        add_hook(method, [this](int count, void** args) {
+            auto& stack = update_stack(); auto cursor = count > 1 ? static_cast<Object*>(args[1]) : nullptr;
+            if (stack.depth < stack.objects.size()) stack.objects[stack.depth] = is_type(cursor, m_cursor_type) ? cursor : nullptr;
+            ++stack.depth;
+        }, [this] {
+            auto& stack = update_stack(); if (!stack.depth) return; --stack.depth;
+            if (stack.depth >= stack.objects.size()) return;
+            auto cursor = stack.objects[stack.depth];
+            if (!cursor || !m_enabled.load() || !m_game_cursor.load() || !m_menu_visible.load() || m_patch_config_open.load()) return;
+            std::scoped_lock lock{m_state_mutex}; force_cursor_position(cursor);
+        });
     }
 
     void prepare() {
@@ -387,7 +573,25 @@ private:
             // children. Hide their typed visual root, not only cursorPanel.
             m_cursor_panel_get = m_cursor_type->find_method("get_mainPanel");
             if (m_cursor_panel_get == nullptr) m_cursor_panel_get = m_cursor_type->find_method("get_cursorPanel");
+            m_layout_panel_get = m_cursor_type->find_method("get_layoutPanel");
+            m_mode_panel_get = m_cursor_type->find_method("get_modePanel");
+            m_arrow_panel_get = m_cursor_type->find_method("get_cursorPanel");
+            m_current_position_set = m_cursor_type->find_method("set_currentCursorPosition");
+            if (m_current_position_set && (m_current_position_set->get_num_params() != 1 || !parameter(m_current_position_set, 0, "via.Point")))
+                m_current_position_set = nullptr;
+            bind_cursor_update(m_cursor_type->find_method("updateMousePosition"));
         }
+        m_native_gui_type = tdb->find_type("via.gui.GUI");
+        if (m_native_gui_type) { m_gui_runtime_type = m_native_gui_type->get_runtime_type(); m_gui_view_get = m_native_gui_type->find_method("get_View"); }
+        const auto view_type = tdb->find_type("via.gui.View");
+        if (view_type) { m_screen_get = view_type->find_method("get_ScreenSize"); m_screen_set = view_type->find_method("set_ScreenSize"); }
+        const auto transform = tdb->find_type("via.gui.TransformObject");
+        if (transform) {
+            m_resolution_get = transform->find_method("get_ResolutionAdjust"); m_resolution_set = transform->find_method("set_ResolutionAdjust");
+            m_position_get = transform->find_method("get_Position"); m_position_set = transform->find_method("set_Position");
+        }
+        if (m_position_set && (m_position_set->get_num_params() != 1 || !parameter(m_position_set, 0, "via.vec3"))) m_position_set = nullptr;
+        if (m_screen_set && (m_screen_set->get_num_params() != 1 || !parameter(m_screen_set, 0, "via.Size"))) m_screen_set = nullptr;
         const auto play = tdb->find_type("via.gui.PlayObject");
         if (play != nullptr) {
             m_invisible_get = play->find_method("get_ForceInvisible");
@@ -395,6 +599,7 @@ private:
         }
         const auto component = tdb->find_type("via.Component");
         const auto object = tdb->find_type("via.GameObject");
+        m_component_type = component; m_game_object_type = object;
         if (component != nullptr) m_component_object = component->find_method("get_GameObject");
         if (object != nullptr) m_get_component = object->find_method("getComponent(System.Type)");
         m_ready.store(true);
@@ -410,11 +615,11 @@ private:
         if (!m_ready.load()) return;
         bool visible = false;
         const auto manager = api().get_managed_singleton("app.GUIManager");
-        if (manager != nullptr) for (auto& menu : m_menus) {
+        const auto query_menu = [&](MenuState& menu) {
             const auto data = menu.field->get_data_raw(nullptr);
-            if (data == nullptr) continue;
+            if (data == nullptr) return false;
             const auto hash = *static_cast<const uint32_t*>(data);
-            if (hash == 0) continue;
+            if (hash == 0) return false;
             std::array<void*, 1> args{reinterpret_cast<void*>(static_cast<uintptr_t>(hash))};
             const auto result = m_query->invoke(manager, std::span<void*>{args});
             const bool showing = !result.exception_thrown && result.byte != 0;
@@ -423,7 +628,16 @@ private:
                 api().log_info("[RE8Display.Cursor] menu-edge name=%s hash=%08x showing=%d closing=%d effective=%d reason=%.*s",
                     menu.field->get_name(), hash, int(showing), int(menu.closing), int(effective), int(reason.size()), reason.data());
             menu.last_showing = showing; menu.last_effective = effective;
-            visible = visible || effective;
+            return effective;
+        };
+        // An already open menu remains authoritative. One query per frame in
+        // steady state; full discovery runs immediately when that menu closes.
+        if (manager != nullptr) {
+            if (m_visible_hint && query_menu(m_menus[*m_visible_hint])) { publish(true, reason); return; }
+            m_visible_hint.reset();
+            for (size_t index = 0; index < m_menus.size(); ++index) {
+                if (query_menu(m_menus[index])) { visible = true; m_visible_hint = index; break; }
+            }
         }
         // MenuDefine hashes do not cover every reused child driver. Query only
         // the eight exact shop/save types opened by a verified custom command.
@@ -487,10 +701,11 @@ private:
         if (m_hidden_panel == nullptr) return;
         if (m_invisible_get != nullptr && m_invisible_set != nullptr) {
             const auto current = m_invisible_get->invoke(m_hidden_panel, std::vector<void*>{});
-            if (!current.exception_thrown && current.byte != 0)
+            if (!current.exception_thrown && bool(current.byte) == m_last_panel_invisible)
                 m_invisible_set->invoke(m_hidden_panel, std::vector<void*>{reinterpret_cast<void*>(uintptr_t{m_panel_was_invisible ? 1u : 0u})});
         }
         m_hidden_panel->release(); m_hidden_panel = nullptr;
+        if (m_internal_visual.exchange(false)) request_apply();
     }
     void apply(HWND window) {
         if (!m_enabled.load() || !focused_client(window)) { restore_counter(); return; }
@@ -498,8 +713,9 @@ private:
         {
             std::scoped_lock lock{m_policy_mutex};
             applied = m_policy;
-            ::SetCursor(applied.visible ? m_arrow : nullptr);
-            if (!applied.visible) restore_counter();
+            const bool windows_visible = applied.visible && !internal_cursor_active();
+            ::SetCursor(windows_visible ? m_arrow : nullptr);
+            if (!windows_visible) restore_counter();
             else {
                 CURSORINFO info{sizeof(CURSORINFO)};
                 if (GetCursorInfo(&info) && (info.flags & CURSOR_SHOWING) == 0) {

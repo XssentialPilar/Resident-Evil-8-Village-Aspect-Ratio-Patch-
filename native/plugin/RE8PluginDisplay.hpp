@@ -74,6 +74,9 @@ public:
         const auto config = Context::get().config();
         auto view = root_view(element);
         if (view == nullptr) return true;
+        // The original cursor has its own pixel-coordinate canvas. Applying
+        // general HUD resolution adjustment to it would scale its position twice.
+        if (Cursor::get().owns_cursor_view(view)) { restore_gui(view); return true; }
         if (!config.enabled || !config.display_enabled || !config.uniform_ui) {
             restore_gui(view);
             return true;
@@ -105,6 +108,8 @@ private:
         *m_component_object{}, *m_object_component{}, *m_name_get{}, *m_string_equals{};
     Object* m_gui_runtime_type{};
     Object* m_black_fade_name{};
+    API::TypeDefinition* m_game_object_type{};
+    API::TypeDefinition* m_component_type{};
     int32_t m_fit{}, m_perspective{}, m_screen{}, m_fit_small{}, m_center{}, m_always{};
 
     static std::optional<reframework::InvokeRet> invoke(Method* method, Object* object,
@@ -170,6 +175,8 @@ private:
         m_condition_get = method("via.gui.TransformObject", "get_ResAdjustCondition"); m_condition_set = method("via.gui.TransformObject", "set_ResAdjustCondition");
         m_adjust_get = method("via.gui.TransformObject", "get_ResolutionAdjust"); m_adjust_set = method("via.gui.TransformObject", "set_ResolutionAdjust");
         m_component_object = method("via.Component", "get_GameObject");
+        m_game_object_type = tdb->find_type("via.GameObject");
+        m_component_type = tdb->find_type("via.Component");
         m_object_component = method("via.GameObject", "getComponent(System.Type)");
         m_name_get = method("via.GameObject", "get_Name");
         m_string_equals = method("System.String", "Equals(System.String)");
@@ -247,10 +254,13 @@ private:
         if (!angle || !ratio || !re8_patch::display::valid_fov(*angle) || *ratio <= 0.0f) return std::nullopt;
         return Projection{*angle, *ratio, vertical->byte != 0};
     }
-    void write_camera(Object* camera, Projection projection) const {
-        invoke(m_aspect_set, camera, {float_argument(projection.aspect)});
-        invoke(m_vertical_set, camera, {integer_argument(projection.vertical ? 1 : 0)});
-        invoke(m_fov_set, camera, {float_argument(projection.fov)});
+    void write_camera(Object* camera, Projection projection, Projection observed) const {
+        if (!re8_patch::display::same_projection_value(observed.aspect, projection.aspect))
+            invoke(m_aspect_set, camera, {float_argument(projection.aspect)});
+        if (observed.vertical != projection.vertical)
+            invoke(m_vertical_set, camera, {integer_argument(projection.vertical ? 1 : 0)});
+        if (!re8_patch::display::same_projection_value(observed.fov, projection.fov))
+            invoke(m_fov_set, camera, {float_argument(projection.fov)});
     }
     void apply_camera() {
         const auto config = Context::get().config();
@@ -271,7 +281,7 @@ private:
             corrected.fov = re8_patch::display::expanded_fov(config.fov_degrees,
                 re8_patch::display::reference_aspect, ratio, false, config.vertical_fov);
         }
-        write_camera(camera, corrected);
+        write_camera(camera, corrected, *observed);
         const auto actual = read_camera(camera);
         if (actual) entry->second.confirm_applied(*actual);
         if (!m_logged_projection || !re8_patch::display::same_projection_value(m_logged_output, ratio) ||
@@ -286,13 +296,16 @@ private:
     }
     void restore_cameras() {
         for (auto& [camera, state] : m_cameras) {
-            if (const auto observed = read_camera(camera)) write_camera(camera, state.restore(*observed));
+            if (const auto observed = read_camera(camera)) write_camera(camera, state.restore(*observed), *observed);
             camera->release();
         }
         m_cameras.clear();
     }
 
     Object* component_object(Object* element) const {
+        const auto type = element->get_type_definition();
+        if (type && m_game_object_type && (type == m_game_object_type || type->is_derived_from(m_game_object_type))) return element;
+        if (!type || !m_component_type || !(type == m_component_type || type->is_derived_from(m_component_type))) return nullptr;
         const auto result = invoke(m_component_object, element);
         return result ? static_cast<Object*>(result->ptr) : nullptr;
     }
@@ -336,24 +349,25 @@ private:
         return GuiState{static_cast<int32_t>(scale->dword), static_cast<int32_t>(anchor->dword),
                         static_cast<int32_t>(condition->dword), enabled->byte != 0};
     }
-    void write_gui(Object* view, GuiState state) const {
-        invoke(m_scale_set, view, {integer_argument(state.scale)});
-        invoke(m_anchor_set, view, {integer_argument(state.anchor)});
-        invoke(m_condition_set, view, {integer_argument(state.condition)});
-        invoke(m_adjust_set, view, {integer_argument(state.enabled ? 1 : 0)});
+    void write_gui(Object* view, GuiState state, GuiState observed) const {
+        if (observed.scale != state.scale) invoke(m_scale_set, view, {integer_argument(state.scale)});
+        if (observed.anchor != state.anchor) invoke(m_anchor_set, view, {integer_argument(state.anchor)});
+        if (observed.condition != state.condition) invoke(m_condition_set, view, {integer_argument(state.condition)});
+        if (observed.enabled != state.enabled) invoke(m_adjust_set, view, {integer_argument(state.enabled ? 1 : 0)});
     }
     void apply_gui(Object* view) {
+        if (const auto cached = m_gui.find(view); cached != m_gui.end() && cached->second.seen == m_epoch) return;
         const auto observed = read_gui(view);
         if (!observed) return;
         auto [entry, inserted] = m_gui.try_emplace(view);
         if (inserted) view->add_ref();
         entry->second.seen = m_epoch;
-        write_gui(view, entry->second.state.apply(*observed, m_fit_small, m_center, m_always));
+        write_gui(view, entry->second.state.apply(*observed, m_fit_small, m_center, m_always), *observed);
     }
     void restore_gui(Object* view) {
         const auto entry = m_gui.find(view);
         if (entry == m_gui.end()) return;
-        if (const auto observed = read_gui(view)) write_gui(view, entry->second.state.restore(*observed));
+        if (const auto observed = read_gui(view)) write_gui(view, entry->second.state.restore(*observed), *observed);
         view->release(); m_gui.erase(entry);
     }
     void cleanup_gui(bool all) {
@@ -361,7 +375,7 @@ private:
             // References are held only while a root is actively drawing. Closed
             // screens are restored/released after two completed present epochs.
             if (all || m_epoch - it->second.seen > 2) {
-                if (const auto observed = read_gui(it->first)) write_gui(it->first, it->second.state.restore(*observed));
+                if (const auto observed = read_gui(it->first)) write_gui(it->first, it->second.state.restore(*observed), *observed);
                 it->first->release(); it = m_gui.erase(it);
             } else ++it;
         }
@@ -373,7 +387,7 @@ private:
         // hit-testing and drawing. No physical/virtual coordinate replacement.
         for (auto& [view, entry] : m_gui) {
             if (const auto observed = read_gui(view))
-                write_gui(view, entry.state.apply(*observed, m_fit_small, m_center, m_always));
+                write_gui(view, entry.state.apply(*observed, m_fit_small, m_center, m_always), *observed);
         }
     }
 };

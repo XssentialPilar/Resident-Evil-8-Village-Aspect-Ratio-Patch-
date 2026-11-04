@@ -21,6 +21,8 @@ public:
         slider = resolve<Slider>(host, "igSliderFloat");
         separator = resolve<Void>(host, "igSeparator");
         button = resolve<Button>(host, "igSmallButton");
+        normal_button = resolve<NormalButton>(host, "igButton");
+        item_width = resolve<PushWrap>(host, "igSetNextItemWidth");
         begin = resolve<Begin>(host, "igBegin");
         end = resolve<Void>(host, "igEnd");
         set_size = resolve<SetSize>(host, "igSetNextWindowSize");
@@ -32,10 +34,10 @@ public:
     void draw() const {
         if (!available || !tree("Aspect Ratio Config Menu")) return;
         struct Pop { Void function; ~Pop() { function(); } } pop{tree_pop};
-        say("RE8Display 2.5.0");
+        say("RE8Display 2.7.0");
         const auto shortcut = "Open menu: " + Context::get().menu_key_name();
         say(shortcut.c_str());
-        if (button("Open display settings")) Context::get().set_own_ui_open(true);
+        if (press("Open display settings")) Context::get().set_own_ui_open(true);
     }
     void draw_window() const {
         auto& context = Context::get();
@@ -45,30 +47,30 @@ public:
         const auto bounds = re8_patch::display::config_window_bounds(dimensions[0], dimensions[1]);
         if (size_constraints) size_constraints({std::min(300.0f, bounds.max_width), std::min(160.0f, bounds.max_height)},
             {bounds.max_width, bounds.max_height}, nullptr, nullptr);
-        if (set_size) set_size({std::min(480.0f, bounds.max_width), std::min(460.0f, bounds.max_height)}, 4);
+        if (set_size) set_size({std::min(500.0f, bounds.max_width), std::min(560.0f, bounds.max_height)}, 4);
         // A bounded, scrollable window; AlwaysAutoResize allowed long labels to
         // push the old panel outside small outputs and clip its bottom controls.
-        if (begin("Aspect Ratio Config Menu - RE8Display 2.5.0", &open, 0)) draw_controls();
+        if (begin("RE8Display 2.7.0 - Settings", &open, 0)) draw_controls();
         end();
         context.set_own_ui_open(open);
     }
     void draw_controls() const {
         auto& context = Context::get();
         auto value = context.config();
-        say("RE8Display 2.5.0");
-        const auto shortcut = "Menu key: " + context.menu_key_name();
-        say(shortcut.c_str());
-        if (context.capturing_key()) say("Press a key to assign it. Escape cancels.");
-        else if (button("Change menu key")) context.capture_key();
-        if (button("Reset menu key to ;")) { value.menu_key = 0; context.set_config(value); }
         bool changed = checkbox("Enable RE8Display", &value.enabled);
-        changed = checkbox("Native cursor in game menus", &value.cursor_enabled) || changed;
+        separator(); say("CURSOR");
+        changed = checkbox("Cursor control in game menus", &value.cursor_enabled) || changed;
+        changed = checkbox("Use original game cursor and effects", &value.game_cursor) || changed;
+        say(value.game_cursor ? "Original game cursor; Windows position remains authoritative." : "Windows cursor only; game cursor visuals are hidden.");
+        if (value.diagnostics) say(Cursor::get().internal_cursor_active() ? "Game cursor is drawing." : "Windows fallback / game cursor not drawing.");
+        separator(); say("DISPLAY AND CAMERA");
         changed = checkbox("Enable display correction", &value.display_enabled) || changed;
         if (value.display_enabled) {
             separator();
             changed = checkbox("Override FOV", &value.fov_override) || changed;
             if (value.fov_override) {
                 say("Horizontal FOV (degrees)");
+                if (item_width) item_width(-1.0f);
                 changed = slider("##RE8DisplayFOVDegrees", &value.fov_degrees, 40.0f, 120.0f, "%.1f", 0) || changed;
             }
             else say("Automatic FOV: preserves the game's camera and aiming changes.");
@@ -76,7 +78,12 @@ public:
             changed = checkbox("Proportional game interface", &value.uniform_ui) || changed;
         }
         separator();
-        say("Map input: original game controls.");
+        say("SHORTCUT AND DEFAULTS");
+        const auto shortcut = "Menu key: " + context.menu_key_name(); say(shortcut.c_str());
+        if (context.capturing_key()) say("Press a key to assign it. Escape cancels.");
+        else if (press("Change menu key")) context.capture_key();
+        if (press("Restore all defaults")) { value = Config{}; changed = true; }
+        separator(); say("STATUS");
         changed = checkbox("Cursor diagnostics", &value.diagnostics) || changed;
         if (const auto dimensions = context.output_dimensions()) {
             char message[128]{};
@@ -84,9 +91,12 @@ public:
                 (*dimensions)[0], (*dimensions)[1], (*dimensions)[0] / (*dimensions)[1]);
             say(message);
         } else say("Render output temporarily unavailable.");
-        say("Other FOV/aspect mods must not override the same camera concurrently.");
+        const auto [monitor, exclusive] = context.monitor_status();
+        char monitor_text[128]{};
+        std::snprintf(monitor_text, sizeof(monitor_text), "Monitor mode: %.0f x %.0f | %s", monitor[0], monitor[1], exclusive ? "Exclusive fullscreen" : "Windowed / borderless");
+        say(monitor_text);
+        say("Settings save automatically after 250 ms without changes.");
         if (changed) context.set_config(value);
-        if (button("Reload saved settings")) context.load_config();
     }
 private:
     using Tree = bool (*)(const char*);
@@ -97,6 +107,7 @@ private:
     using Button = bool (*)(const char*);
     using Begin = bool (*)(const char*, bool*, int);
     struct Vec2 { float x, y; };
+    using NormalButton = bool (*)(const char*, Vec2);
     using SetSize = void (*)(Vec2, int);
     using SizeConstraints = void (*)(Vec2, Vec2, void*, void*);
     using PushWrap = void (*)(float);
@@ -104,6 +115,8 @@ private:
     Slider slider{}; Void separator{}; Button button{}; bool available{};
     Begin begin{}; Void end{}; SetSize set_size{};
     SizeConstraints size_constraints{}; PushWrap push_wrap{}; Void pop_wrap{};
+    NormalButton normal_button{}; PushWrap item_width{};
+    bool press(const char* label) const { return normal_button ? normal_button(label, {0, 0}) : button(label); }
     template<typename Function> static Function resolve(HMODULE module, const char* name) {
         return reinterpret_cast<Function>(GetProcAddress(module, name));
     }
@@ -137,6 +150,8 @@ bool on_message(void* window, unsigned int message, unsigned long long wparam, l
     guarded("window-message", [&] {
         const auto handle = static_cast<HWND>(window);
         Context::get().observe_window(handle);
+        if (message == WM_SIZE || message == WM_DISPLAYCHANGE || message == WM_DPICHANGED || message == WM_WINDOWPOSCHANGED)
+            Context::get().renderer_changed();
         Cursor::get().on_message(handle, message, static_cast<WPARAM>(wparam), static_cast<LPARAM>(lparam));
         consumed = Context::get().handle_message(handle, message, static_cast<WPARAM>(wparam), static_cast<LPARAM>(lparam));
         Cursor::get().set_patch_config_open(Context::get().is_drawing_ui());

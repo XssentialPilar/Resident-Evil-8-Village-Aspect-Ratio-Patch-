@@ -1,5 +1,5 @@
 cmake_minimum_required(VERSION 3.20)
-project(RE8Display VERSION 2.5.0 LANGUAGES C CXX RC)
+project(RE8Display VERSION 2.7.0 LANGUAGES C CXX RC)
 
 if(NOT WIN32 OR NOT CMAKE_SIZEOF_VOID_P EQUAL 8)
     message(FATAL_ERROR "RE8Display requires Windows x64.")

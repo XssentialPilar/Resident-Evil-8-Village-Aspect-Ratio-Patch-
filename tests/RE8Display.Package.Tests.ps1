@@ -6,7 +6,7 @@ $PackageRoot=[IO.Path]::GetFullPath($PackageRoot)
 $script:checks=0
 function Assert([bool]$condition,[string]$message) { if (-not $condition) { throw "FAIL: $message" }; $script:checks++ }
 $manifest=Get-Content -LiteralPath (Join-Path $PackageRoot 'runtime-files.json') -Raw | ConvertFrom-Json
-Assert ($manifest.schema -eq 2 -and $manifest.version -eq '2.5.0' -and $manifest.format -eq 'reframework-plugin') 'Versioned standalone format'
+Assert ($manifest.schema -eq 2 -and $manifest.version -eq '2.7.0' -and $manifest.format -eq 'reframework-plugin') 'Versioned standalone format'
 $files=@($manifest.files)
 Assert ($files.Count -eq 2) 'Exactly two runtime files'
 Assert (@($files.destination | Where-Object { $_ -notin @('reframework\plugins\RE8Display.dll','reframework\data\RE8Display.ini') }).Count -eq 0) 'Runtime ownership is limited'
@@ -16,10 +16,10 @@ Assert (-not (Test-Path -LiteralPath (Join-Path $PackageRoot 're2_fw_config.txt'
 Assert (-not (Test-Path -LiteralPath (Join-Path $PackageRoot 'reframework\autorun'))) 'No competing autorun script bundled'
 $dlls=@(Get-ChildItem -LiteralPath $PackageRoot -Recurse -Filter '*.dll' -File)
 Assert ($dlls.Count -eq 1 -and $dlls[0].Name -eq 'RE8Display.dll') 'No dependency DLLs or unrelated mods'
-Assert ([Diagnostics.FileVersionInfo]::GetVersionInfo($dlls[0].FullName).ProductVersion -eq '2.5.0') 'Native version resource is 2.5.0'
+Assert ([Diagnostics.FileVersionInfo]::GetVersionInfo($dlls[0].FullName).ProductVersion -eq '2.7.0') 'Native version resource is 2.7.0'
 Assert (Test-Path -LiteralPath (Join-Path $PackageRoot 'licenses\REFramework-MIT.txt')) 'SDK attribution included'
 Assert (Test-Path -LiteralPath (Join-Path $PackageRoot 'licenses\MinHook.txt')) 'MinHook/HDE attribution included'
-Assert (Test-Path -LiteralPath (Join-Path $PackageRoot 'docs\release-2.5.0.md')) 'Validation report included'
+Assert (Test-Path -LiteralPath (Join-Path $PackageRoot 'docs\release-2.7.0.md')) 'Validation report included'
 $unexpected=@(Get-ChildItem -LiteralPath $PackageRoot -Recurse -File | Where-Object { $_.Extension -in '.cpp','.hpp','.c','.h','.pdb','.log' })
 Assert ($unexpected.Count -eq 0) 'No source, symbols or development logs in runtime package'
 Add-Type -AssemblyName System.IO.Compression.FileSystem
@@ -29,6 +29,14 @@ try {
     Assert ($entries.Count -eq 3) 'Public archive contains only plugin, own config and license notices'
     Assert (@($entries | Where-Object { $_.FullName.Replace('\','/') -eq 'reframework/plugins/RE8Display.dll' }).Count -eq 1) 'Archive extracts directly to the documented root'
     Assert (@($entries | Where-Object { $_.FullName.Replace('\','/') -notin @('reframework/plugins/RE8Display.dll','reframework/data/RE8Display.ini','reframework/plugins/RE8Display.LICENSE.txt') }).Count -eq 0) 'No installer, manifest, docs or shared files in public ZIP'
+    foreach($file in $files) {
+        $entry=$archive.GetEntry($file.destination.Replace('\','/'))
+        Assert ($null -ne $entry) 'Each owned file is present in ZIP'
+        $stream=$entry.Open(); $sha=[Security.Cryptography.SHA256]::Create()
+        try { $entryHash=([BitConverter]::ToString($sha.ComputeHash($stream))).Replace('-','') }
+        finally { $sha.Dispose(); $stream.Dispose() }
+        Assert ($entryHash -eq $file.sha256) 'Compressed entry bytes match the compiled/config manifest'
+    }
 } finally { $archive.Dispose() }
 $result=[ordered]@{status='passed';checks=$script:checks;scope='Actual package structure, hashes, version resource and archive';package=$PackageRoot;pluginSha256=Get-RE8Hash $dlls[0].FullName}
 Write-RE8Json (Join-Path $ProjectRoot 'artifacts\tests\RE8Display-package-tests.json') $result
