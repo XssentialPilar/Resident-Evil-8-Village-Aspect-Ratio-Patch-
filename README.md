@@ -36,7 +36,8 @@ Resolution, window, display, device-reset, and DPI changes trigger a refresh. Du
 
 ## In-Game Overview
 
-![RE8Display 2.7.0: restored cursor, reduced patch overhead, improved display detection, and refined settings](docs/media/RE8Display-2.7.0-overview.jpg)
+<img width="2400" height="1800" alt="RE8Display-2 7 0-overview" src="https://github.com/user-attachments/assets/039c3cc9-1b12-444b-b03a-2f5cf54cd3b8" />
+
 
 *Original gameplay screenshots arranged into a release overview. The captions highlight this version's main changes.*
 
